@@ -1,0 +1,18 @@
+{
+	"name": "vscode-abaplint-server",
+	"description": "abaplint",
+	"version": "1.0.0",
+	"author": "Lars Hvam",
+	"license": "MIT",
+	"engines": {
+		"node": "*"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/abaplint/vscode-abaplint"
+	},
+	"dependencies": {
+		"vscode-languageserver": "^4.1.3"
+	},
+	"scripts": {}
+}

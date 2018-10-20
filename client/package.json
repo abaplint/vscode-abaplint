@@ -1,0 +1,23 @@
+{
+	"name": "vscode-abaplint-client",
+	"description": "abaplint",
+	"author": "Lars Hvam",
+	"license": "MIT",
+	"version": "0.0.1",
+	"publisher": "larshp",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/abaplint/vscode-abaplint"
+	},
+	"engines": {
+		"vscode": "^1.23.0"
+	},
+	"scripts": {
+		"update-vscode": "vscode-install",
+		"postinstall": "vscode-install"
+	},
+	"dependencies": {
+		"vscode": "^1.1.21",
+		"vscode-languageclient": "^4.1.4"
+	}
+}
