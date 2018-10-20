@@ -95,7 +95,8 @@ documents.onDidChangeContent(change => {
 });
 
 function analyze(textDocument: LServer.TextDocument) {
-  let file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText());
+  // todo, remove replace when https://github.com/larshp/abaplint/issues/262 is implemented
+  let file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
   let config = abaplint.Config.getDefault();
   return new abaplint.Runner([file], config).findIssues();
 }
