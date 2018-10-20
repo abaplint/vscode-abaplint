@@ -1,29 +1,17 @@
 'use strict';
 
-import {
-	createConnection,
-	TextDocuments,
-	TextDocument,
-	Diagnostic,
-	DiagnosticSeverity,
-	ProposedFeatures,
-	InitializeParams,
-	DidChangeConfigurationNotification
-} from 'vscode-languageserver';
+import * as LServer from 'vscode-languageserver';
+import * as abaplint from "abaplint";
 
-// Create a connection for the server. The connection uses Node's IPC as a transport.
-// Also include all preview / proposed LSP features.
-let connection = createConnection(ProposedFeatures.all);
+let connection = LServer.createConnection(LServer.ProposedFeatures.all);
 
 // Create a simple text document manager. The text document manager
 // supports full document sync only
-let documents: TextDocuments = new TextDocuments();
-
+let documents: LServer.TextDocuments = new LServer.TextDocuments();
 let hasConfigurationCapability: boolean = false;
 let hasWorkspaceFolderCapability: boolean = false;
-let hasDiagnosticRelatedInformationCapability: boolean = false;
 
-connection.onInitialize((params: InitializeParams) => {
+connection.onInitialize((params: LServer.InitializeParams) => {
 	let capabilities = params.capabilities;
 
 	// Does the client support the `workspace/configuration` request?
@@ -31,11 +19,7 @@ connection.onInitialize((params: InitializeParams) => {
 	hasConfigurationCapability =
 		capabilities.workspace && !!capabilities.workspace.configuration;
 	hasWorkspaceFolderCapability =
-		capabilities.workspace && !!capabilities.workspace.workspaceFolders;
-	hasDiagnosticRelatedInformationCapability =
-		capabilities.textDocument &&
-		capabilities.textDocument.publishDiagnostics &&
-		capabilities.textDocument.publishDiagnostics.relatedInformation;
+    capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
 	return {
 		capabilities: {
@@ -48,7 +32,7 @@ connection.onInitialized(() => {
 	if (hasConfigurationCapability) {
 		// Register for all configuration changes.
 		connection.client.register(
-			DidChangeConfigurationNotification.type,
+			LServer.DidChangeConfigurationNotification.type,
 			undefined
 		);
 	}
@@ -110,55 +94,40 @@ documents.onDidChangeContent(change => {
 	validateDocument(change.document);
 });
 
-async function validateDocument(textDocument: TextDocument): Promise<void> {
-	// In this simple example we get the settings for every validate run.
-	let settings = await getDocumentSettings(textDocument.uri);
+function analyze(textDocument: LServer.TextDocument) {
+  let file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText());
+  let config = abaplint.Config.getDefault();
+  return new abaplint.Runner([file], config).findIssues();
+}
 
-	// The validator creates diagnostics for all uppercase words length 2 and more
-	let text = textDocument.getText();
-	let pattern = /\b[A-Z]{2,}\b/g;
-	let m: RegExpExecArray;
+async function validateDocument(textDocument: LServer.TextDocument): Promise<void> {
+  let settings = await getDocumentSettings(textDocument.uri);
+  let problems = 0;
+  let diagnostics: LServer.Diagnostic[] = [];
 
-	let problems = 0;
-	let diagnostics: Diagnostic[] = [];
-	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
-		problems++;
-		let diagnosic: Diagnostic = {
-			severity: DiagnosticSeverity.Warning,
+  for(let issue of analyze(textDocument)) {
+    problems++;
+
+		let diagnosic: LServer.Diagnostic = {
+			severity: LServer.DiagnosticSeverity.Warning,
 			range: {
-				start: textDocument.positionAt(m.index),
-				end: textDocument.positionAt(m.index + m[0].length)
+				start: { line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1 },
+				end: { line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1 }
 			},
-			message: `${m[0]} is all uppercase.`,
-			source: 'ex'
-		};
-		if (hasDiagnosticRelatedInformationCapability) {
-			diagnosic.relatedInformation = [
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnosic.range)
-					},
-					message: 'Spelling matters'
-				},
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnosic.range)
-					},
-					message: 'Particularly for names'
-				}
-			];
-		}
+			message: issue.getMessage(),
+			source: 'abaplint'
+    };
 		diagnostics.push(diagnosic);
-	}
 
-	// Send the computed diagnostics to VSCode.
+    if (problems > settings.maxNumberOfProblems) {
+      break;
+    }
+  }
+
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
 connection.onDidChangeWatchedFiles(_change => {
-	// Monitored files have change in VSCode
 	connection.console.log('We received an file change event');
 });
 

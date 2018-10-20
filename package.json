@@ -9,9 +9,13 @@
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
 	},
-  "publisher": "larshp",
-  "keywords": ["abap"],
-	"categories": ["Linters"],
+	"publisher": "larshp",
+	"keywords": [
+		"abap"
+	],
+	"categories": [
+		"Linters"
+	],
 	"engines": {
 		"vscode": "^1.23.0"
 	},
@@ -52,8 +56,10 @@
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
 		"compile": "npm run compile:client && npm run compile:server",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
-  },
-  "extensionDependencies": ["larshp.vscode-abap"],
+	},
+	"extensionDependencies": [
+		"larshp.vscode-abap"
+	],
 	"devDependencies": {
 		"@types/mocha": "^5.2.0",
 		"@types/node": "^8.0.0",
