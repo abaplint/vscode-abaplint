@@ -108,13 +108,15 @@ async function validateDocument(textDocument: LServer.TextDocument): Promise<voi
   for(let issue of analyze(textDocument)) {
     problems++;
 
+    connection.console.log(issue.getMessage().toString());
+
 		let diagnosic: LServer.Diagnostic = {
-			severity: LServer.DiagnosticSeverity.Warning,
+			severity: LServer.DiagnosticSeverity.Error,
 			range: {
 				start: { line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1 },
 				end: { line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1 }
 			},
-			message: issue.getMessage(),
+			message: issue.getMessage().toString(),
 			source: 'abaplint'
     };
 		diagnostics.push(diagnosic);
