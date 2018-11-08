@@ -2,3 +2,5 @@
 
 # vscode-abaplint
 vscode abaplint extension
+
+![Screenshot](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20181108.png)
