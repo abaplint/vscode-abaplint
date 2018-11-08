@@ -30,8 +30,8 @@ export function activate(context: ExtensionContext) {
 	let clientOptions: LanguageClientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'abap' }],
 		synchronize: {
-			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+			// Notify the server about file changes to abaplint.json files contained in the workspace
+			fileEvents: workspace.createFileSystemWatcher('**/abaplint.json')
 		}
 	};
 

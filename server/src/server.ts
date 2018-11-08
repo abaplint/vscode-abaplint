@@ -2,8 +2,11 @@
 
 import * as LServer from 'vscode-languageserver';
 import * as abaplint from "abaplint";
+import * as fs from 'fs';
+import * as path from 'path';
 
 let connection = LServer.createConnection(LServer.ProposedFeatures.all);
+let config = abaplint.Config.getDefault();
 
 // Create a simple text document manager. The text document manager
 // supports full document sync only
@@ -21,11 +24,19 @@ connection.onInitialize((params: LServer.InitializeParams) => {
 	hasWorkspaceFolderCapability =
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
+  try {
+    let raw = fs.readFileSync(params.rootPath + path.sep + "abaplint.json", "utf-8");
+    config = new abaplint.Config(raw);
+  } catch (err) {
+    connection.console.log("no custom abaplint config: " + err.message);
+  }
+
 	return {
 		capabilities: {
 			textDocumentSync: documents.syncKind,
 		}
-	};
+  };
+
 });
 
 connection.onInitialized(() => {
@@ -97,7 +108,6 @@ documents.onDidChangeContent(change => {
 function analyze(textDocument: LServer.TextDocument) {
   // todo, remove replace when https://github.com/larshp/abaplint/issues/262 is implemented
   let file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
-  let config = abaplint.Config.getDefault();
   return new abaplint.Registry(config).addFile(file).findIssues();
 }
 
@@ -131,7 +141,8 @@ async function validateDocument(textDocument: LServer.TextDocument): Promise<voi
 }
 
 connection.onDidChangeWatchedFiles(_change => {
-	connection.console.log('We received an file change event');
+  connection.console.log('We received an file change event');
+// todo, update to abaplint.json received
 });
 
 documents.listen(connection);
