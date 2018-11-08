@@ -4,7 +4,7 @@
 	"description": "abaplint",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.2.7",
+	"version": "0.2.8",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -21,8 +21,8 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap"
-  ],
-  "icon": "img/abaplint_icon.png",
+	],
+	"icon": "img/abaplint_icon.png",
 	"main": "./client/out/extension",
 	"contributes": {
 		"configuration": {
