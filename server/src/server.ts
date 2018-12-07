@@ -11,8 +11,8 @@ let config = abaplint.Config.getDefault();
 // Create a simple text document manager. The text document manager
 // supports full document sync only
 let documents: LServer.TextDocuments = new LServer.TextDocuments();
-let hasConfigurationCapability: boolean = false;
-let hasWorkspaceFolderCapability: boolean = false;
+let hasConfigurationCapability: boolean | undefined = false;
+let hasWorkspaceFolderCapability: boolean | undefined = false;
 
 connection.onInitialize((params: LServer.InitializeParams) => {
 	let capabilities = params.capabilities;
@@ -28,7 +28,7 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     let raw = fs.readFileSync(params.rootPath + path.sep + "abaplint.json", "utf-8");
     config = new abaplint.Config(raw);
   } catch (err) {
-    connection.console.log("no custom abaplint config: " + err.message);
+    connection.console.log("no custom abaplint config, using defaults");
   }
 
 	return {
