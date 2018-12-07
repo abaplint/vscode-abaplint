@@ -50,6 +50,7 @@
 		}
 	},
 	"scripts": {
+		"tslint": "tslint -c tslint.json 'client/src/**/*.ts' 'server/src/**/*.ts'",
 		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
 		"compile:client": "tsc -p ./client/tsconfig.json",
 		"compile:server": "tsc -p ./server/tsconfig.json",
@@ -64,6 +65,8 @@
 	"devDependencies": {
 		"@types/mocha": "^5.2.5",
 		"@types/node": "^10.12.2",
-		"typescript": "3.1.6"
+		"tslint": "^5.11.0",
+		"tslint-eslint-rules": "^5.4.0",
+		"typescript": "^3.2.2"
 	}
 }

@@ -1,100 +1,93 @@
-'use strict';
-
-import * as LServer from 'vscode-languageserver';
+import * as LServer from "vscode-languageserver";
 import * as abaplint from "abaplint";
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
-let connection = LServer.createConnection(LServer.ProposedFeatures.all);
+const connection = LServer.createConnection(LServer.ProposedFeatures.all);
 let config = abaplint.Config.getDefault();
 
-// Create a simple text document manager. The text document manager
+// create a simple text document manager. The text document manager
 // supports full document sync only
-let documents: LServer.TextDocuments = new LServer.TextDocuments();
+const documents: LServer.TextDocuments = new LServer.TextDocuments();
 let hasConfigurationCapability: boolean | undefined = false;
 let hasWorkspaceFolderCapability: boolean | undefined = false;
 
 connection.onInitialize((params: LServer.InitializeParams) => {
-	let capabilities = params.capabilities;
+  const capabilities = params.capabilities;
 
-	// Does the client support the `workspace/configuration` request?
-	// If not, we will fall back using global settings
-	hasConfigurationCapability =
-		capabilities.workspace && !!capabilities.workspace.configuration;
-	hasWorkspaceFolderCapability =
+  // does the client support the `workspace/configuration` request?
+  // if not, we will fall back using global settings
+  hasConfigurationCapability =
+    capabilities.workspace && !!capabilities.workspace.configuration;
+  hasWorkspaceFolderCapability =
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
   try {
-    let raw = fs.readFileSync(params.rootPath + path.sep + "abaplint.json", "utf-8");
+    const raw = fs.readFileSync(params.rootPath + path.sep + "abaplint.json", "utf-8");
     config = new abaplint.Config(raw);
   } catch (err) {
     connection.console.log("no custom abaplint config, using defaults");
   }
 
-	return {
-		capabilities: {
-			textDocumentSync: documents.syncKind,
-		}
-  };
+  return {capabilities: {textDocumentSync: documents.syncKind}};
 
 });
 
 connection.onInitialized(() => {
-	if (hasConfigurationCapability) {
-		// Register for all configuration changes.
-		connection.client.register(
-			LServer.DidChangeConfigurationNotification.type,
-			undefined
-		);
-	}
-	if (hasWorkspaceFolderCapability) {
-		connection.workspace.onDidChangeWorkspaceFolders(_event => {
-			connection.console.log('Workspace folder change event received.');
-		});
-	}
+  if (hasConfigurationCapability) {
+    // register for all configuration changes.
+    connection.client.register(
+      LServer.DidChangeConfigurationNotification.type,
+      undefined);
+  }
+  if (hasWorkspaceFolderCapability) {
+    connection.workspace.onDidChangeWorkspaceFolders((_event) => {
+      connection.console.log("Workspace folder change event received.");
+    });
+  }
 });
 
-connection.onDidChangeConfiguration(_change => {});
+connection.onDidChangeConfiguration((_change) => { return undefined; });
 
-documents.onDidClose(e => {
-  connection.sendDiagnostics({ uri: e.document.uri, diagnostics: [] });
+documents.onDidClose((e) => {
+  connection.sendDiagnostics({uri: e.document.uri, diagnostics: []});
 });
 
-documents.onDidChangeContent(change => {
-	validateDocument(change.document);
+documents.onDidChangeContent((change) => {
+  validateDocument(change.document);
 });
 
 function analyze(textDocument: LServer.TextDocument) {
   // todo, remove replace when https://github.com/larshp/abaplint/issues/262 is implemented
-  let file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
+  const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
   return new abaplint.Registry(config).addFile(file).findIssues();
 }
 
 async function validateDocument(textDocument: LServer.TextDocument): Promise<void> {
-  let diagnostics: LServer.Diagnostic[] = [];
+  const diagnostics: LServer.Diagnostic[] = [];
 
-  for(let issue of analyze(textDocument)) {
+  for (const issue of analyze(textDocument)) {
     connection.console.log(issue.getMessage().toString());
 
-		let diagnosic: LServer.Diagnostic = {
-			severity: LServer.DiagnosticSeverity.Error,
-			range: {
-				start: { line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1 },
-				end: { line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1 }
+    const diagnosic: LServer.Diagnostic = {
+      severity: LServer.DiagnosticSeverity.Error,
+      range: {
+        start: {line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1},
+        end: {line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1},
       },
       code: issue.getCode(),
-			message: issue.getMessage().toString(),
-			source: 'abaplint'
+      message: issue.getMessage().toString(),
+      source: "abaplint",
     };
-		diagnostics.push(diagnosic);
+    diagnostics.push(diagnosic);
 
   }
 
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+  connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
 }
 
-connection.onDidChangeWatchedFiles(_change => {
-  connection.console.log('We received an file change event');
+connection.onDidChangeWatchedFiles((_change) => {
+  connection.console.log("We received an file change event");
 // todo, update to abaplint.json received
 });
 
