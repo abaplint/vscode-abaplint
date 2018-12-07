@@ -54,51 +54,10 @@ connection.onInitialized(() => {
 	}
 });
 
-// The example settings
-interface ExampleSettings {
-	maxNumberOfProblems: number;
-}
-
-// The global settings, used when the `workspace/configuration` request is not supported by the client.
-// Please note that this is not the case when using this server with the client provided in this example
-// but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ExampleSettings = defaultSettings;
-
-// Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
-
-connection.onDidChangeConfiguration(change => {
-	if (hasConfigurationCapability) {
-		// Reset all cached document settings
-		documentSettings.clear();
-	} else {
-		globalSettings = <ExampleSettings>(
-			(change.settings.abaplint || defaultSettings)
-		);
-	}
-
-	// Revalidate all open text documents
-	documents.all().forEach(validateDocument);
-});
-
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
-	if (!hasConfigurationCapability) {
-		return Promise.resolve(globalSettings);
-	}
-	let result = documentSettings.get(resource);
-	if (!result) {
-		result = connection.workspace.getConfiguration({
-			scopeUri: resource,
-			section: 'abaplint'
-		});
-		documentSettings.set(resource, result);
-	}
-	return result;
-}
+connection.onDidChangeConfiguration(_change => {});
 
 documents.onDidClose(e => {
-	documentSettings.delete(e.document.uri);
+  connection.sendDiagnostics({ uri: e.document.uri, diagnostics: [] });
 });
 
 documents.onDidChangeContent(change => {
@@ -112,13 +71,9 @@ function analyze(textDocument: LServer.TextDocument) {
 }
 
 async function validateDocument(textDocument: LServer.TextDocument): Promise<void> {
-  let settings = await getDocumentSettings(textDocument.uri);
-  let problems = 0;
   let diagnostics: LServer.Diagnostic[] = [];
 
   for(let issue of analyze(textDocument)) {
-    problems++;
-
     connection.console.log(issue.getMessage().toString());
 
 		let diagnosic: LServer.Diagnostic = {
@@ -133,9 +88,6 @@ async function validateDocument(textDocument: LServer.TextDocument): Promise<voi
     };
 		diagnostics.push(diagnosic);
 
-    if (problems > settings.maxNumberOfProblems) {
-      break;
-    }
   }
 
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
