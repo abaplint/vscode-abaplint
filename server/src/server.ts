@@ -126,7 +126,8 @@ async function validateDocument(textDocument: LServer.TextDocument): Promise<voi
 			range: {
 				start: { line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1 },
 				end: { line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1 }
-			},
+      },
+      code: issue.getCode(),
 			message: issue.getMessage().toString(),
 			source: 'abaplint'
     };
