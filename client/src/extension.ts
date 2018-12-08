@@ -22,7 +22,7 @@ export function activate(context: ExtensionContext) {
 
   // options to control the language client
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{scheme: "file", language: "abap"}],
+    documentSelector: [{scheme: "file", language: "abap"}, {scheme: "adt", language: "abap"}],
     synchronize: {
     // notify the server about file changes to abaplint.json files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
