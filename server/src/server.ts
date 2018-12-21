@@ -1,7 +1,8 @@
 import * as LServer from "vscode-languageserver";
-import * as abaplint from "abaplint";
 import * as fs from "fs";
 import * as path from "path";
+import * as abaplint from "abaplint";
+import {validateDocument} from "./validate";
 
 const connection = LServer.createConnection(LServer.ProposedFeatures.all);
 let config = abaplint.Config.getDefault();
@@ -29,13 +30,16 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     connection.console.log("no custom abaplint config, using defaults");
   }
 
-  return {capabilities: {textDocumentSync: documents.syncKind}};
+  return {capabilities: {
+    textDocumentSync: documents.syncKind,
+    documentSymbolProvider: true,
+    hoverProvider: true,
+  }};
 
 });
 
 connection.onInitialized(() => {
   if (hasConfigurationCapability) {
-    // register for all configuration changes.
     connection.client.register(
       LServer.DidChangeConfigurationNotification.type,
       undefined);
@@ -47,6 +51,28 @@ connection.onInitialized(() => {
   }
 });
 
+connection.onHover((_position) => {
+  return undefined;
+//  return {contents: {kind: MarkupKind.PlainText, value: "hello from abaplint"}};
+//  return {contents: {language: "abap", value: "hello"}};
+});
+
+connection.onDocumentSymbol((_params) => {
+  return [];
+  /*
+  const symbol: LServer.SymbolInformation = {
+    name: "class_name",
+    kind: LServer.SymbolKind.Class,
+    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(10, 0, 20, 0))};
+  const prop: LServer.SymbolInformation = {
+    name: "method_name",
+    kind: LServer.SymbolKind.Method,
+    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(12, 0, 13, 0)),
+    containerName: "class_name"};
+  return [symbol, prop];
+  */
+});
+
 connection.onDidChangeConfiguration((_change) => { return undefined; });
 
 documents.onDidClose((e) => {
@@ -54,37 +80,8 @@ documents.onDidClose((e) => {
 });
 
 documents.onDidChangeContent((change) => {
-  validateDocument(change.document);
+  validateDocument(change.document, connection, config);
 });
-
-function analyze(textDocument: LServer.TextDocument) {
-  // todo, remove replace when https://github.com/larshp/abaplint/issues/262 is implemented
-  const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
-  return new abaplint.Registry(config).addFile(file).findIssues();
-}
-
-async function validateDocument(textDocument: LServer.TextDocument): Promise<void> {
-  const diagnostics: LServer.Diagnostic[] = [];
-
-  for (const issue of analyze(textDocument)) {
-    connection.console.log(issue.getMessage().toString());
-
-    const diagnosic: LServer.Diagnostic = {
-      severity: LServer.DiagnosticSeverity.Error,
-      range: {
-        start: {line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1},
-        end: {line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1},
-      },
-      code: issue.getCode(),
-      message: issue.getMessage().toString(),
-      source: "abaplint",
-    };
-    diagnostics.push(diagnosic);
-
-  }
-
-  connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
-}
 
 connection.onDidChangeWatchedFiles((_change) => {
   connection.console.log("We received an file change event");
