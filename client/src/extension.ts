@@ -1,6 +1,7 @@
 import * as path from "path";
 import {workspace, ExtensionContext} from "vscode";
 import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient";
+import * as vscode from "vscode";
 
 let client: LanguageClient;
 
@@ -36,8 +37,17 @@ export function activate(context: ExtensionContext) {
     serverOptions,
     clientOptions);
 
+//  vscode.window.setStatusBarMessage("abaplint ready", 5000);
+
+  client.onReady().then(() => {
+    client.onNotification("abaplint/hello", (message: string) => {
+      vscode.window.setStatusBarMessage("abaplint" + message, 5000);
+    });
+  });
+  context.subscriptions.push(client.start());
+
   // start the client. This will also launch the server
-  client.start();
+//  client.start();
 }
 
 export function deactivate(): Thenable<void> | undefined {

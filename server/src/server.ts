@@ -24,7 +24,7 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
   try {
-    const raw = fs.readFileSync(params.rootPath + path.sep + "abaplint.json", "utf-8");
+    const raw = fs.readFileSync(params.rootPath + path.sep + "abaplint.json", "utf-8"); // todo, rootPath is deprecated
     config = new abaplint.Config(raw);
   } catch (err) {
     connection.console.log("no custom abaplint config, using defaults");
@@ -35,10 +35,12 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     documentSymbolProvider: true,
     hoverProvider: true,
   }};
-
 });
 
 connection.onInitialized(() => {
+
+  connection.sendNotification("abaplint/hello", "hello world");
+
   if (hasConfigurationCapability) {
     connection.client.register(
       LServer.DidChangeConfigurationNotification.type,
