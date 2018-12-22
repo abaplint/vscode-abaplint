@@ -23,6 +23,7 @@ export function activate(context: ExtensionContext) {
 
   // options to control the language client
   const clientOptions: LanguageClientOptions = {
+// todo, also register XML files?
     documentSelector: [{language: "abap"}],
     synchronize: {
     // notify the server about file changes to abaplint.json files contained in the workspace

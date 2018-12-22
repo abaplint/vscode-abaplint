@@ -1,6 +1,7 @@
-// import {Registry} from "abaplint";
 import * as fs from "fs";
+import Uri from "vscode-uri";
 import * as path from "path";
+import * as glob from "glob";
 import * as LServer from "vscode-languageserver";
 import {WorkspaceFolder} from "vscode-languageserver";
 import * as abaplint from "abaplint";
@@ -21,23 +22,14 @@ export class Handler {
     this.reg = new abaplint.Registry();
     this.connection = connection;
     this.setFolders(params.workspaceFolders);
-    this.setConfig();
-// todo, load all files from folders
-// todo, also XML files should be loaded into registry
-  }
-
-  public getConfig() {
-    return this.reg.getConfig();
+    this.readConfig();
+    this.loadAllFiles();
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
     const diagnostics: LServer.Diagnostic[] = [];
 
     const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
-    /*
-    const issues = new abaplint.Registry(this.getConfig()).addFile(file).findIssues();
-    */
-
     try {
       this.reg.updateFile(file);
     } catch  {
@@ -63,28 +55,39 @@ export class Handler {
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
+  private loadAllFiles() {
+    for (const folder of this.folders) {
+      const filenames = glob.sync(folder.starting + "**" + path.sep + "*.*", {nosort: true, nodir: true});
+      for (const filename of filenames) {
+        const raw = fs.readFileSync(filename, "utf-8");
+        this.reg.addFile(new abaplint.MemoryFile(filename, raw.replace(/\r/g, "")));
+      }
+    }
+  }
+
   private setFolders(workspaces: WorkspaceFolder[] | null) {
     if (workspaces) {
       for (const workspace of workspaces) {
+        const pa = Uri.parse(workspace.uri).fsPath;
         this.folders.push({
-          root: workspace.uri,
+          root: pa,
           dotabapgit: undefined,
-          starting: workspace.uri});
+          starting: pa});
       }
     }
 
     for (const folder of this.folders) {
+      const name = folder.root + path.sep + ".abapgit.xml";
       try {
-        const name = folder.root + path.sep + ".abapgit.xml";
         const xml = fs.readFileSync(name, "utf-8");
         folder.dotabapgit = name;
+        const result = xml.match(/<STARTING_FOLDER>([\w\/]+)<\/STARTING_FOLDER>/);
 
-        const result = xml.match(/<STARTING_FOLDER>(\d{2})<\/STARTING_FOLDER>/);
         if (result) {
           folder.starting = folder.root + result[1];
         }
       } catch {
-        this.connection.console.log("no .abapgit.xml found, " + folder.root);
+        this.connection.console.log("no .abapgit.xml found, " + name);
       }
     }
 
@@ -94,7 +97,7 @@ export class Handler {
     }
   }
 
-  private setConfig() {
+  private readConfig() {
 // todo, multi folder vs config?
     try {
       if (this.folders.length > 0) {
