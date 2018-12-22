@@ -1,11 +1,9 @@
 import * as LServer from "vscode-languageserver";
-import * as fs from "fs";
-import * as path from "path";
-import * as abaplint from "abaplint";
 import {validateDocument} from "./validate";
+import {Handler} from "./handler";
 
 const connection = LServer.createConnection(LServer.ProposedFeatures.all);
-let config = abaplint.Config.getDefault();
+let handler: Handler;
 
 // create a simple text document manager. The text document manager
 // supports full document sync only
@@ -23,12 +21,7 @@ connection.onInitialize((params: LServer.InitializeParams) => {
   hasWorkspaceFolderCapability =
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
-  try {
-    const raw = fs.readFileSync(params.rootPath + path.sep + "abaplint.json", "utf-8"); // todo, rootPath is deprecated
-    config = new abaplint.Config(raw);
-  } catch (err) {
-    connection.console.log("no custom abaplint config, using defaults");
-  }
+  handler = new Handler(connection, params);
 
   return {capabilities: {
     textDocumentSync: documents.syncKind,
@@ -48,6 +41,7 @@ connection.onInitialized(() => {
   }
   if (hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders((_event) => {
+// todo
       connection.console.log("Workspace folder change event received.");
     });
   }
@@ -82,7 +76,7 @@ documents.onDidClose((e) => {
 });
 
 documents.onDidChangeContent((change) => {
-  validateDocument(change.document, connection, config);
+  validateDocument(change.document, connection, handler.getConfig());
 });
 
 connection.onDidChangeWatchedFiles((_change) => {
