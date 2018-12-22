@@ -1,5 +1,4 @@
 import * as LServer from "vscode-languageserver";
-import {validateDocument} from "./validate";
 import {Handler} from "./handler";
 
 const connection = LServer.createConnection(LServer.ProposedFeatures.all);
@@ -41,7 +40,7 @@ connection.onInitialized(() => {
   }
   if (hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders((_event) => {
-// todo
+// todo, handle event
       connection.console.log("Workspace folder change event received.");
     });
   }
@@ -76,8 +75,10 @@ documents.onDidClose((e) => {
 });
 
 documents.onDidChangeContent((change) => {
-  validateDocument(change.document, connection, handler.getConfig());
+  handler.validateDocument(change.document);
 });
+
+// todo, documents.onDelete, how are file deletions handled ?
 
 connection.onDidChangeWatchedFiles((_change) => {
   connection.console.log("We received an file change event");
