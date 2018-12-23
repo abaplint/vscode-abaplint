@@ -15,10 +15,10 @@
 		"@types/glob": "^7.1.1"
 	},
 	"dependencies": {
-		"abaplint": "^1.5.4",
+		"abaplint": "^1.5.5",
 		"vscode-uri": "^1.0.6",
 		"glob": "7.1.3",
-		"vscode-languageserver": "^5.1.0"
+		"vscode-languageserver": "^5.2.1"
 	},
 	"scripts": {}
 }
