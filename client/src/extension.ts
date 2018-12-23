@@ -4,6 +4,7 @@ import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} fro
 import * as vscode from "vscode";
 
 let client: LanguageClient;
+let myStatusBarItem: vscode.StatusBarItem;
 
 export function activate(context: ExtensionContext) {
   // the server is implemented in node
@@ -14,6 +15,10 @@ export function activate(context: ExtensionContext) {
   // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
   const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
 
+  myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  myStatusBarItem.text = "abaplint";
+  myStatusBarItem.show();
+
   // if the extension is launched in debug mode then the debug server options are used
   // otherwise the run options are used
   const serverOptions: ServerOptions = {
@@ -21,12 +26,10 @@ export function activate(context: ExtensionContext) {
     debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
   };
 
-  // options to control the language client
   const clientOptions: LanguageClientOptions = {
 // todo, also register XML files?
     documentSelector: [{language: "abap"}],
     synchronize: {
-    // notify the server about file changes to abaplint.json files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
     },
   };
@@ -38,17 +41,17 @@ export function activate(context: ExtensionContext) {
     serverOptions,
     clientOptions);
 
-//  vscode.window.setStatusBarMessage("abaplint ready", 5000);
-
   client.onReady().then(() => {
-    client.onNotification("abaplint/hello", (message: string) => {
-      vscode.window.setStatusBarMessage("abaplint" + message, 5000);
+    client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
+      myStatusBarItem.text = "abaplint: " + message.text;
+      if (message.tooltip) {
+        myStatusBarItem.tooltip = message.tooltip;
+      } else {
+        myStatusBarItem.tooltip = "";
+      }
     });
   });
   context.subscriptions.push(client.start());
-
-  // start the client. This will also launch the server
-//  client.start();
 }
 
 export function deactivate(): Thenable<void> | undefined {

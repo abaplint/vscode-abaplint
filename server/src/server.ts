@@ -31,7 +31,7 @@ connection.onInitialize((params: LServer.InitializeParams) => {
 
 connection.onInitialized(() => {
 
-  connection.sendNotification("abaplint/hello", "hello world");
+  handler.loadAndParseAll();
 
   if (hasConfigurationCapability) {
     connection.client.register(

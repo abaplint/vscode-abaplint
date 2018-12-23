@@ -6,6 +6,7 @@ import * as LServer from "vscode-languageserver";
 import {WorkspaceFolder} from "vscode-languageserver";
 import * as abaplint from "abaplint";
 import {Registry} from "abaplint/build/src/registry"; // todo, typing?
+import {versionToText} from "abaplint/build/src/version"; // todo, typing?
 
 interface IFolder {
   root: string;
@@ -23,7 +24,6 @@ export class Handler {
     this.connection = connection;
     this.setFolders(params.workspaceFolders);
     this.readConfig();
-    this.loadAllFiles();
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
@@ -55,7 +55,9 @@ export class Handler {
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
-  private loadAllFiles() {
+  public loadAndParseAll() {
+    this.connection.sendNotification("abaplint/status", {text: "$(sync~spin) Parsing Files"});
+
     for (const folder of this.folders) {
       const filenames = glob.sync(folder.starting + "**" + path.sep + "*.*", {nosort: true, nodir: true});
       for (const filename of filenames) {
@@ -63,6 +65,12 @@ export class Handler {
         this.reg.addFile(new abaplint.MemoryFile(filename, raw.replace(/\r/g, "")));
       }
     }
+
+    this.reg.parse();
+
+    const tooltip = "ABAP version: " + versionToText(this.reg.getConfig().getVersion()) + "\n" +
+      "Objects: " + this.reg.getObjects().length;
+    this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }
 
   private setFolders(workspaces: WorkspaceFolder[] | null) {
