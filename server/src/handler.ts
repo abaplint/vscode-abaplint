@@ -17,6 +17,7 @@ interface IFolder {
 export class Handler {
   private folders: IFolder[] = [];
   private reg: Registry;
+  private configInfo: string;
   private connection: LServer.Connection;
 
   constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
@@ -70,6 +71,7 @@ export class Handler {
 
     const tooltip = "ABAP version: " + versionToText(this.reg.getConfig().getVersion()) + "\n" +
       "abaplint: " + Registry.abaplintVersion() + "\n" +
+      "config: " + this.configInfo + "\n" +
       "Objects: " + this.reg.getObjects().length;
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }
@@ -110,12 +112,15 @@ export class Handler {
 // todo, multi folder vs config?
     try {
       if (this.folders.length > 0) {
-        const raw = fs.readFileSync(this.folders[0].root + path.sep + "abaplint.json", "utf-8"); // todo, rootPath is deprecated
+        const name = this.folders[0].root + path.sep + "abaplint.json";
+        const raw = fs.readFileSync(name, "utf-8"); // todo, rootPath is deprecated
         const config = new abaplint.Config(raw);
         this.reg.setConfig(config);
         this.connection.console.log("custom abaplint.json found");
+        this.configInfo = name;
       }
     } catch {
+      this.configInfo = "default";
       this.connection.console.log("no custom abaplint config, using defaults");
     }
   }
