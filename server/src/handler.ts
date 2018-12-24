@@ -55,6 +55,11 @@ export class Handler {
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
+  public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {
+    this.connection.console.log("todo, format document: " + params.textDocument.uri);
+    return [];
+  }
+
   public loadAndParseAll() {
     this.connection.sendNotification("abaplint/status", {text: "$(sync~spin) Parsing Files"});
 
@@ -125,21 +130,7 @@ export class Handler {
   }
 
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
-    const symbols = new abaplint.LanguageServer(this.reg).documentSymbol(params);
-//    this.connection.console.log("symbols count: " + symbols.length);
-    return symbols;
-  /*
-  const symbol: LServer.SymbolInformation = {
-    name: "class_name",
-    kind: LServer.SymbolKind.Class,
-    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(10, 0, 20, 0))};
-  const prop: LServer.SymbolInformation = {
-    name: "method_name",
-    kind: LServer.SymbolKind.Method,
-    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(12, 0, 13, 0)),
-    containerName: "class_name"};
-  return [symbol, prop];
-  */
+    return new abaplint.LanguageServer(this.reg).documentSymbol(params);
   }
 
 }

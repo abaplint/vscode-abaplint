@@ -24,6 +24,7 @@ connection.onInitialize((params: LServer.InitializeParams) => {
 
   return {capabilities: {
     textDocumentSync: documents.syncKind,
+    documentFormattingProvider: true,
     documentSymbolProvider: true,
     hoverProvider: true,
   }};
@@ -50,6 +51,10 @@ connection.onHover((_position) => {
   return undefined;
 //  return {contents: {kind: MarkupKind.PlainText, value: "hello from abaplint"}};
 //  return {contents: {language: "abap", value: "hello"}};
+});
+
+connection.onDocumentFormatting((params) => {
+  return handler.onDocumentFormatting(params);
 });
 
 connection.onDocumentSymbol((params) => {
