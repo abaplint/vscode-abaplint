@@ -1,10 +1,9 @@
 import * as fs from "fs";
-import Uri from "vscode-uri";
 import * as path from "path";
 import * as glob from "glob";
 import * as LServer from "vscode-languageserver";
-import {WorkspaceFolder} from "vscode-languageserver";
 import * as abaplint from "abaplint";
+import Uri from "vscode-uri";
 import {Registry} from "abaplint/build/src/registry"; // todo, typing?
 import {versionToText} from "abaplint/build/src/version"; // todo, typing?
 
@@ -76,7 +75,7 @@ export class Handler {
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }
 
-  private setFolders(workspaces: WorkspaceFolder[] | null) {
+  private setFolders(workspaces: LServer.WorkspaceFolder[] | null) {
     if (workspaces) {
       for (const workspace of workspaces) {
         const pa = Uri.parse(workspace.uri).fsPath;
@@ -123,6 +122,22 @@ export class Handler {
       this.configInfo = "default";
       this.connection.console.log("no custom abaplint config, using defaults");
     }
+  }
+
+  public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
+    return new abaplint.LanguageServer(this.reg).documentSymbol(params);
+  /*
+  const symbol: LServer.SymbolInformation = {
+    name: "class_name",
+    kind: LServer.SymbolKind.Class,
+    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(10, 0, 20, 0))};
+  const prop: LServer.SymbolInformation = {
+    name: "method_name",
+    kind: LServer.SymbolKind.Method,
+    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(12, 0, 13, 0)),
+    containerName: "class_name"};
+  return [symbol, prop];
+  */
   }
 
 }

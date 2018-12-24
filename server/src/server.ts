@@ -52,20 +52,8 @@ connection.onHover((_position) => {
 //  return {contents: {language: "abap", value: "hello"}};
 });
 
-connection.onDocumentSymbol((_params) => {
-  return [];
-  /*
-  const symbol: LServer.SymbolInformation = {
-    name: "class_name",
-    kind: LServer.SymbolKind.Class,
-    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(10, 0, 20, 0))};
-  const prop: LServer.SymbolInformation = {
-    name: "method_name",
-    kind: LServer.SymbolKind.Method,
-    location: LServer.Location.create(params.textDocument.uri, LServer.Range.create(12, 0, 13, 0)),
-    containerName: "class_name"};
-  return [symbol, prop];
-  */
+connection.onDocumentSymbol((params) => {
+  return handler.onDocumentSymbol(params);
 });
 
 connection.onDidChangeConfiguration((_change) => { return undefined; });
