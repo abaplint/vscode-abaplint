@@ -56,7 +56,8 @@
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
-		"compile": "npm run compile:client && npm run compile:server",
+    "compile": "npm run compile:client && npm run compile:server",
+    "test": "npm run compile && npm run tslint",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
 	"extensionDependencies": [
