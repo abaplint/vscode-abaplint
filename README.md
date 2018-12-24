@@ -4,4 +4,13 @@
 # vscode-abaplint
 vscode abaplint extension
 
-![Screenshot](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20181108.png)
+Features:
+* Diagnostics / Linting
+* Outline
+* Upper case keywords via Shift + F1
+
+### Diagnostics
+![diagnostics](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20181108.png)
+
+### Outline
+![outline](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/outline.png)
