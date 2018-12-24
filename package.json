@@ -4,7 +4,7 @@
 	"description": "abaplint",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.2.12",
+	"version": "0.2.13",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -56,8 +56,8 @@
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
-    "compile": "npm run compile:client && npm run compile:server",
-    "test": "npm run compile && npm run tslint",
+		"compile": "npm run compile:client && npm run compile:server",
+		"test": "npm run compile && npm run tslint",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
 	"extensionDependencies": [
