@@ -125,7 +125,9 @@ export class Handler {
   }
 
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
-    return new abaplint.LanguageServer(this.reg).documentSymbol(params);
+    const symbols = new abaplint.LanguageServer(this.reg).documentSymbol(params);
+//    this.connection.console.log("symbols count: " + symbols.length);
+    return symbols;
   /*
   const symbol: LServer.SymbolInformation = {
     name: "class_name",
