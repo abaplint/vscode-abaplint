@@ -57,9 +57,6 @@ export class Handler {
 
   public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {
     const edits = new abaplint.LanguageServer(this.reg).documentFormatting(params);
-    // todo, remove this after next abaplint release
-    edits[0].range.start.line = 0;
-    edits[0].range.start.character = 0;
     return edits;
   }
 

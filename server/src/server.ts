@@ -47,7 +47,8 @@ connection.onInitialized(() => {
   }
 });
 
-connection.onHover((_position) => {
+connection.onHover((params) => {
+  connection.console.log("line: " + params.position.line + ", character: " + params.position.character);
   return undefined;
 //  return {contents: {kind: MarkupKind.PlainText, value: "hello from abaplint"}};
 //  return {contents: {language: "abap", value: "hello"}};
