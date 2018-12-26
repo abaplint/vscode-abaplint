@@ -135,13 +135,6 @@ export class Handler {
 
   public onHover(params: LServer.TextDocumentPositionParams): LServer.Hover | undefined {
     const hover = new abaplint.LanguageServer(this.reg).hover(params);
-
-    if (hover && hover.contents) {
-      const mark = hover.contents as LServer.MarkupContent;
-      mark.value = "```abap\nWRITE\n```\nhello\n\nworld";
-      hover.contents = mark;
-    }
-
     return hover;
   }
 
