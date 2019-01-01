@@ -23,8 +23,19 @@ connection.onInitialize((params: LServer.InitializeParams) => {
   handler = new Handler(connection, params);
 
   return {capabilities: {
+    /*
+    signatureHelpProvider: [],
+    completionProvider
+    definitionProvider  // go to definition
+    ?? // go to implementation
+    referencesProvider
+    codeActionProvider
+    codeLensProvider
+    renameProvider
+    */
     textDocumentSync: documents.syncKind,
     documentFormattingProvider: true,
+    definitionProvider: true,
     documentSymbolProvider: true,
     hoverProvider: true,
   }};
@@ -45,6 +56,10 @@ connection.onInitialized(() => {
       connection.console.log("Workspace folder change event received.");
     });
   }
+});
+
+connection.onDefinition((params) => {
+  return handler.onDefinition(params);
 });
 
 connection.onHover((params) => {

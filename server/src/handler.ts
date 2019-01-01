@@ -55,6 +55,16 @@ export class Handler {
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
+  public onDefinition(_params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
+/*
+    return {
+      uri: _params.textDocument.uri,
+      range: LServer.Range.create(10, 0, 10, 0),
+    };
+*/
+    return undefined;
+  }
+
   public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {
     const edits = new abaplint.LanguageServer(this.reg).documentFormatting(params);
     return edits;
