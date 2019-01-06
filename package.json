@@ -4,7 +4,7 @@
 	"description": "abaplint",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.2.18",
+	"version": "0.2.19",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -30,22 +30,22 @@
 				"command": "editor.action.formatDocument",
 				"key": "shift+f1",
 				"when": "editorLangId == 'abap' && editorTextFocus && !editorReadonly"
-      },
+			},
 			{
 				"command": "abaplint.dummy",
 				"key": "ctrl+f1",
 				"when": "editorLangId == 'abap' && editorTextFocus"
-      },
+			},
 			{
 				"command": "abaplint.dummy",
 				"key": "ctrl+f2",
 				"when": "editorLangId == 'abap' && editorTextFocus"
-      },
+			},
 			{
 				"command": "workbench.action.files.save",
 				"key": "ctrl+f3",
 				"when": "editorLangId == 'abap' && editorTextFocus"
-      },
+			},
 			{
 				"command": "workbench.action.quickOpen",
 				"key": "ctrl+shift+a",
