@@ -6,11 +6,13 @@ import * as vscode from "vscode";
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 
-/*
-function prettyPrint() {
-  console.log("Hello blah!!!");
+function help() {
+  console.log("f1 help, todo");
 }
-*/
+
+function dummy() {
+// dont do anything
+}
 
 export function activate(context: ExtensionContext) {
   // the server is implemented in node
@@ -25,7 +27,8 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.text = "abaplint";
   myStatusBarItem.show();
 
-//  context.subscriptions.push(vscode.commands.registerCommand("abaplint.prettyPrint", prettyPrint));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", help));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.dummy", dummy));
 
   // if the extension is launched in debug mode then the debug server options are used
   // otherwise the run options are used
