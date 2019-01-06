@@ -29,7 +29,7 @@
 			{
 				"command": "editor.action.formatDocument",
 				"key": "shift+f1",
-				"when": "editorTextFocus && !editorReadonly"
+				"when": "editorLangId == 'abap' && editorTextFocus && !editorReadonly"
 			}
 		],
 		"configuration": {
