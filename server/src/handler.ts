@@ -27,7 +27,6 @@ export class Handler {
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
-    const diagnostics: LServer.Diagnostic[] = [];
 
     const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
     try {
@@ -36,22 +35,20 @@ export class Handler {
       this.reg.addFile(file);
     }
 
-    for (const issue of this.reg.findIssues()) {
-      if (issue.getFile().getFilename() === textDocument.uri) {
-        const diagnosic: LServer.Diagnostic = {
-          severity: LServer.DiagnosticSeverity.Error,
-          range: {
-            start: {line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1},
-            end: {line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1},
-          },
-          code: issue.getCode(),
-          message: issue.getMessage().toString(),
-          source: "abaplint",
-        };
-        diagnostics.push(diagnosic);
-      }
+    const diagnostics: LServer.Diagnostic[] = [];
+    for (const issue of this.reg.findIssuesFile(file)) {
+      const diagnosic: LServer.Diagnostic = {
+        severity: LServer.DiagnosticSeverity.Error,
+        range: {
+          start: {line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1},
+          end: {line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1},
+        },
+        code: issue.getCode(),
+        message: issue.getMessage().toString(),
+        source: "abaplint",
+      };
+      diagnostics.push(diagnosic);
     }
-
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
@@ -77,7 +74,8 @@ export class Handler {
       const filenames = glob.sync(folder.starting + "**" + path.sep + "*.*", {nosort: true, nodir: true});
       for (const filename of filenames) {
         const raw = fs.readFileSync(filename, "utf-8");
-        this.reg.addFile(new abaplint.MemoryFile(filename, raw.replace(/\r/g, "")));
+        const uri = Uri.file(filename).toString();
+        this.reg.addFile(new abaplint.MemoryFile(uri, raw.replace(/\r/g, "")));
       }
     }
 
