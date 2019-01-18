@@ -14,6 +14,23 @@ function dummy() {
 // dont do anything
 }
 
+function show() {
+  const editor = vscode.window.activeTextEditor;
+  if (editor === undefined) {
+    return;
+  }
+  console.log(editor.document.uri.path);
+
+  const panel = vscode.window.createWebviewPanel(
+    "abaplint",
+    "abaplint",
+    vscode.ViewColumn.Active,
+    {},
+  );
+
+  panel.webview.html = "hello world";
+}
+
 export function activate(context: ExtensionContext) {
   // the server is implemented in node
   const serverModule = context.asAbsolutePath(
@@ -29,6 +46,7 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", help));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.dummy", dummy));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.show", show));
 
   // if the extension is launched in debug mode then the debug server options are used
   // otherwise the run options are used
