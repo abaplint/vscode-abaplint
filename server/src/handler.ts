@@ -46,7 +46,7 @@ export class Handler {
           start: {line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1},
           end: {line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1},
         },
-        code: issue.getCode(),
+        code: issue.getKey(),
         message: issue.getMessage().toString(),
         source: "abaplint",
       };
