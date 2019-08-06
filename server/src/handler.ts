@@ -50,8 +50,14 @@ export class Handler {
         message: issue.getMessage().toString(),
         source: "abaplint",
       };
+/*
+      if (diagnosic.range.start.line < 0 || diagnosic.range.start.character < 0) {
+        console.dir(diagnosic.range.start);
+      }
+*/
       diagnostics.push(diagnosic);
     }
+
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
