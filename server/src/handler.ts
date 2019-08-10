@@ -40,6 +40,9 @@ export class Handler {
 
     const diagnostics: LServer.Diagnostic[] = [];
     for (const issue of this.reg.findIssuesFile(file)) {
+      if (issue.getFile().getFilename() !== file.getFilename()) {
+        continue;
+      }
       const diagnosic: LServer.Diagnostic = {
         severity: LServer.DiagnosticSeverity.Error,
         range: {
