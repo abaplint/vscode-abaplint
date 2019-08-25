@@ -36,6 +36,10 @@
 				}
 			}
 		],
+    "jsonValidation": [{
+      "fileMatch": "abaplint.json",
+      "url": "https://schema.abaplint.org/schema.json"
+    }],
 		"menus": {
 			"editor/title": [
 				{
