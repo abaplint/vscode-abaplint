@@ -4,7 +4,7 @@
 	"description": "abaplint",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.2.29",
+	"version": "0.2.30",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -36,10 +36,12 @@
 				}
 			}
 		],
-    "jsonValidation": [{
-      "fileMatch": "abaplint.json",
-      "url": "https://schema.abaplint.org/schema.json"
-    }],
+		"jsonValidation": [
+			{
+				"fileMatch": "abaplint.json",
+				"url": "https://schema.abaplint.org/schema.json"
+			}
+		],
 		"menus": {
 			"editor/title": [
 				{
