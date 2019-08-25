@@ -122,8 +122,8 @@
 	],
 	"devDependencies": {
 		"@types/mocha": "^5.2.7",
-		"@types/node": "^12.7.1",
-		"tslint": "^5.18.0",
+		"@types/node": "^12.7.2",
+		"tslint": "^5.19.0",
 		"tslint-eslint-rules": "^5.4.0",
 		"typescript": "^3.5.3"
 	}
