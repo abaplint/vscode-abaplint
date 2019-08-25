@@ -10,14 +10,14 @@
 		"url": "https://github.com/abaplint/vscode-abaplint"
 	},
 	"engines": {
-		"vscode": "^1.29.0"
+		"vscode": "^1.37.1"
 	},
 	"scripts": {
 		"update-vscode": "vscode-install",
 		"postinstall": "vscode-install"
 	},
 	"dependencies": {
-		"vscode-languageclient": "=5.1.0"
+		"vscode-languageclient": "5.2.1"
 	},
 	"devDependencies": {
 		"vscode": "^1.1.36"
