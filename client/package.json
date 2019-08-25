@@ -13,13 +13,12 @@
 		"vscode": "^1.37.1"
 	},
 	"scripts": {
-		"update-vscode": "vscode-install",
-		"postinstall": "vscode-install"
+		"update-vscode": "vscode-install"
 	},
 	"dependencies": {
 		"vscode-languageclient": "5.2.1"
 	},
 	"devDependencies": {
-		"vscode": "^1.1.36"
+		"@types/vscode": "^1.37.0"
 	}
 }
