@@ -3,7 +3,7 @@ import * as path from "path";
 import * as glob from "glob";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "abaplint";
-import Uri from "vscode-uri";
+import {URI} from "vscode-uri";
 import {Registry} from "abaplint/build/src/registry"; // todo, typing?
 import {versionToText} from "abaplint/build/src/version"; // todo, typing?
 
@@ -86,7 +86,7 @@ export class Handler {
       const filenames = glob.sync(folder.starting + "**" + path.sep + "*.*", {nosort: true, nodir: true});
       for (const filename of filenames) {
         const raw = fs.readFileSync(filename, "utf-8");
-        const uri = Uri.file(filename).toString();
+        const uri = URI.file(filename).toString();
         this.reg.addFile(new abaplint.MemoryFile(uri, raw.replace(/\r/g, "")));
       }
     }
@@ -103,7 +103,7 @@ export class Handler {
   private setFolders(workspaces: LServer.WorkspaceFolder[] | null) {
     if (workspaces) {
       for (const workspace of workspaces) {
-        const pa = Uri.parse(workspace.uri).fsPath;
+        const pa = URI.parse(workspace.uri).fsPath;
         this.folders.push({
           root: pa,
           dotabapgit: undefined,
