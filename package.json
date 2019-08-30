@@ -114,7 +114,7 @@
 	},
 	"scripts": {
 		"tslint": "tslint -c tslint.json 'client/src/**/*.ts' 'server/src/**/*.ts'",
-		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+		"vscode:prepublish": "npm run compile",
 		"compile:client": "tsc -p ./client/tsconfig.json",
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
