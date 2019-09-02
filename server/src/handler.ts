@@ -53,11 +53,14 @@ export class Handler {
         message: issue.getMessage().toString(),
         source: "abaplint",
       };
-/*
-      if (diagnosic.range.start.line < 0 || diagnosic.range.start.character < 0) {
+
+      if (diagnosic.range.start.line < 0 || diagnosic.range.start.character < 0
+          || diagnosic.range.end.line < 0 || diagnosic.range.end.character < 0) {
         console.dir(diagnosic.range.start);
+        console.dir(diagnosic.range.end);
+        console.dir(issue.getKey());
       }
-*/
+
       diagnostics.push(diagnosic);
     }
 
