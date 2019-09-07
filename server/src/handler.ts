@@ -1,16 +1,15 @@
 import * as fs from "fs";
-import * as path from "path";
 import * as glob from "glob";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "abaplint";
 import {URI} from "vscode-uri";
 import {Registry} from "abaplint/build/src/registry"; // todo, typing?
 import {versionToText} from "abaplint/build/src/version"; // todo, typing?
+import {Setup} from "./setup";
 
-interface IFolder {
+export interface IFolder {
   root: string;
-  dotabapgit: string | undefined;
-  starting: string;
+  glob: string;
 }
 
 export class Handler {
@@ -22,8 +21,10 @@ export class Handler {
   constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
     this.reg = new abaplint.Registry();
     this.connection = connection;
-    this.setFolders(params.workspaceFolders);
-    this.readConfig();
+
+    const setup = new Setup(connection);
+    this.folders = setup.determineFolders(params.workspaceFolders);
+    this.reg.setConfig(setup.readConfig(this.folders));
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
@@ -86,7 +87,7 @@ export class Handler {
     this.connection.sendNotification("abaplint/status", {text: "$(sync~spin) Parsing Files"});
 
     for (const folder of this.folders) {
-      const filenames = glob.sync(folder.starting + "**" + path.sep + "*.*", {nosort: true, nodir: true});
+      const filenames = glob.sync(folder.root + folder.glob, {nosort: true, nodir: true});
       for (const filename of filenames) {
         const raw = fs.readFileSync(filename, "utf-8");
         const uri = URI.file(filename).toString();
@@ -101,55 +102,6 @@ export class Handler {
       "config: " + this.configInfo + "\n" +
       "Objects: " + this.reg.getObjects().length;
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
-  }
-
-  private setFolders(workspaces: LServer.WorkspaceFolder[] | null) {
-    if (workspaces) {
-      for (const workspace of workspaces) {
-        const pa = URI.parse(workspace.uri).fsPath;
-        this.folders.push({
-          root: pa,
-          dotabapgit: undefined,
-          starting: pa});
-      }
-    }
-
-    for (const folder of this.folders) {
-      const name = folder.root + path.sep + ".abapgit.xml";
-      try {
-        const xml = fs.readFileSync(name, "utf-8");
-        folder.dotabapgit = name;
-        const result = xml.match(/<STARTING_FOLDER>([\w\/]+)<\/STARTING_FOLDER>/);
-
-        if (result) {
-          folder.starting = folder.root + result[1];
-        }
-      } catch {
-        this.connection.console.log("no .abapgit.xml found, " + name);
-      }
-    }
-
-    this.connection.console.log("Folder overview:");
-    for (const folder of this.folders) {
-      this.connection.console.log(folder.root + " " + folder.dotabapgit + " " + folder.starting);
-    }
-  }
-
-  private readConfig() {
-// todo, multi folder vs config?
-    try {
-      if (this.folders.length > 0) {
-        const name = this.folders[0].root + path.sep + "abaplint.json";
-        const raw = fs.readFileSync(name, "utf-8"); // todo, rootPath is deprecated
-        const config = new abaplint.Config(raw);
-        this.reg.setConfig(config);
-        this.connection.console.log("custom abaplint.json found");
-        this.configInfo = name;
-      }
-    } catch {
-      this.configInfo = "default";
-      this.connection.console.log("no custom abaplint config, using defaults");
-    }
   }
 
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
