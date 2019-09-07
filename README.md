@@ -19,7 +19,4 @@ Keybindings:
 * F1 = language help, nothing implemented yet
 
 ### Diagnostics
-![diagnostics](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20181108.png)
-
-### Outline
-![outline](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/outline.png)
+![diagnostics](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20190907.png)
