@@ -16,7 +16,7 @@ Keybindings:
 * Ctrl+F2 = do nothing
 * Ctrl+F3 = save
 * Ctrl+Shift+a = open file
-* F1 = language help, nothing implemented yet
+* F1 = language help
 
 ### Diagnostics
 ![diagnostics](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20190907.png)
