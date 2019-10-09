@@ -5,10 +5,7 @@ import * as vscode from "vscode";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
-
-function help() {
-  console.log("f1 help, todo");
-}
+let helpPanel: vscode.WebviewPanel | undefined;
 
 function dummy() {
 // dont do anything
@@ -19,16 +16,36 @@ function show() {
   if (editor === undefined) {
     return;
   }
-  console.log(editor.document.uri.path);
 
-  const panel = vscode.window.createWebviewPanel(
-    "abaplint",
-    "abaplint",
-    vscode.ViewColumn.Active,
-    {},
-  );
+  if (helpPanel === undefined) {
+    helpPanel = vscode.window.createWebviewPanel(
+      "abaplint_help",
+      "abaplint",
+      vscode.ViewColumn.Beside,
+      {},
+    );
+    helpPanel.onDidDispose(() => { helpPanel = undefined; });
+  } else {
+    console.dir("reveal");
+    helpPanel.reveal();
+  }
 
-  panel.webview.html = "hello world";
+  helpPanel.webview.html = buildHelp("loading");
+
+  client.sendRequest("abaplint/helpRequest", {uri: editor.document.uri.toString(), position: editor.selection.active});
+}
+
+function buildHelp(html: string): string {
+  return `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none';">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Coding</title>
+  </head>
+  <body>` + html + `</body>
+  </html>`;
 }
 
 export function activate(context: ExtensionContext) {
@@ -44,8 +61,8 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.text = "abaplint";
   myStatusBarItem.show();
 
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", help));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.dummy", dummy));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", show));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.show", show));
 
   // if the extension is launched in debug mode then the debug server options are used
@@ -77,6 +94,12 @@ export function activate(context: ExtensionContext) {
         myStatusBarItem.tooltip = message.tooltip;
       } else {
         myStatusBarItem.tooltip = "";
+      }
+    });
+
+    client.onNotification("abaplint/helpResponse", (html: string) => {
+      if (helpPanel) {
+        helpPanel.webview.html = buildHelp(html);
       }
     });
   });

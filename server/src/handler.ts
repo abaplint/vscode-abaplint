@@ -43,6 +43,11 @@ export class Handler {
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
+  public onHelp(uri: string, position: LServer.Position) {
+    const help = new abaplint.LanguageServer(this.reg).help({uri: uri}, position);
+    this.connection.sendNotification("abaplint/helpResponse", help);
+  }
+
   public onDefinition(_params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
 /*
     return {

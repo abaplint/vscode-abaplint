@@ -91,5 +91,9 @@ connection.onDidChangeWatchedFiles((_change) => {
 // todo, update to abaplint.json received
 });
 
+connection.onRequest("abaplint/helpRequest", (data) => {
+  handler.onHelp(data.uri, data.position);
+});
+
 documents.listen(connection);
 connection.listen();
