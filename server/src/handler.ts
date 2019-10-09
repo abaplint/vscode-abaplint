@@ -39,32 +39,7 @@ export class Handler {
       this.reg.addFile(file);
     }
 
-    const diagnostics: LServer.Diagnostic[] = [];
-    for (const issue of this.reg.findIssuesFile(file)) {
-      if (issue.getFile().getFilename() !== file.getFilename()) {
-        continue;
-      }
-      const diagnosic: LServer.Diagnostic = {
-        severity: LServer.DiagnosticSeverity.Error,
-        range: {
-          start: {line: issue.getStart().getRow() - 1, character: issue.getStart().getCol() - 1},
-          end: {line: issue.getEnd().getRow() - 1, character: issue.getEnd().getCol() - 1},
-        },
-        code: issue.getKey(),
-        message: issue.getMessage().toString(),
-        source: "abaplint",
-      };
-
-      if (diagnosic.range.start.line < 0 || diagnosic.range.start.character < 0
-          || diagnosic.range.end.line < 0 || diagnosic.range.end.character < 0) {
-        console.dir(diagnosic.range.start);
-        console.dir(diagnosic.range.end);
-        console.dir(issue.getKey());
-      }
-
-      diagnostics.push(diagnosic);
-    }
-
+    const diagnostics = new abaplint.LanguageServer(this.reg).diagnostics(textDocument);
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
