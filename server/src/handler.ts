@@ -48,14 +48,8 @@ export class Handler {
     this.connection.sendNotification("abaplint/helpResponse", help);
   }
 
-  public onDefinition(_params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
-/*
-    return {
-      uri: _params.textDocument.uri,
-      range: LServer.Range.create(10, 0, 10, 0),
-    };
-*/
-    return undefined;
+  public onDefinition(params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
+    return new abaplint.LanguageServer(this.reg).definition(params);
   }
 
   public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {

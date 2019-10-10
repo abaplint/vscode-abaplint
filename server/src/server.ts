@@ -26,7 +26,6 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     /*
     signatureHelpProvider: [],
     completionProvider
-    definitionProvider  // go to definition
     ?? // go to implementation
     referencesProvider
     codeActionProvider

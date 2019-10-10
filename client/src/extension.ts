@@ -21,13 +21,12 @@ function show() {
     helpPanel = vscode.window.createWebviewPanel(
       "abaplint_help",
       "abaplint",
-      vscode.ViewColumn.Beside,
-      {},
+      {viewColumn: vscode.ViewColumn.Beside, preserveFocus: true},
     );
     helpPanel.onDidDispose(() => { helpPanel = undefined; });
   } else {
     console.dir("reveal");
-    helpPanel.reveal();
+    helpPanel.reveal(undefined, true);
   }
 
   helpPanel.webview.html = buildHelp("loading");

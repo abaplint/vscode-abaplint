@@ -9,6 +9,7 @@ Features:
 * Diagnostics / Linting
 * Outline
 * Hover information
+* Go to definition
 
 Keybindings:
 * Shift+F1 = pretty print
