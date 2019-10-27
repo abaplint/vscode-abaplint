@@ -3,8 +3,6 @@ import * as glob from "glob";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "abaplint";
 import {URI} from "vscode-uri";
-import {Registry} from "abaplint/build/src/registry"; // todo, typing?
-import {versionToText} from "abaplint/build/src/version"; // todo, typing?
 import {Setup} from "./setup";
 
 export interface IFolder {
@@ -14,7 +12,7 @@ export interface IFolder {
 
 export class Handler {
   private folders: IFolder[] = [];
-  private reg: Registry;
+  private reg: abaplint.Registry;
   private configInfo: string;
   private connection: LServer.Connection;
 
@@ -71,8 +69,8 @@ export class Handler {
 
     this.reg.parse();
 
-    const tooltip = "ABAP version: " + versionToText(this.reg.getConfig().getVersion()) + "\n" +
-      "abaplint: " + Registry.abaplintVersion() + "\n" +
+    const tooltip = "ABAP version: " + abaplint.versionToText(this.reg.getConfig().getVersion()) + "\n" +
+      "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
       "config: " + this.configInfo + "\n" +
       "Objects: " + this.reg.getObjects().length;
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
