@@ -13,7 +13,6 @@ export interface IFolder {
 export class Handler {
   private folders: IFolder[] = [];
   private reg: abaplint.Registry;
-  private configInfo: string;
   private connection: LServer.Connection;
 
   constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
@@ -71,7 +70,6 @@ export class Handler {
 
     const tooltip = "ABAP version: " + abaplint.versionToText(this.reg.getConfig().getVersion()) + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
-      "config: " + this.configInfo + "\n" +
       "Objects: " + this.reg.getObjects().length;
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }
