@@ -2,6 +2,7 @@ import * as path from "path";
 import {workspace, ExtensionContext} from "vscode";
 import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient";
 import * as vscode from "vscode";
+import {createCLAS, createINTF} from "./create";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -41,7 +42,7 @@ function buildHelp(html: string): string {
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Coding</title>
+    <title>abaplint help</title>
   </head>
   <body>` + html + `</body>
   </html>`;
@@ -63,6 +64,8 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.dummy", dummy));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", show));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.show", show));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.clas", createCLAS));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.intf", createINTF));
 
   // if the extension is launched in debug mode then the debug server options are used
   // otherwise the run options are used
@@ -72,7 +75,7 @@ export function activate(context: ExtensionContext) {
   };
 
   const clientOptions: LanguageClientOptions = {
-// todo, also register XML files?
+// todo, also register XML files? yes
     documentSelector: [{language: "abap"}],
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
