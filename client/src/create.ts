@@ -12,6 +12,14 @@ async function createFile(uri: vscode.Uri, content: string) {
   await vscode.window.showTextDocument(uri, {preview: false});
 }
 
+async function findFolder(uri: vscode.Uri) {
+  const parsed = path.parse(uri.fsPath);
+  const stat = await vscode.workspace.fs.stat(uri);
+  return stat.type === vscode.FileType.File ?
+    parsed.dir + path.sep :
+    parsed.dir + path.sep + parsed.base + path.sep;
+}
+
 export async function createCLAS(uri: vscode.Uri) {
   const name = await vscode.window.showInputBox({
     placeHolder: "cl_name",
@@ -19,7 +27,9 @@ export async function createCLAS(uri: vscode.Uri) {
   if (name === undefined || name === "") {
     return;
   }
-  const filename = path.parse(uri.fsPath).dir + path.sep + name + ".clas";
+
+  const dir = await findFolder(uri);
+  const filename = dir + name + ".clas";
 
   const uriXML = vscode.Uri.file(filename + ".xml");
   const dataXML = `<?xml version="1.0" encoding="utf-8"?>
@@ -58,7 +68,9 @@ export async function createINTF(uri: vscode.Uri) {
   if (name === undefined || name === "") {
     return;
   }
-  const filename = path.parse(uri.fsPath).dir + path.sep + name + ".intf";
+
+  const dir = await findFolder(uri);
+  const filename = dir + name + ".intf";
 
   const uriXML = vscode.Uri.file(filename + ".xml");
   const dataXML = `<?xml version="1.0" encoding="utf-8"?>
