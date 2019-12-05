@@ -21,8 +21,7 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
-		"onCommand:abaplint.create.clas",
-		"onCommand:abaplint.create.intf"
+		"onCommand:abaplint.create.artifact"
 	],
 	"icon": "img/abaplint_icon.png",
 	"main": "./client/out/extension",
@@ -38,13 +37,8 @@
 				}
 			},
 			{
-				"command": "abaplint.create.clas",
-				"title": "Create ABAP Class",
-				"category": "abaplint"
-			},
-			{
-				"command": "abaplint.create.intf",
-				"title": "Create ABAP Interface",
+				"command": "abaplint.create.artifact",
+				"title": "Create ABAP Artifact",
 				"category": "abaplint"
 			}
 		],
@@ -69,12 +63,8 @@
 			],
 			"explorer/context": [
 				{
-					"command": "abaplint.create.clas",
+					"command": "abaplint.create.artifact",
 					"group": "abaplint@1"
-				},
-				{
-					"command": "abaplint.create.intf",
-					"group": "abaplint@2"
 				}
 			]
 		},

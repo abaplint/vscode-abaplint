@@ -2,7 +2,7 @@ import * as path from "path";
 import {workspace, ExtensionContext} from "vscode";
 import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient";
 import * as vscode from "vscode";
-import {createCLAS, createINTF} from "./create";
+import {createArtifact} from "./create";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -64,8 +64,7 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.dummy", dummy));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", show));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.show", show));
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.clas", createCLAS));
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.intf", createINTF));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
 
   // if the extension is launched in debug mode then the debug server options are used
   // otherwise the run options are used

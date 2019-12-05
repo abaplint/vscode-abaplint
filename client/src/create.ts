@@ -20,7 +20,28 @@ async function findFolder(uri: vscode.Uri) {
     parsed.dir + path.sep + parsed.base + path.sep;
 }
 
-export async function createCLAS(uri: vscode.Uri) {
+export async function createArtifact(uri: vscode.Uri) {
+  console.dir("sdf");
+  const type = await vscode.window.showQuickPick(["Class", "Interface"]);
+  if (type === undefined || type === "") {
+    return;
+  }
+
+  switch (type) {
+    case "Class":
+      await createCLAS(uri);
+      break;
+    case "Interface":
+      await createINTF(uri);
+      break;
+    default:
+      break;
+  }
+
+}
+
+async function createCLAS(uri: vscode.Uri) {
+
   const name = await vscode.window.showInputBox({
     placeHolder: "cl_name",
   });
@@ -61,7 +82,7 @@ ENDCLASS.`;
   await createFile(uriABAP, dataABAP);
 }
 
-export async function createINTF(uri: vscode.Uri) {
+async function createINTF(uri: vscode.Uri) {
   const name = await vscode.window.showInputBox({
     placeHolder: "if_name",
   });
