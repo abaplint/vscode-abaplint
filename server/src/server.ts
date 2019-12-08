@@ -26,16 +26,15 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     /*
     signatureHelpProvider: [],
     completionProvider
-    ?? // go to implementation
     referencesProvider
     codeActionProvider
     codeLensProvider
-    renameProvider
     */
     textDocumentSync: documents.syncKind,
     documentFormattingProvider: true,
     definitionProvider: true,
     documentSymbolProvider: true,
+    renameProvider: {prepareProvider: true},
     hoverProvider: true,
   }};
 });
@@ -63,6 +62,14 @@ connection.onDefinition((params) => {
 
 connection.onHover((params) => {
   return handler.onHover(params);
+});
+
+connection.onRenameRequest((params) => {
+  return handler.onRename(params);
+});
+
+connection.onPrepareRename((params) => {
+  return handler.onPrepareRename(params);
 });
 
 connection.onDocumentFormatting((params) => {
