@@ -46,7 +46,7 @@ export class Handler {
   }
 
   public onDefinition(params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
-    return new abaplint.LanguageServer(this.reg).definition(params);
+    return new abaplint.LanguageServer(this.reg).gotoDefinition(params);
   }
 
   public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {
@@ -75,18 +75,16 @@ export class Handler {
   }
 
   public onRename(params: LServer.RenameParams): LServer.WorkspaceEdit | undefined {
-    console.dir("onRename");
-    console.dir(params);
-// todo
-    return undefined;
+    return new abaplint.LanguageServer(this.reg).rename(params);
   }
 
   public onPrepareRename(params: LServer.TextDocumentPositionParams): {range: LServer.Range, placeholder: string} | undefined {
-    console.dir("onPrepareRename");
-    console.dir(params);
-// todo
+    const result = new abaplint.LanguageServer(this.reg).prepareRename(params);
+    if (result === undefined) {
 // todo, https://github.com/microsoft/vscode/issues/85157
-    throw new Error(`abaplint, The element can't be renamed.`);
+      throw new Error(`abaplint, the element can't be renamed`);
+    }
+    return result;
   }
 
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
