@@ -75,7 +75,11 @@ export class Handler {
   }
 
   public onRename(params: LServer.RenameParams): LServer.WorkspaceEdit | undefined {
-    return new abaplint.LanguageServer(this.reg).rename(params);
+    const result = new abaplint.LanguageServer(this.reg).rename(params);
+    if (result === undefined) {
+      return result;
+    }
+    return result;
   }
 
   public onPrepareRename(params: LServer.TextDocumentPositionParams): {range: LServer.Range, placeholder: string} | undefined {
