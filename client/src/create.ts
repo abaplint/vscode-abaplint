@@ -21,7 +21,6 @@ async function findFolder(uri: vscode.Uri) {
 }
 
 export async function createArtifact(uri: vscode.Uri) {
-  console.dir("sdf");
   const type = await vscode.window.showQuickPick(["Class", "Interface"]);
   if (type === undefined || type === "") {
     return;
@@ -50,7 +49,7 @@ async function createCLAS(uri: vscode.Uri) {
   }
 
   const dir = await findFolder(uri);
-  const filename = dir + name + ".clas";
+  const filename = dir + name.toLowerCase() + ".clas";
 
   const uriXML = vscode.Uri.file(filename + ".xml");
   const dataXML = `<?xml version="1.0" encoding="utf-8"?>
@@ -91,7 +90,7 @@ async function createINTF(uri: vscode.Uri) {
   }
 
   const dir = await findFolder(uri);
-  const filename = dir + name + ".intf";
+  const filename = dir + name.toLowerCase() + ".intf";
 
   const uriXML = vscode.Uri.file(filename + ".xml");
   const dataXML = `<?xml version="1.0" encoding="utf-8"?>
