@@ -1,5 +1,4 @@
 [![Installs](https://vsmarketplacebadge.apphb.com/installs/larshp.vscode-abaplint.svg)](https://marketplace.visualstudio.com/items?itemName=larshp.vscode-abaplint)
-[![Build Status](https://travis-ci.com/abaplint/vscode-abaplint.svg?branch=master)](https://travis-ci.com/abaplint/vscode-abaplint)
 [![Dependency Status](https://david-dm.org/abaplint/vscode-abaplint.svg)](https://david-dm.org/abaplint/vscode-abaplint)
 
 # vscode-abaplint
