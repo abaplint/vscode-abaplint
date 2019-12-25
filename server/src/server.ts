@@ -1,4 +1,5 @@
 import * as LServer from "vscode-languageserver";
+import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
 
 const connection = LServer.createConnection(LServer.ProposedFeatures.all);
@@ -6,7 +7,7 @@ let handler: Handler;
 
 // create a simple text document manager. The text document manager
 // supports full document sync only
-const documents: LServer.TextDocuments = new LServer.TextDocuments();
+const documents = new LServer.TextDocuments(TextDocument);
 let hasConfigurationCapability: boolean | undefined = false;
 let hasWorkspaceFolderCapability: boolean | undefined = false;
 
@@ -30,7 +31,7 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     codeActionProvider
     codeLensProvider
     */
-    textDocumentSync: documents.syncKind,
+    textDocumentSync: LServer.TextDocumentSyncKind.Full,
     documentFormattingProvider: true,
     definitionProvider: true,
     documentSymbolProvider: true,

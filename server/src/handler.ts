@@ -50,7 +50,8 @@ export class Handler {
   }
 
   public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {
-    const edits = new abaplint.LanguageServer(this.reg).documentFormatting(params);
+    // todo, temporary workaround, the options from params should also be passed to abaplint
+    const edits = new abaplint.LanguageServer(this.reg).documentFormatting({textDocument: params.textDocument});
     return edits;
   }
 

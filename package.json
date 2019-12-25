@@ -126,7 +126,8 @@
 	},
 	"scripts": {
 		"tslint": "tslint -c tslint.json 'client/src/**/*.ts' 'server/src/**/*.ts'",
-		"vscode:prepublish": "npm run compile",
+		"vscode:prepublish": "npm run compile && npm run webpack",
+		"webpack": "webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js",
 		"compile:client": "tsc -p ./client/tsconfig.json",
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
@@ -141,8 +142,12 @@
 	"devDependencies": {
 		"@types/mocha": "^5.2.7",
 		"@types/node": "^13.1.0",
+		"merge-options": "^2.0.0",
+		"ts-loader": "^6.2.1",
 		"tslint": "^5.20.1",
 		"tslint-eslint-rules": "^5.4.0",
-		"typescript": "^3.7.4"
+		"typescript": "^3.7.4",
+		"webpack": "^4.41.4",
+		"webpack-cli": "^3.3.10"
 	}
 }
