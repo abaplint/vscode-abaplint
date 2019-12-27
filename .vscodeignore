@@ -1,6 +1,5 @@
 .vscode/**
 .github/**
-img/**
 .gitignore
 **/tsconfig.json
 **/tsconfig.base.json
