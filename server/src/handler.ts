@@ -69,7 +69,7 @@ export class Handler {
 
     this.reg.parse();
 
-    const tooltip = "ABAP version: " + abaplint.versionToText(this.reg.getConfig().getVersion()) + "\n" +
+    const tooltip = "ABAP version: " + this.reg.getConfig().getVersion() + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
       "Objects: " + this.reg.getObjects().length;
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
