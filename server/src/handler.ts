@@ -92,6 +92,16 @@ export class Handler {
     return result;
   }
 
+  public onCodeAction(_params: LServer.CodeActionParams): LServer.CodeAction[] {
+// todo, call abaplint
+    return [];
+  }
+
+  public onDocumentHighlight(_params: LServer.DocumentHighlightParams): LServer.DocumentHighlight[] {
+// todo, call abaplint
+    return [];
+  }
+
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
     return new abaplint.LanguageServer(this.reg).documentSymbol(params);
   }

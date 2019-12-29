@@ -28,12 +28,13 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     signatureHelpProvider: [],
     completionProvider
     referencesProvider
-    codeActionProvider
     codeLensProvider
     */
     textDocumentSync: LServer.TextDocumentSyncKind.Full,
     documentFormattingProvider: true,
     definitionProvider: true,
+    codeActionProvider: true,
+    documentHighlightProvider: true,
     documentSymbolProvider: true,
     renameProvider: {prepareProvider: true},
     hoverProvider: true,
@@ -55,6 +56,14 @@ connection.onInitialized(() => {
       connection.console.log("Workspace folder change event received.");
     });
   }
+});
+
+connection.onCodeAction((params) => {
+  return handler.onCodeAction(params);
+});
+
+connection.onDocumentHighlight((params) => {
+  return handler.onDocumentHighlight(params);
 });
 
 connection.onDefinition((params) => {
