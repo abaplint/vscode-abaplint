@@ -3,9 +3,11 @@ import {workspace, ExtensionContext} from "vscode";
 import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient";
 import * as vscode from "vscode";
 import {createArtifact} from "./create";
+import {Highlight} from "./highlight";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
+let highlight: Highlight;
 let helpPanel: vscode.WebviewPanel | undefined;
 
 function dummy() {
@@ -26,13 +28,12 @@ function show() {
     );
     helpPanel.onDidDispose(() => { helpPanel = undefined; });
   } else {
-    console.dir("reveal");
     helpPanel.reveal(undefined, true);
   }
 
   helpPanel.webview.html = buildHelp("loading");
 
-  client.sendRequest("abaplint/helpRequest", {uri: editor.document.uri.toString(), position: editor.selection.active});
+  client.sendRequest("abaplint/help/request", {uri: editor.document.uri.toString(), position: editor.selection.active});
 }
 
 function buildHelp(html: string): string {
@@ -49,12 +50,7 @@ function buildHelp(html: string): string {
 }
 
 export function activate(context: ExtensionContext) {
-  // the server is implemented in node
-  const serverModule = context.asAbsolutePath(
-    path.join("server", "out", "server.js"),
-  );
-  // the debug options for the server
-  // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+  const serverModule = context.asAbsolutePath(path.join("server", "out", "server.js"));
   const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
 
   myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -66,27 +62,22 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.show", show));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
 
-  // if the extension is launched in debug mode then the debug server options are used
-  // otherwise the run options are used
   const serverOptions: ServerOptions = {
     run: {module: serverModule, transport: TransportKind.ipc},
     debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
   };
 
   const clientOptions: LanguageClientOptions = {
-// todo, also register XML files? yes
+// todo, also register XML files? yes, but look for abaplint.json / .abapgit.xml
     documentSelector: [{language: "abap"}],
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
     },
   };
 
-  // create the language client and start the client.
-  client = new LanguageClient(
-    "languageServerABAP",
-    "Language Server ABAP",
-    serverOptions,
-    clientOptions);
+  client = new LanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
+
+  highlight = new Highlight(client).register(context);
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
@@ -98,10 +89,14 @@ export function activate(context: ExtensionContext) {
       }
     });
 
-    client.onNotification("abaplint/helpResponse", (html: string) => {
+    client.onNotification("abaplint/help/response", (html: string) => {
       if (helpPanel) {
         helpPanel.webview.html = buildHelp(html);
       }
+    });
+
+    client.onNotification("abaplint/highlight/definitions/response", (data) => {
+      highlight.highlightDefinitionsResponse(data.ranges);
     });
   });
   context.subscriptions.push(client.start());

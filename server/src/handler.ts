@@ -42,7 +42,13 @@ export class Handler {
 
   public onHelp(uri: string, position: LServer.Position) {
     const help = new abaplint.LanguageServer(this.reg).help({uri: uri}, position);
-    this.connection.sendNotification("abaplint/helpResponse", help);
+    this.connection.sendNotification("abaplint/help/response", help);
+  }
+
+  public onHighlightDefinitions(doc: {uri: string}) {
+    const ranges = new abaplint.LanguageServer(this.reg).listDefinitionPositions(doc);
+    console.log("length: " + ranges.length);
+    this.connection.sendNotification("abaplint/highlight/definitions/response", {ranges});
   }
 
   public onDefinition(params: LServer.TextDocumentPositionParams): LServer.Location | undefined {

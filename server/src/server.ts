@@ -107,8 +107,12 @@ connection.onDidChangeWatchedFiles((_change) => {
 // todo, update to abaplint.json received
 });
 
-connection.onRequest("abaplint/helpRequest", (data) => {
+connection.onRequest("abaplint/help/request", (data) => {
   handler.onHelp(data.uri, data.position);
+});
+
+connection.onRequest("abaplint/highlight/definitions/request", (data) => {
+  handler.onHighlightDefinitions(data);
 });
 
 documents.listen(connection);
