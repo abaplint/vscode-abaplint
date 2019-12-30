@@ -52,7 +52,6 @@ export class Handler {
 
   public onHighlightReads(doc: {uri: string}) {
     const ranges = new abaplint.LanguageServer(this.reg).listReadPositions(doc);
-    console.dir(ranges);
     this.connection.sendNotification("abaplint/highlight/reads/response", {ranges, uri: doc.uri});
   }
 
