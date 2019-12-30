@@ -50,6 +50,17 @@ export class Handler {
     this.connection.sendNotification("abaplint/highlight/definitions/response", {ranges, uri: doc.uri});
   }
 
+  public onHighlightReads(doc: {uri: string}) {
+    const ranges = new abaplint.LanguageServer(this.reg).listReadPositions(doc);
+    console.dir(ranges);
+    this.connection.sendNotification("abaplint/highlight/reads/response", {ranges, uri: doc.uri});
+  }
+
+  public onHighlightWrites(doc: {uri: string}) {
+    const ranges = new abaplint.LanguageServer(this.reg).listWritePositions(doc);
+    this.connection.sendNotification("abaplint/highlight/writes/response", {ranges, uri: doc.uri});
+  }
+
   public onDefinition(params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
     return new abaplint.LanguageServer(this.reg).gotoDefinition(params);
   }

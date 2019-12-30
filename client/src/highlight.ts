@@ -2,15 +2,25 @@ import * as vscode from "vscode";
 import {ExtensionContext, TextEditorDecorationType} from "vscode";
 import {LanguageClient} from "vscode-languageclient";
 
+// todo, refactor, a lot of the code in this class is similar, lazy me
+
 export class Highlight {
   private readonly client: LanguageClient;
-  private readonly decorationType: TextEditorDecorationType;
-  private activated: string[];
+  private readonly definitionsType: TextEditorDecorationType;
+  private readonly readsType: TextEditorDecorationType;
+  private readonly writesType: TextEditorDecorationType;
+  private definitionsActivated: string[];
+  private readsActivated: string[];
+  private writesActivated: string[];
 
   constructor(client: LanguageClient) {
     this.client = client;
-    this.decorationType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid red"});
-    this.activated = [];
+    this.definitionsType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid red"});
+    this.readsType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid green"});
+    this.writesType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid blue"});
+    this.definitionsActivated = [];
+    this.readsActivated = [];
+    this.writesActivated = [];
   }
 
   public highlightDefinitionsRequest() {
@@ -21,9 +31,32 @@ export class Highlight {
     this.client.sendRequest("abaplint/highlight/definitions/request", {uri: editor.document.uri.toString()});
   }
 
+  public highlightReadsRequest() {
+    const editor = vscode.window.activeTextEditor;
+    if (editor === undefined) {
+      return;
+    }
+    this.client.sendRequest("abaplint/highlight/reads/request", {uri: editor.document.uri.toString()});
+  }
+
+  public highlightWritesRequest() {
+    const editor = vscode.window.activeTextEditor;
+    if (editor === undefined) {
+      return;
+    }
+    this.client.sendRequest("abaplint/highlight/writes/request", {uri: editor.document.uri.toString()});
+  }
+
   public register(context: ExtensionContext): Highlight {
-    const cmd = vscode.commands.registerCommand("abaplint.highlight.definitions", this.highlightDefinitionsRequest.bind(this));
-    context.subscriptions.push(cmd);
+    const cmd1 = vscode.commands.registerCommand("abaplint.highlight.definitions", this.highlightDefinitionsRequest.bind(this));
+    context.subscriptions.push(cmd1);
+
+    const cmd2 = vscode.commands.registerCommand("abaplint.highlight.reads", this.highlightReadsRequest.bind(this));
+    context.subscriptions.push(cmd2);
+
+    const cmd3 = vscode.commands.registerCommand("abaplint.highlight.writes", this.highlightWritesRequest.bind(this));
+    context.subscriptions.push(cmd3);
+
     return this;
   }
 
@@ -38,9 +71,9 @@ export class Highlight {
       return;
     }
 
-    if (this.activated.indexOf(uri) >= 0) {
-      this.activated.splice(this.activated.indexOf(uri), 1);
-      editor.setDecorations(this.decorationType, []);
+    if (this.definitionsActivated.indexOf(uri) >= 0) {
+      this.definitionsActivated.splice(this.definitionsActivated.indexOf(uri), 1);
+      editor.setDecorations(this.definitionsType, []);
       return;
     }
 
@@ -48,7 +81,57 @@ export class Highlight {
     for (const r of ranges) {
       decorations.push({range: r});
     }
-    editor.setDecorations(this.decorationType, decorations);
-    this.activated.push(uri);
+    editor.setDecorations(this.definitionsType, decorations);
+    this.definitionsActivated.push(uri);
+  }
+
+  public highlightReadsResponse(ranges: vscode.Range[], resultUri: string) {
+    const editor = vscode.window.activeTextEditor;
+    if (editor === undefined) {
+      return;
+    }
+
+    const uri = editor.document.uri.toString();
+    if (resultUri !== uri) {
+      return;
+    }
+
+    if (this.readsActivated.indexOf(uri) >= 0) {
+      this.readsActivated.splice(this.readsActivated.indexOf(uri), 1);
+      editor.setDecorations(this.readsType, []);
+      return;
+    }
+
+    const decorations: vscode.DecorationOptions[] = [];
+    for (const r of ranges) {
+      decorations.push({range: r});
+    }
+    editor.setDecorations(this.readsType, decorations);
+    this.readsActivated.push(uri);
+  }
+
+  public highlightWritesResponse(ranges: vscode.Range[], resultUri: string) {
+    const editor = vscode.window.activeTextEditor;
+    if (editor === undefined) {
+      return;
+    }
+
+    const uri = editor.document.uri.toString();
+    if (resultUri !== uri) {
+      return;
+    }
+
+    if (this.writesActivated.indexOf(uri) >= 0) {
+      this.writesActivated.splice(this.writesActivated.indexOf(uri), 1);
+      editor.setDecorations(this.writesType, []);
+      return;
+    }
+
+    const decorations: vscode.DecorationOptions[] = [];
+    for (const r of ranges) {
+      decorations.push({range: r});
+    }
+    editor.setDecorations(this.writesType, decorations);
+    this.writesActivated.push(uri);
   }
 }

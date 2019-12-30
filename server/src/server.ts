@@ -115,5 +115,13 @@ connection.onRequest("abaplint/highlight/definitions/request", (data) => {
   handler.onHighlightDefinitions(data);
 });
 
+connection.onRequest("abaplint/highlight/reads/request", (data) => {
+  handler.onHighlightReads(data);
+});
+
+connection.onRequest("abaplint/highlight/writes/request", (data) => {
+  handler.onHighlightWrites(data);
+});
+
 documents.listen(connection);
 connection.listen();

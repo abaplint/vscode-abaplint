@@ -43,6 +43,18 @@
 				"category": "abaplint"
 			},
 			{
+				"command": "abaplint.highlight.reads",
+				"title": "ABAP Toggle Highlight Reads",
+				"enablement": "editorLangId == 'abap'",
+				"category": "abaplint"
+			},
+			{
+				"command": "abaplint.highlight.writes",
+				"title": "ABAP Toggle Highlight Writes",
+				"enablement": "editorLangId == 'abap'",
+				"category": "abaplint"
+			},
+			{
 				"command": "abaplint.create.artifact",
 				"title": "Create ABAP Artifact",
 				"category": "abaplint"

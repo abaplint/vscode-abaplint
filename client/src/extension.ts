@@ -62,6 +62,12 @@ export function activate(context: ExtensionContext) {
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
       highlight.highlightDefinitionsResponse(data.ranges, data.uri);
     });
+    client.onNotification("abaplint/highlight/reads/response", (data) => {
+      highlight.highlightReadsResponse(data.ranges, data.uri);
+    });
+    client.onNotification("abaplint/highlight/writes/response", (data) => {
+      highlight.highlightWritesResponse(data.ranges, data.uri);
+    });
   });
   context.subscriptions.push(client.start());
 }
