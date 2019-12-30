@@ -5,12 +5,12 @@ import {LanguageClient} from "vscode-languageclient";
 export class Highlight {
   private readonly client: LanguageClient;
   private readonly decorationType: TextEditorDecorationType;
-  private activated: boolean;
+  private activated: string[];
 
   constructor(client: LanguageClient) {
     this.client = client;
     this.decorationType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid red"});
-    this.activated = false;
+    this.activated = [];
   }
 
   public highlightDefinitionsRequest() {
@@ -27,20 +27,28 @@ export class Highlight {
     return this;
   }
 
-  public highlightDefinitionsResponse(ranges: vscode.Range[]) {
+  public highlightDefinitionsResponse(ranges: vscode.Range[], resultUri: string) {
     const editor = vscode.window.activeTextEditor;
     if (editor === undefined) {
       return;
-    } else if (this.activated === true) {
+    }
+
+    const uri = editor.document.uri.toString();
+    if (resultUri !== uri) {
+      return;
+    }
+
+    if (this.activated.indexOf(uri) >= 0) {
+      this.activated.splice(this.activated.indexOf(uri), 1);
       editor.setDecorations(this.decorationType, []);
       return;
     }
-    // todo, check that the user still have the same active editor/uri
+
     const decorations: vscode.DecorationOptions[] = [];
     for (const r of ranges) {
       decorations.push({range: r});
     }
     editor.setDecorations(this.decorationType, decorations);
-    this.activated = true;
+    this.activated.push(uri);
   }
 }

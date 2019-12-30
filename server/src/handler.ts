@@ -47,8 +47,7 @@ export class Handler {
 
   public onHighlightDefinitions(doc: {uri: string}) {
     const ranges = new abaplint.LanguageServer(this.reg).listDefinitionPositions(doc);
-    console.log("length: " + ranges.length);
-    this.connection.sendNotification("abaplint/highlight/definitions/response", {ranges});
+    this.connection.sendNotification("abaplint/highlight/definitions/response", {ranges, uri: doc.uri});
   }
 
   public onDefinition(params: LServer.TextDocumentPositionParams): LServer.Location | undefined {

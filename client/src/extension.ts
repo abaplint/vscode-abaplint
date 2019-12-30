@@ -60,7 +60,7 @@ export function activate(context: ExtensionContext) {
     });
 
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
-      highlight.highlightDefinitionsResponse(data.ranges);
+      highlight.highlightDefinitionsResponse(data.ranges, data.uri);
     });
   });
   context.subscriptions.push(client.start());
