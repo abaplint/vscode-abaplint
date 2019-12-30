@@ -35,12 +35,12 @@
 					"dark": "img/abaplint.svg",
 					"light": "img/abaplint.svg"
 				}
-      },
+			},
 			{
 				"command": "abaplint.highlight.definitions",
-        "title": "ABAP Toggle Highlight Definitions",
-        "enablement": "editorLangId == 'abap'",
-        "category": "abaplint"
+				"title": "ABAP Toggle Highlight Definitions",
+				"enablement": "editorLangId == 'abap'",
+				"category": "abaplint"
 			},
 			{
 				"command": "abaplint.create.artifact",

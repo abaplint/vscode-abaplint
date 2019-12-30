@@ -4,49 +4,16 @@ import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} fro
 import * as vscode from "vscode";
 import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
+import {Help} from "./help";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
-let helpPanel: vscode.WebviewPanel | undefined;
+let help: Help;
 
 function dummy() {
+// used for catching shortcuts CTRL+F1 and CTRL+F2
 // dont do anything
-}
-
-function show() {
-  const editor = vscode.window.activeTextEditor;
-  if (editor === undefined) {
-    return;
-  }
-
-  if (helpPanel === undefined) {
-    helpPanel = vscode.window.createWebviewPanel(
-      "abaplint_help",
-      "abaplint",
-      {viewColumn: vscode.ViewColumn.Beside, preserveFocus: true},
-    );
-    helpPanel.onDidDispose(() => { helpPanel = undefined; });
-  } else {
-    helpPanel.reveal(undefined, true);
-  }
-
-  helpPanel.webview.html = buildHelp("loading");
-
-  client.sendRequest("abaplint/help/request", {uri: editor.document.uri.toString(), position: editor.selection.active});
-}
-
-function buildHelp(html: string): string {
-  return `<!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none';">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>abaplint help</title>
-  </head>
-  <body>` + html + `</body>
-  </html>`;
 }
 
 export function activate(context: ExtensionContext) {
@@ -58,8 +25,6 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.show();
 
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.dummy", dummy));
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", show));
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.show", show));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
 
   const serverOptions: ServerOptions = {
@@ -78,6 +43,7 @@ export function activate(context: ExtensionContext) {
   client = new LanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
 
   highlight = new Highlight(client).register(context);
+  help = new Help(client).register(context);
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
@@ -89,10 +55,8 @@ export function activate(context: ExtensionContext) {
       }
     });
 
-    client.onNotification("abaplint/help/response", (html: string) => {
-      if (helpPanel) {
-        helpPanel.webview.html = buildHelp(html);
-      }
+    client.onNotification("abaplint/help/response", (data) => {
+      help.helpResponse(data);
     });
 
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
