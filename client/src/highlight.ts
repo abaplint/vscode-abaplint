@@ -15,9 +15,9 @@ export class Highlight {
 
   constructor(client: LanguageClient) {
     this.client = client;
-    this.definitionsType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid red"});
-    this.readsType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid green"});
-    this.writesType = vscode.window.createTextEditorDecorationType({fontWeight: "bold", border: "1px solid blue"});
+    this.definitionsType = vscode.window.createTextEditorDecorationType({backgroundColor: "darkgreen"});
+    this.readsType = vscode.window.createTextEditorDecorationType({border: "1px solid red"});
+    this.writesType = vscode.window.createTextEditorDecorationType({outline: "1px solid blue"});
     this.definitionsActivated = [];
     this.readsActivated = [];
     this.writesActivated = [];
