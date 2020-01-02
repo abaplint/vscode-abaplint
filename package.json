@@ -155,7 +155,8 @@
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
 	"extensionDependencies": [
-		"larshp.vscode-abap"
+		"larshp.vscode-abap",
+		"hudakf.cds"
 	],
 	"devDependencies": {
 		"@types/mocha": "^5.2.7",
