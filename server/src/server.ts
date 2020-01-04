@@ -23,7 +23,7 @@ connection.onInitialize((params: LServer.InitializeParams) => {
 
   handler = new Handler(connection, params);
 
-  return {capabilities: {
+  const result: LServer.InitializeResult = {capabilities: {
     /*
     signatureHelpProvider: [],
     completionProvider
@@ -36,9 +36,12 @@ connection.onInitialize((params: LServer.InitializeParams) => {
     codeActionProvider: true,
     documentHighlightProvider: true,
     documentSymbolProvider: true,
+    implementationProvider: true,
     renameProvider: {prepareProvider: true},
     hoverProvider: true,
   }};
+
+  return result;
 });
 
 connection.onInitialized(() => {
@@ -105,6 +108,10 @@ documents.onDidChangeContent((change) => {
 connection.onDidChangeWatchedFiles((_change) => {
   connection.console.log("We received an file change event");
 // todo, update to abaplint.json received
+});
+
+connection.onImplementation((params) => {
+  return handler.onImplementation(params);
 });
 
 connection.onRequest("abaplint/help/request", (data) => {

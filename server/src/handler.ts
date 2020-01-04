@@ -91,30 +91,26 @@ export class Handler {
   }
 
   public onRename(params: LServer.RenameParams): LServer.WorkspaceEdit | undefined {
-    const result = new abaplint.LanguageServer(this.reg).rename(params);
-    if (result === undefined) {
-      return result;
-    }
-    return result;
+    return new abaplint.LanguageServer(this.reg).rename(params);
   }
 
   public onPrepareRename(params: LServer.TextDocumentPositionParams): {range: LServer.Range, placeholder: string} | undefined {
     const result = new abaplint.LanguageServer(this.reg).prepareRename(params);
+    /*
     if (result === undefined) {
 // todo, https://github.com/microsoft/vscode/issues/85157
       throw new Error(`abaplint, the element can't be renamed`);
     }
+    */
     return result;
   }
 
-  public onCodeAction(_params: LServer.CodeActionParams): LServer.CodeAction[] {
-// todo, call abaplint
-    return [];
+  public onCodeAction(params: LServer.CodeActionParams): LServer.CodeAction[] {
+    return new abaplint.LanguageServer(this.reg).codeActions(params);
   }
 
-  public onDocumentHighlight(_params: LServer.DocumentHighlightParams): LServer.DocumentHighlight[] {
-// todo, call abaplint
-    return [];
+  public onDocumentHighlight(params: LServer.DocumentHighlightParams): LServer.DocumentHighlight[] {
+    return new abaplint.LanguageServer(this.reg).documentHighlight(params);
   }
 
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
@@ -122,8 +118,12 @@ export class Handler {
   }
 
   public onHover(params: LServer.TextDocumentPositionParams): LServer.Hover | undefined {
-    const hover = new abaplint.LanguageServer(this.reg).hover(params);
-    return hover;
+    return new abaplint.LanguageServer(this.reg).hover(params);
+  }
+
+  public onImplementation(_params: LServer.TextDocumentPositionParams): LServer.Location[] {
+// todo, call abaplint
+    return [];
   }
 
 }
