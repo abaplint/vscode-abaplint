@@ -121,9 +121,8 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).hover(params);
   }
 
-  public onImplementation(_params: LServer.TextDocumentPositionParams): LServer.Location[] {
-// todo, call abaplint
-    return [];
+  public onImplementation(params: LServer.TextDocumentPositionParams): LServer.Location[] {
+    return new abaplint.LanguageServer(this.reg).implementation(params);
   }
 
 }

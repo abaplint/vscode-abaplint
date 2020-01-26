@@ -17,7 +17,7 @@
 		"update-vscode": "vscode-install"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^6.0.0"
+		"vscode-languageclient": "^6.1.0"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.41.0"
