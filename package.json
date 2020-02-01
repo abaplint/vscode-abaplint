@@ -159,8 +159,8 @@
 		"hudakf.cds"
 	],
 	"devDependencies": {
-		"@types/mocha": "^5.2.7",
-		"@types/node": "^13.5.0",
+		"@types/mocha": "^7.0.1",
+		"@types/node": "^13.7.0",
 		"merge-options": "^2.0.0",
 		"ts-loader": "^6.2.1",
 		"tslint": "^6.0.0",
