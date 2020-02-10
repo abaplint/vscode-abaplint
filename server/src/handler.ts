@@ -71,8 +71,6 @@ export class Handler {
   }
 
   public loadAndParseAll() {
-    this.connection.sendNotification("abaplint/status", {text: "$(sync~spin) Parsing Files"});
-
     for (const folder of this.folders) {
       const filenames = glob.sync(folder.root + folder.glob, {nosort: true, nodir: true});
       for (const filename of filenames) {
@@ -83,7 +81,9 @@ export class Handler {
     }
 
     this.reg.parse();
+  }
 
+  public updateTooltip() {
     const tooltip = "ABAP version: " + this.reg.getConfig().getVersion() + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
       "Objects: " + this.reg.getObjects().length;
