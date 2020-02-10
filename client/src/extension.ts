@@ -35,12 +35,14 @@ export function activate(context: ExtensionContext) {
   const clientOptions: LanguageClientOptions = {
 // todo, also register XML files? yes, but look for abaplint.json / .abapgit.xml
     documentSelector: [{language: "abap"}],
+    progressOnInitialization: true,
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
     },
   };
 
   client = new LanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
+  client.registerProposedFeatures();
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
@@ -69,6 +71,7 @@ export function activate(context: ExtensionContext) {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
   });
+
   context.subscriptions.push(client.start());
 }
 

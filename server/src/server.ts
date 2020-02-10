@@ -11,7 +11,9 @@ const documents = new LServer.TextDocuments(TextDocument);
 let hasConfigurationCapability: boolean | undefined = false;
 let hasWorkspaceFolderCapability: boolean | undefined = false;
 
-connection.onInitialize((params: LServer.InitializeParams) => {
+connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progress) => {
+  progress.begin("initializing abaplint", 0, "hello world", true);
+
   const capabilities = params.capabilities;
 
   // does the client support the `workspace/configuration` request?
