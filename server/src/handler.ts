@@ -4,6 +4,7 @@ import * as LServer from "vscode-languageserver";
 import * as abaplint from "abaplint";
 import {URI} from "vscode-uri";
 import {Setup} from "./setup";
+import {WorkDoneProgress} from "vscode-languageserver/lib/progress";
 
 export interface IFolder {
   root: string;
@@ -70,16 +71,18 @@ export class Handler {
     return edits;
   }
 
-  public loadAndParseAll() {
+  public async loadAndParseAll(progress: WorkDoneProgress) {
+    progress.report(10, "Reading files");
     for (const folder of this.folders) {
       const filenames = glob.sync(folder.root + folder.glob, {nosort: true, nodir: true});
       for (const filename of filenames) {
-        const raw = fs.readFileSync(filename, "utf-8");
+        const raw = await fs.promises.readFile(filename, "utf-8");
         const uri = URI.file(filename).toString();
         this.reg.addFile(new abaplint.MemoryFile(uri, raw.replace(/\r/g, "")));
       }
     }
 
+    progress.report(20, "Parsing files");
     this.reg.parse();
   }
 

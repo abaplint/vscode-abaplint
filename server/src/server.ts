@@ -12,7 +12,6 @@ let hasConfigurationCapability: boolean | undefined = false;
 let hasWorkspaceFolderCapability: boolean | undefined = false;
 
 connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progress) => {
-  progress.begin("abaplint", 0, "Parsing Files, stay calm and wait", true);
 
   const capabilities = params.capabilities;
 
@@ -23,8 +22,9 @@ connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progre
   hasWorkspaceFolderCapability =
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
+  progress.begin("abaplint", 0, "Initialize", true);
   handler = new Handler(connection, params);
-  handler.loadAndParseAll();
+  await handler.loadAndParseAll(progress);
   progress.done();
 
   const result: LServer.InitializeResult = {capabilities: {
