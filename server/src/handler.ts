@@ -12,27 +12,39 @@ export interface IFolder {
 }
 
 class Progress implements abaplint.IProgress {
+  private readonly renderThrottle = 2000;
   private readonly progress: WorkDoneProgress;
-//  private total: number;
+  private total: number;
+  private lastRender: number;
   private current: number;
 
   public constructor(progress: WorkDoneProgress) {
     this.progress = progress;
   }
 
-  public set(_total: number, _text: string): void {
-//    this.progress.report(text);
-//    this.total = total;
+  public set(total: number, _text: string): void {
+    this.total = total;
     this.current = 0;
+    this.lastRender = 0;
   }
 
   public async tick(text: string) {
     this.current++;
-    // todo, change this to be time based, eg every 2 seconds
-    if (this.current % 75 === 0) {
-      this.progress.report(30, text);
+
+    // dont run the logic too often
+    if (this.current % 10 !== 0) {
+      return;
+    }
+
+    const now = Date.now();
+    const delta = now - this.lastRender;
+    // only update progress every this.throttle milliseconds
+    if (delta > this.renderThrottle) {
+      const percent = Math.floor((this.current / this.total) * 100);
+      this.progress.report(percent, text);
       // hack
       await new Promise((resolve) => {setTimeout(resolve, 0); });
+      this.lastRender = Date.now();
     }
   }
 }
@@ -98,7 +110,7 @@ export class Handler {
   }
 
   public async loadAndParseAll(progress: WorkDoneProgress) {
-    progress.report(10, "Reading files");
+    progress.report(0, "Reading files");
     for (const folder of this.folders) {
       const filenames = glob.sync(folder.root + folder.glob, {nosort: true, nodir: true});
       for (const filename of filenames) {
@@ -108,7 +120,7 @@ export class Handler {
       }
     }
 
-    progress.report(20, "Parsing files");
+    progress.report(0, "Parsing files");
     await this.reg.parseAsync(new Progress(progress));
   }
 
