@@ -11,6 +11,32 @@ export interface IFolder {
   glob: string;
 }
 
+class Progress implements abaplint.IProgress {
+  private readonly progress: WorkDoneProgress;
+//  private total: number;
+  private current: number;
+
+  public constructor(progress: WorkDoneProgress) {
+    this.progress = progress;
+  }
+
+  public set(_total: number, _text: string): void {
+//    this.progress.report(text);
+//    this.total = total;
+    this.current = 0;
+  }
+
+  public async tick(text: string) {
+    this.current++;
+    // todo, change this to be time based, eg every 2 seconds
+    if (this.current % 75 === 0) {
+      this.progress.report(30, text);
+      // hack
+      await new Promise((resolve) => {setTimeout(resolve, 0); });
+    }
+  }
+}
+
 export class Handler {
   private folders: IFolder[] = [];
   private reg: abaplint.Registry;
@@ -83,7 +109,7 @@ export class Handler {
     }
 
     progress.report(20, "Parsing files");
-    this.reg.parse();
+    await this.reg.parseAsync(new Progress(progress));
   }
 
   public updateTooltip() {
