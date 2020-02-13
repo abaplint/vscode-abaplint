@@ -22,7 +22,7 @@ connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progre
   hasWorkspaceFolderCapability =
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
-  progress.begin("abaplint", 0, "Initialize", true);
+  progress.begin("", 0, "Initialize", true);
   handler = new Handler(connection, params);
   await handler.loadAndParseAll(progress);
   progress.done();
