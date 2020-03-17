@@ -68,7 +68,7 @@ export class Handler {
       return; // ignore git things, triggered by revert code
     }
 
-    const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText().replace(/\r/g, ""));
+    const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText());
     try {
       this.reg.updateFile(file);
     } catch  {
@@ -116,7 +116,7 @@ export class Handler {
       for (const filename of filenames) {
         const raw = await fs.promises.readFile(filename, "utf-8");
         const uri = URI.file(filename).toString();
-        this.reg.addFile(new abaplint.MemoryFile(uri, raw.replace(/\r/g, "")));
+        this.reg.addFile(new abaplint.MemoryFile(uri, raw));
       }
     }
 
