@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as glob from "glob";
 import * as LServer from "vscode-languageserver";
-import * as abaplint from "abaplint";
+import * as abaplint from "@abaplint/core";
 import {URI} from "vscode-uri";
 import {Setup} from "./setup";
 import {WorkDoneProgress} from "vscode-languageserver/lib/progress";

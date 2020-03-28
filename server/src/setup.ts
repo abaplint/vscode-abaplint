@@ -1,7 +1,7 @@
 import {URI} from "vscode-uri";
 import {IFolder} from "./handler";
 import * as LServer from "vscode-languageserver";
-import * as abaplint from "abaplint";
+import * as abaplint from "@abaplint/core";
 import * as fs from "fs";
 import * as path from "path";
 
