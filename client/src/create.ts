@@ -2,12 +2,14 @@ import * as path from "path";
 import * as vscode from "vscode";
 import {Buffer} from "buffer";
 
-// todo: check for overwriting files
-// vscode.window.showErrorMessage("File already exists");
-
 // todo: run formatter on generated ABAP
 
 async function createFile(uri: vscode.Uri, content: string) {
+
+  if (await fileExists(uri)) {
+    vscode.window.showErrorMessage("File already exists!");
+    return;
+  }
   await vscode.workspace.fs.writeFile(uri, Buffer.from(content, "utf8"));
   await vscode.window.showTextDocument(uri, {preview: false});
 }
@@ -18,6 +20,15 @@ async function findFolder(uri: vscode.Uri) {
   return stat.type === vscode.FileType.File ?
     parsed.dir + path.sep :
     parsed.dir + path.sep + parsed.base + path.sep;
+}
+
+async function fileExists(uri: vscode.Uri): Promise<boolean> {
+  try {
+    await vscode.workspace.fs.stat(uri);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function createArtifact(uri: vscode.Uri) {
