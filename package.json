@@ -160,10 +160,10 @@
 	],
 	"devDependencies": {
 		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.9.5",
+		"@types/node": "^13.11.1",
 		"merge-options": "^2.0.0",
 		"ts-loader": "^6.2.2",
-		"tslint": "^6.1.0",
+		"tslint": "^6.1.1",
 		"tslint-eslint-rules": "^5.4.0",
 		"typescript": "^3.8.3",
 		"webpack": "^4.42.1",
