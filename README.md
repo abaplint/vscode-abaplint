@@ -8,6 +8,7 @@ Features:
 * Outline
 * Hover information
 * Go to definition
+* Quick fixes
 
 Keybindings:
 * Shift+F1 = pretty print
