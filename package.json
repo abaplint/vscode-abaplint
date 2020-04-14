@@ -21,7 +21,8 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
-		"onCommand:abaplint.create.artifact"
+		"onCommand:abaplint.create.artifact",
+		"onCommand:abaplint.create.default-config"
 	],
 	"icon": "img/abaplint_icon.png",
 	"main": "./client/out/extension",
@@ -58,6 +59,11 @@
 				"command": "abaplint.create.artifact",
 				"title": "Create ABAP Artifact",
 				"category": "abaplint"
+			},
+			{
+				"command": "abaplint.create.default-config",
+				"title": "Create default config",
+				"category": "abaplint"
 			}
 		],
 		"jsonValidation": [
@@ -82,6 +88,10 @@
 			"explorer/context": [
 				{
 					"command": "abaplint.create.artifact",
+					"group": "abaplint@1"
+				},
+				{
+					"command": "abaplint.create.default-config",
 					"group": "abaplint@1"
 				}
 			]

@@ -5,11 +5,13 @@ import * as vscode from "vscode";
 import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
+import {Config} from "./config";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
 let help: Help;
+let config: Config;
 
 function dummy() {
 // used for catching shortcuts CTRL+F1 and CTRL+F2
@@ -46,6 +48,7 @@ export function activate(context: ExtensionContext) {
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
+  config = new Config(client).register(context);
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
@@ -59,6 +62,10 @@ export function activate(context: ExtensionContext) {
 
     client.onNotification("abaplint/help/response", (data) => {
       help.helpResponse(data);
+    });
+
+    client.onNotification("abaplint/config/default/response", (data) => {
+      config.defaultConfigResponse(data);
     });
 
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
