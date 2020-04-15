@@ -134,5 +134,9 @@ connection.onRequest("abaplint/highlight/writes/request", (data) => {
   handler.onHighlightWrites(data);
 });
 
+connection.onRequest("abaplint/config/default/request", () => {
+  handler.onGetConfig();
+});
+
 documents.listen(connection);
 connection.listen();

@@ -146,6 +146,11 @@ export class Handler {
     return result;
   }
 
+  public onGetConfig() {
+    const defaultConfigString = JSON.stringify(abaplint.Config.getDefault().get(), undefined, 2);
+    this.connection.sendNotification("abaplint/config/default/response", defaultConfigString);
+  }
+
   public onCodeAction(params: LServer.CodeActionParams): LServer.CodeAction[] {
     return new abaplint.LanguageServer(this.reg).codeActions(params);
   }

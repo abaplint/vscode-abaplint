@@ -50,6 +50,13 @@ export async function createArtifact(uri: vscode.Uri) {
 
 }
 
+export async function createConfig(uri: vscode.Uri, config: string) {
+  const dir = await findFolder(uri);
+  const filename = dir + "abaplint.json";
+  const uriConfig = vscode.Uri.file(filename);
+  await createFile(uriConfig, config);
+}
+
 async function createCLAS(uri: vscode.Uri) {
 
   const name = await vscode.window.showInputBox({
