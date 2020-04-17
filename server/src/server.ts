@@ -59,7 +59,7 @@ connection.onInitialized(() => {
   }
   if (hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders((_event) => {
-// todo, handle event
+      // todo, handle event
       connection.console.log("Workspace folder change event received.");
     });
   }
@@ -110,8 +110,16 @@ documents.onDidChangeContent((change) => {
 // todo, documents.onDelete, how are file deletions handled ?
 
 connection.onDidChangeWatchedFiles((_change) => {
-  connection.console.log("We received an file change event");
-// todo, update to abaplint.json received
+  connection.console.log("We received a file change event");
+  // tslint:disable-next-line: prefer-for-of
+  for (let i = 0; i < _change.changes.length; i++) {
+    const change = _change.changes[i];
+    if (change.uri.endsWith("abaplint.json")) {
+      connection.console.log("abaplint.json was changed, reloading...");
+      handler.configChanged(documents);
+      break;
+    }
+  }
 });
 
 connection.onImplementation((params) => {
