@@ -111,9 +111,7 @@ documents.onDidChangeContent((change) => {
 
 connection.onDidChangeWatchedFiles((_change) => {
   connection.console.log("We received a file change event");
-  // tslint:disable-next-line: prefer-for-of
-  for (let i = 0; i < _change.changes.length; i++) {
-    const change = _change.changes[i];
+  for (const change of _change.changes.values()) {
     if (change.uri.endsWith("abaplint.json")) {
       connection.console.log("abaplint.json was changed, reloading...");
       handler.configChanged(documents);
