@@ -5,6 +5,7 @@ import * as abaplint from "@abaplint/core";
 import {URI} from "vscode-uri";
 import {Setup} from "./setup";
 import {WorkDoneProgress} from "vscode-languageserver/lib/progress";
+import {TextDocument} from "vscode-languageserver-textdocument";
 
 export interface IFolder {
   root: string;
@@ -53,14 +54,19 @@ export class Handler {
   private folders: IFolder[] = [];
   private reg: abaplint.Registry;
   private connection: LServer.Connection;
+  private setup: Setup;
 
   constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
     this.reg = new abaplint.Registry();
     this.connection = connection;
 
-    const setup = new Setup(connection);
-    this.folders = setup.determineFolders(params.workspaceFolders);
-    this.reg.setConfig(setup.readConfig(this.folders));
+    this.setup = new Setup(connection);
+    this.folders = this.setup.determineFolders(params.workspaceFolders);
+    this.readAndSetConfig();
+  }
+
+  private readAndSetConfig() {
+    this.reg.setConfig(this.setup.readConfig(this.folders));
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
@@ -77,6 +83,13 @@ export class Handler {
 
     const diagnostics = new abaplint.LanguageServer(this.reg).diagnostics(textDocument);
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
+  }
+
+  public configChanged(documents: LServer.TextDocuments<TextDocument>) {
+    this.readAndSetConfig();
+    for (const document of documents.all()) {
+      this.validateDocument(document);
+    }
   }
 
   public onHelp(uri: string, position: LServer.Position) {
