@@ -170,7 +170,7 @@
 	],
 	"devDependencies": {
 		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.11.1",
+		"@types/node": "^13.13.0",
 		"merge-options": "^2.0.0",
 		"ts-loader": "^7.0.0",
 		"tslint": "^6.1.1",
