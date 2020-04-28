@@ -77,7 +77,7 @@ export class Handler {
     const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText());
     try {
       this.reg.updateFile(file);
-    } catch  {
+    } catch {
       this.reg.addFile(file);
     }
 
