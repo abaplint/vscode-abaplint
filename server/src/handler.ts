@@ -6,7 +6,7 @@ import {URI} from "vscode-uri";
 import {Setup} from "./setup";
 import {WorkDoneProgress} from "vscode-languageserver/lib/progress";
 import {TextDocument} from "vscode-languageserver-textdocument";
-import { FileOperations } from "./file_operations";
+import {FileOperations} from "./file_operations";
 import * as childProcess from "child_process";
 import * as os from "os";
 import * as path from "path";
@@ -150,7 +150,7 @@ export class Handler {
         (async () => {
           process.stderr.write("Clone: " + dep.url + "\n");
           const dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
-          childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", { cwd: dir, stdio: "inherit" });
+          childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir, stdio: "inherit"});
           const names = FileOperations.loadFileNames(dir + dep.files);
           let files: abaplint.IFile[] = [];
           files = files.concat(await FileOperations.loadFiles(false, names));
