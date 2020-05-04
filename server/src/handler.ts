@@ -137,13 +137,13 @@ export class Handler {
       }
     }
 
-    this.addDependencies(this.reg);
+    this.addDependencies();
 
     progress.report(0, "Parsing files");
     await this.reg.parseAsync(new Progress(progress));
   }
 
-  private addDependencies(reg: abaplint.Registry) {
+  private addDependencies() {
     const deps = this.reg.getConfig().get().dependencies;
     if (deps) {
       deps.forEach((dep) => {
@@ -155,7 +155,7 @@ export class Handler {
           let files: abaplint.IFile[] = [];
           files = files.concat(await FileOperations.loadFiles(names));
           files.forEach((file) => {
-            reg.addFile(new abaplint.MemoryFile(file.getFilename(), file.getRaw()));
+            this.reg.addFile(new abaplint.MemoryFile(file.getFilename(), file.getRaw()));
           });
           FileOperations.deleteFolderRecursive(dir);
         })();
