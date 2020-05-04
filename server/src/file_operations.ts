@@ -1,9 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as zlib from "zlib";
 import * as glob from "glob";
 import {IFile, MemoryFile} from "@abaplint/core";
-import {CompressedFile} from "./compressed_file";
 
 export class FileOperations {
 
@@ -32,7 +30,7 @@ export class FileOperations {
     return files;
   }
 
-  public static async loadFiles(compress: boolean, input: string[]): Promise<IFile[]> {
+  public static async loadFiles(input: string[]): Promise<IFile[]> {
     const files: IFile[] = [];
 
     for (const filename of input) {
@@ -42,15 +40,10 @@ export class FileOperations {
         continue; // not a abapGit file
       }
 
-// note that readFileSync is typically faster than async readFile,
-// https://medium.com/@adamhooper/node-synchronous-code-runs-faster-than-asynchronous-code-b0553d5cf54e
+      // note that readFileSync is typically faster than async readFile,
+      // https://medium.com/@adamhooper/node-synchronous-code-runs-faster-than-asynchronous-code-b0553d5cf54e
       const raw = fs.readFileSync(filename, "utf8");
-      if (compress) {
-// todo, util.promisify(zlib.deflate) does not seem to work?
-        files.push(new CompressedFile(filename, zlib.deflateSync(raw).toString("base64")));
-      } else {
-        files.push(new MemoryFile(filename, raw));
-      }
+      files.push(new MemoryFile(filename, raw));
     }
     return files;
   }

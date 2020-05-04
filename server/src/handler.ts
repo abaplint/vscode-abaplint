@@ -153,7 +153,7 @@ export class Handler {
           childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir, stdio: "inherit"});
           const names = FileOperations.loadFileNames(dir + dep.files);
           let files: abaplint.IFile[] = [];
-          files = files.concat(await FileOperations.loadFiles(false, names));
+          files = files.concat(await FileOperations.loadFiles(names));
           files.forEach(function (file) {
             reg.addFile(new abaplint.MemoryFile(file.getFilename(), file.getRaw()));
           });
