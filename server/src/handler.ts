@@ -146,7 +146,7 @@ export class Handler {
   private async addDependencies(reg: abaplint.Registry) {
     const deps = this.reg.getConfig().get().dependencies;
     if (deps) {
-      deps.forEach(function (dep) {
+      deps.forEach((dep) => {
         (async () => {
           process.stderr.write("Clone: " + dep.url + "\n");
           const dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
@@ -154,7 +154,7 @@ export class Handler {
           const names = FileOperations.loadFileNames(dir + dep.files);
           let files: abaplint.IFile[] = [];
           files = files.concat(await FileOperations.loadFiles(names));
-          files.forEach(function (file) {
+          files.forEach((file) => {
             reg.addFile(new abaplint.MemoryFile(file.getFilename(), file.getRaw()));
           });
           FileOperations.deleteFolderRecursive(dir);
