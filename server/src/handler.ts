@@ -137,13 +137,13 @@ export class Handler {
       }
     }
 
-    this.addDependencies();
+    await this.addDependencies();
 
     progress.report(0, "Parsing files");
     await this.reg.parseAsync(new Progress(progress));
   }
 
-  private addDependencies() {
+  private async addDependencies() {
     const deps = this.reg.getConfig().get().dependencies;
     if (deps) {
       deps.forEach((dep) => {
