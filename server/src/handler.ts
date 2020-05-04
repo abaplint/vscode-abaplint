@@ -137,13 +137,13 @@ export class Handler {
       }
     }
 
-    await this.addDependencies(this.reg);
+    this.addDependencies(this.reg);
 
     progress.report(0, "Parsing files");
     await this.reg.parseAsync(new Progress(progress));
   }
 
-  private async addDependencies(reg: abaplint.Registry) {
+  private addDependencies(reg: abaplint.Registry) {
     const deps = this.reg.getConfig().get().dependencies;
     if (deps) {
       deps.forEach((dep) => {
