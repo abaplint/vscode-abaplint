@@ -77,6 +77,8 @@ export class Handler {
     if (textDocument.uri.match(/^git:/)) {
       return; // ignore git things, triggered by revert code
     }
+// todo: this should verify that the document is within the global.files specified in abaplint.json
+//       this.reg already knows the configuration at this point
 
     const file = new abaplint.MemoryFile(textDocument.uri, textDocument.getText());
     try {

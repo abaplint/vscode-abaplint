@@ -19,7 +19,7 @@ export class Setup {
       for (const workspace of workspaces) {
         ret.push({
           root: URI.parse(workspace.uri).fsPath,
-          glob: "/src/**/*.*"});
+          glob: "/src/**/*.*"});  // todo, this should be taken from abaplint.json
       }
     }
 

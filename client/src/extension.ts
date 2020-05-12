@@ -35,8 +35,7 @@ export function activate(context: ExtensionContext) {
   };
 
   const clientOptions: LanguageClientOptions = {
-// todo, also register XML files? yes, but look for abaplint.json / .abapgit.xml
-    documentSelector: [{language: "abap"}],
+    documentSelector: [{language: "abap"}, {language: "xml"}],
     progressOnInitialization: true,
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
@@ -63,11 +62,9 @@ export function activate(context: ExtensionContext) {
     client.onNotification("abaplint/help/response", (data) => {
       help.helpResponse(data);
     });
-
     client.onNotification("abaplint/config/default/response", (data) => {
       config.defaultConfigResponse(data);
     });
-
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
       highlight.highlightDefinitionsResponse(data.ranges, data.uri);
     });
