@@ -57,12 +57,12 @@
 			},
 			{
 				"command": "abaplint.create.artifact",
-				"title": "Create ABAP Artifact",
+				"title": "abaplint: Create ABAP Artifact",
 				"category": "abaplint"
 			},
 			{
 				"command": "abaplint.create.default-config",
-				"title": "Create default config",
+				"title": "abaplint: Create default config",
 				"category": "abaplint"
 			}
 		],
