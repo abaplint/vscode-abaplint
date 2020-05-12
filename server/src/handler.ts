@@ -6,6 +6,10 @@ import {URI} from "vscode-uri";
 import {Setup} from "./setup";
 import {WorkDoneProgress} from "vscode-languageserver/lib/progress";
 import {TextDocument} from "vscode-languageserver-textdocument";
+import {FileOperations} from "./file_operations";
+import * as childProcess from "child_process";
+import * as os from "os";
+import * as path from "path";
 
 export interface IFolder {
   root: string;
@@ -133,8 +137,30 @@ export class Handler {
       }
     }
 
+    await this.addDependencies();
+
     progress.report(0, "Parsing files");
     await this.reg.parseAsync(new Progress(progress));
+  }
+
+  private async addDependencies() {
+    const deps = this.reg.getConfig().get().dependencies;
+    if (deps) {
+      deps.forEach((dep) => {
+        (async () => {
+          process.stderr.write("Clone: " + dep.url + "\n");
+          const dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
+          childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir, stdio: "inherit"});
+          const names = FileOperations.loadFileNames(dir + dep.files);
+          let files: abaplint.IFile[] = [];
+          files = files.concat(await FileOperations.loadFiles(names));
+          files.forEach((file) => {
+            this.reg.addFile(new abaplint.MemoryFile(file.getFilename(), file.getRaw()));
+          });
+          FileOperations.deleteFolderRecursive(dir);
+        })();
+      });
+    }
   }
 
   public updateTooltip() {
