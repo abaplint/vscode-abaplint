@@ -153,15 +153,15 @@
 		}
 	},
 	"scripts": {
-		"tslint": "tslint -c tslint.json 'client/src/**/*.ts' 'server/src/**/*.ts'",
+		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
 		"vscode:prepublish": "npm run compile && npm run webpack",
 		"webpack": "webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js",
-		"compile:client": "tsc -p ./client/tsconfig.json",
-		"compile:server": "tsc -p ./server/tsconfig.json",
-		"watch:client": "tsc -w -p ./client/tsconfig.json",
-		"watch:server": "tsc -w -p ./server/tsconfig.json",
+		"compile:client": "tsc -p ./client/tsconfig.eslint.json",
+		"compile:server": "tsc -p ./server/tsconfig.eslint.json",
+		"watch:client": "tsc -w -p ./client/tsconfig.eslint.json",
+		"watch:server": "tsc -w -p ./server/tsconfig.eslint.json",
 		"compile": "npm run compile:client && npm run compile:server",
-		"test": "npm run compile && npm run tslint",
+		"test": "npm run compile && npm run lint",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
 	"extensionDependencies": [
@@ -171,6 +171,10 @@
 	"devDependencies": {
 		"@types/mocha": "^7.0.2",
 		"@types/node": "^13.13.5",
+		"@typescript-eslint/eslint-plugin": "^2.33.0",
+		"@typescript-eslint/parser": "^2.33.0",
+		"eslint": "^7.0.0",
+		"eslint-plugin-import": "^2.20.2",
 		"merge-options": "^2.0.0",
 		"ts-loader": "^7.0.4",
 		"tslint": "^6.1.2",
