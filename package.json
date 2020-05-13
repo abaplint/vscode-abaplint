@@ -4,7 +4,7 @@
 	"description": "abaplint",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.4.40",
+	"version": "0.4.41",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -156,10 +156,10 @@
 		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
 		"vscode:prepublish": "npm run compile && npm run webpack",
 		"webpack": "webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js",
-		"compile:client": "tsc -p ./client/tsconfig.eslint.json",
-		"compile:server": "tsc -p ./server/tsconfig.eslint.json",
-		"watch:client": "tsc -w -p ./client/tsconfig.eslint.json",
-		"watch:server": "tsc -w -p ./server/tsconfig.eslint.json",
+		"compile:client": "tsc -p ./client/tsconfig.json",
+		"compile:server": "tsc -p ./server/tsconfig.json",
+		"watch:client": "tsc -w -p ./client/tsconfig.json",
+		"watch:server": "tsc -w -p ./server/tsconfig.json",
 		"compile": "npm run compile:client && npm run compile:server",
 		"test": "npm run compile && npm run lint",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
