@@ -2,7 +2,7 @@
 .github/**
 .gitignore
 **/tsconfig.eslint.json
-**/tsconfig.eslint.base.json
+**/tsconfig.base.json
 **/.eslintrc.js
 shared.webpack.config.js
 client/**
