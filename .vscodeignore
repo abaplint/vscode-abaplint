@@ -1,9 +1,9 @@
 .vscode/**
 .github/**
 .gitignore
-**/tsconfig.json
+**/tsconfig.eslint.json
 **/tsconfig.base.json
-**/tslint.json
+**/.eslintrc.js
 shared.webpack.config.js
 client/**
 !client/out/extension.js

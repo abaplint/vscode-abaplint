@@ -9,11 +9,11 @@ export class Highlight {
   private readonly definitionsType: TextEditorDecorationType;
   private readonly readsType: TextEditorDecorationType;
   private readonly writesType: TextEditorDecorationType;
-  private definitionsActivated: string[];
-  private readsActivated: string[];
-  private writesActivated: string[];
+  private readonly definitionsActivated: string[];
+  private readonly readsActivated: string[];
+  private readonly writesActivated: string[];
 
-  constructor(client: LanguageClient) {
+  public constructor(client: LanguageClient) {
     this.client = client;
     this.definitionsType = vscode.window.createTextEditorDecorationType({backgroundColor: "darkgreen"});
     this.readsType = vscode.window.createTextEditorDecorationType({border: "1px solid red"});

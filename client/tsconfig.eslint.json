@@ -1,16 +1,16 @@
 {
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
-		"target": "es6",
 		"module": "commonjs",
-		"moduleResolution": "node",
-		"sourceMap": true,
+		"target": "es6",
 		"outDir": "out",
 		"rootDir": "src",
-		"lib": [ "es6" ]
+		"lib": [ "es6" ],
+		"sourceMap": true
 	},
 	"include": [
-		"src"
+		"src",		
+		"../.eslintrc.js"
 	],
 	"exclude": [
 		"node_modules"

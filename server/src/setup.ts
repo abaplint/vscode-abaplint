@@ -6,9 +6,9 @@ import * as fs from "fs";
 import * as path from "path";
 
 export class Setup {
-  private connection: LServer.Connection;
+  private readonly connection: LServer.Connection;
 
-  constructor(connection: LServer.Connection) {
+  public constructor(connection: LServer.Connection) {
     this.connection = connection;
   }
 
@@ -41,7 +41,7 @@ export class Setup {
         folders[0].glob = config.get().global.files;
         return config;
       }
-    // tslint:disable-next-line: no-empty
+    // eslint-disable-next-line no-empty
     } catch {}
 
     this.connection.console.log("no custom abaplint config, using defaults");
