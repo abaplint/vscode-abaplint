@@ -6,7 +6,7 @@ export class Help {
   private helpPanel: vscode.WebviewPanel | undefined;
   private readonly client: LanguageClient;
 
-  constructor(client: LanguageClient) {
+  public constructor(client: LanguageClient) {
     this.client = client;
   }
 

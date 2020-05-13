@@ -6,7 +6,7 @@ export class Config {
   private readonly client: LanguageClient;
   private uri: vscode.Uri;
 
-  constructor(client: LanguageClient) {
+  public constructor(client: LanguageClient) {
     this.client = client;
   }
 

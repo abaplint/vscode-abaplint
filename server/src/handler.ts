@@ -55,12 +55,12 @@ class Progress implements abaplint.IProgress {
 }
 
 export class Handler {
-  private folders: IFolder[] = [];
-  private reg: abaplint.Registry;
-  private connection: LServer.Connection;
-  private setup: Setup;
+  private readonly folders: IFolder[] = [];
+  private readonly reg: abaplint.Registry;
+  private readonly connection: LServer.Connection;
+  private readonly setup: Setup;
 
-  constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
+  public constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
     this.reg = new abaplint.Registry();
     this.connection = connection;
 
