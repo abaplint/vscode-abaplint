@@ -46,6 +46,7 @@ export class Help {
         "abaplint_help",
         "abaplint",
         {viewColumn: vscode.ViewColumn.Beside, preserveFocus: true},
+        {enableFindWidget: true, enableCommandUris: true, enableScripts: true}
       );
       this.helpPanel.onDidDispose(() => { this.helpPanel = undefined; });
     } else {
