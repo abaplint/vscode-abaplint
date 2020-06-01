@@ -123,6 +123,16 @@
 				"when": ""
 			},
 			{
+				"command": "editor.action.commentLine",
+				"key": "ctrl+oem_102",
+				"when": "editorLangId == 'abap' && editorTextFocus && !editorReadonly"
+			},
+			{
+				"command": "editor.action.commentLine",
+				"key": "ctrl+shift+oem_102",
+				"when": "editorLangId == 'abap' && editorTextFocus && !editorReadonly"
+			},
+			{
 				"command": "abaplint.f1",
 				"key": "f1",
 				"when": "editorLangId == 'abap' && editorTextFocus"
@@ -170,7 +180,7 @@
 	],
 	"devDependencies": {
 		"@types/mocha": "^7.0.2",
-		"@types/node": "^14.0.5",
+		"@types/node": "^14.0.6",
 		"@typescript-eslint/eslint-plugin": "^2.34.0",
 		"@typescript-eslint/parser": "^2.34.0",
 		"eslint": "^7.0.0",
