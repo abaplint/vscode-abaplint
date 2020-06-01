@@ -39,11 +39,9 @@ export async function createArtifact(uri: vscode.Uri) {
 
   switch (type) {
     case "Class":
-      await createCLAS(uri);
-      break;
+      return createCLAS(uri);
     case "Interface":
-      await createINTF(uri);
-      break;
+      return createINTF(uri);
     default:
       break;
   }

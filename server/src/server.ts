@@ -31,13 +31,13 @@ connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progre
     /*
     signatureHelpProvider: [],
     completionProvider
-    referencesProvider
     codeLensProvider
     */
     textDocumentSync: LServer.TextDocumentSyncKind.Full,
     documentFormattingProvider: true,
     definitionProvider: true,
     codeActionProvider: true,
+    referencesProvider: true,
     documentHighlightProvider: true,
     documentSymbolProvider: true,
     implementationProvider: true,
@@ -122,6 +122,10 @@ connection.onDidChangeWatchedFiles((_change) => {
 
 connection.onImplementation((params) => {
   return handler.onImplementation(params);
+});
+
+connection.onReferences((params) => {
+  return handler.onReferences(params);
 });
 
 connection.onRequest("abaplint/help/request", (data) => {

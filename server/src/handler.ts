@@ -122,6 +122,10 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).gotoDefinition(params);
   }
 
+  public onReferences(params: LServer.TextDocumentPositionParams): LServer.Location[] {
+    return new abaplint.LanguageServer(this.reg).references(params);
+  }
+
   public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {
     // todo, temporary workaround, the options from params should also be passed to abaplint
     const edits = new abaplint.LanguageServer(this.reg).documentFormatting({textDocument: params.textDocument});
