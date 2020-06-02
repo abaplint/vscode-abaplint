@@ -9,6 +9,9 @@ Features:
 * Hover information
 * Go to definition
 * Quick fixes
+* Find references
+* Rename classes
+* Document formatting
 
 Keybindings:
 * Shift+F1 = pretty print
@@ -17,6 +20,8 @@ Keybindings:
 * Ctrl+F3 = save
 * Ctrl+Shift+a = open file
 * F1 = language help
+* Ctrl+< = comment
+* Ctrl+Shift+< = uncomment
 
 ### Diagnostics
 ![diagnostics](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20190907.png)
