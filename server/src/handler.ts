@@ -1,5 +1,3 @@
-import * as fs from "fs";
-import * as glob from "glob";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
 import {URI} from "vscode-uri";
@@ -7,9 +5,7 @@ import {Setup} from "./setup";
 import {WorkDoneProgress} from "vscode-languageserver/lib/progress";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {FileOperations} from "./file_operations";
-import * as childProcess from "child_process";
-import * as os from "os";
-import * as path from "path";
+import {GitOperations} from "./git";
 
 export interface IFolder {
   root: string;
@@ -135,9 +131,9 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgress) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
-      const filenames = glob.sync(folder.root + folder.glob, {nosort: true, nodir: true});
+      const filenames = FileOperations.loadFileNames(folder.root + folder.glob, false);
       for (const filename of filenames) {
-        const raw = await fs.promises.readFile(filename, "utf-8");
+        const raw = await FileOperations.readFile(filename);
         const uri = URI.file(filename).toString();
         this.reg.addFile(new abaplint.MemoryFile(uri, raw));
       }
@@ -152,19 +148,9 @@ export class Handler {
   private async addDependencies() {
     const deps = this.reg.getConfig().get().dependencies;
     if (deps) {
-      deps.forEach((dep) => {
-        (async () => {
-          process.stderr.write("Clone: " + dep.url + "\n");
-          const dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
-          childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir, stdio: "inherit"});
-          const names = FileOperations.loadFileNames(dir + dep.files);
-          let files: abaplint.IFile[] = [];
-          files = files.concat(await FileOperations.loadFiles(names));
-          files.forEach((file) => {
-            this.reg.addFile(new abaplint.MemoryFile(file.getFilename(), file.getRaw()));
-          });
-          FileOperations.deleteFolderRecursive(dir);
-        })();
+      deps.forEach(async (dep) => {
+        const files = await GitOperations.clone(dep);
+        this.reg.addFiles(files);
       });
     }
   }

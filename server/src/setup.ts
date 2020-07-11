@@ -1,8 +1,8 @@
 import {URI} from "vscode-uri";
 import {IFolder} from "./handler";
+import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
-import * as fs from "fs";
 import * as path from "path";
 
 export class Setup {
@@ -35,7 +35,7 @@ export class Setup {
     try {
       if (folders.length > 0) {
         const name = folders[0].root + path.sep + "abaplint.json";
-        const raw = fs.readFileSync(name, "utf-8");
+        const raw = FileOperations.readFileSync(name);
         this.connection.console.log("custom abaplint.json found");
         const config = new abaplint.Config(raw);
         folders[0].glob = config.get().global.files;

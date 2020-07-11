@@ -5,6 +5,14 @@ import {IFile, MemoryFile} from "@abaplint/core";
 
 export class FileOperations {
 
+  public static readFileSync(name: string): string {
+    return fs.readFileSync(name, "utf-8");
+  }
+
+  public static async readFile(name: string): Promise<string> {
+    return fs.promises.readFile(name, "utf-8");
+  }
+
   public static deleteFolderRecursive(p: string) {
     if (fs.existsSync(p)) {
       const files = fs.readdirSync(p);
@@ -21,8 +29,7 @@ export class FileOperations {
   }
 
   public static loadFileNames(arg: string, error = true): string[] {
-    let files: string[] = [];
-    files = files.concat(glob.sync(arg, {nosort: true, nodir: true}));
+    const files = glob.sync(arg, {nosort: true, nodir: true});
     if (files.length === 0 && error) {
       // eslint-disable-next-line no-throw-literal
       throw "Error: No files found";
