@@ -142,7 +142,7 @@ export class Handler {
     await this.addDependencies();
 
     progress.report(0, "Parsing files");
-    await this.reg.parseAsync(new Progress(progress));
+    await this.reg.parseAsync({progress: new Progress(progress)});
   }
 
   private async addDependencies() {
