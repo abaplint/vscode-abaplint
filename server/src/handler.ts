@@ -29,6 +29,10 @@ class Progress implements abaplint.IProgress {
     this.lastRender = 0;
   }
 
+  public tickSync(_text: string) {
+    return;
+  }
+
   public async tick(text: string) {
     this.current++;
 
@@ -52,7 +56,7 @@ class Progress implements abaplint.IProgress {
 
 export class Handler {
   private readonly folders: IFolder[] = [];
-  private readonly reg: abaplint.Registry;
+  private readonly reg: abaplint.IRegistry;
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
 
@@ -158,7 +162,7 @@ export class Handler {
   public updateTooltip() {
     const tooltip = "ABAP version: " + this.reg.getConfig().getVersion() + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
-      "Objects: " + this.reg.getObjects().length;
+      "Objects: " + this.reg.getObjectCount();
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }
 
