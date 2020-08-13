@@ -1,4 +1,4 @@
-import {PathLike, Stats,exists} from "fs";
+import {exists} from "fs";
 import {readFile,lstat,unlink,rmdir,readdir} from "fs/promises";
 import * as path from "path";
 import * as glob from "glob";
@@ -6,18 +6,18 @@ import {IFile, MemoryFile} from "@abaplint/core";
 import {promisify} from "util";
 
 interface FsProvider{
-  readFile:(path:PathLike,options:{ encoding: BufferEncoding; flag?: string; } )=>Promise<string>
-  exists:(path:PathLike)=>Promise<boolean>
-  lstat:(path: PathLike)=> Promise<Stats>
-  unlink:(path: PathLike)=> Promise<void>
-  readdir:(path: PathLike)=> Promise<string[]>
-  rmdir:(path: PathLike)=> Promise<void>
+  readFile:(path:string, encoding: BufferEncoding )=>Promise<string>
+  exists:(path:string)=>Promise<boolean>
+  isDirectory:(path: string)=> Promise<boolean>
+  unlink:(path: string)=> Promise<void>
+  readdir:(path: string)=> Promise<string[]>
+  rmdir:(path: string)=> Promise<void>
 }
 
 let provider:FsProvider = {
-  readFile,
+  readFile:(path:string,encoding:BufferEncoding)=>readFile(path,{encoding}),
   exists:promisify(exists),
-  lstat,
+  isDirectory:(path:string)=>lstat(path).then(s=>s.isDirectory()),
   unlink,
   rmdir,
   readdir,
@@ -30,7 +30,7 @@ export function registerProvider(newProvider:FsProvider){
 export class FileOperations {
 
   public static async readFile(name: string): Promise<string> {
-    return provider.readFile(name,{encoding: "utf-8"});
+    return provider.readFile(name, "utf-8");
   }
 
   public static async deleteFolderRecursive(p: string) {
@@ -38,8 +38,7 @@ export class FileOperations {
       const files = await provider.readdir(p);
       for (const file of files) {
         const curPath = p + path.sep + file;
-        const curStats = await provider.lstat(curPath);
-        if (curStats.isDirectory()) {
+        if (await provider.isDirectory(curPath)) {
           await this.deleteFolderRecursive(curPath);
         } else {
           await provider.unlink(curPath);
