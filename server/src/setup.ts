@@ -30,12 +30,12 @@ export class Setup {
     return ret;
   }
 
-  public readConfig(folders: IFolder[]) {
+  public async readConfig(folders: IFolder[]) {
 
     try {
       if (folders.length > 0) {
         const name = folders[0].root + path.sep + "abaplint.json";
-        const raw = FileOperations.readFileSync(name);
+        const raw = await FileOperations.readFile(name);
         this.connection.console.log("custom abaplint.json found");
         const config = new abaplint.Config(raw);
         folders[0].glob = config.get().global.files;

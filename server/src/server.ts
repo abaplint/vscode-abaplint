@@ -23,7 +23,7 @@ connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progre
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
   progress.begin("", 0, "Initialize", true);
-  handler = new Handler(connection, params);
+  handler = await Handler.create(connection, params);
   await handler.loadAndParseAll(progress);
   progress.done();
 

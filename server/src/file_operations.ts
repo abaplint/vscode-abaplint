@@ -5,21 +5,17 @@ import {IFile, MemoryFile} from "@abaplint/core";
 
 export class FileOperations {
 
-  public static readFileSync(name: string): string {
-    return fs.readFileSync(name, "utf-8");
-  }
-
   public static async readFile(name: string): Promise<string> {
     return fs.promises.readFile(name, "utf-8");
   }
 
-  public static deleteFolderRecursive(p: string) {
+  public static async deleteFolderRecursive(p: string) {
     if (fs.existsSync(p)) {
       const files = fs.readdirSync(p);
       for (const file of files) {
         const curPath = p + path.sep + file;
         if (fs.lstatSync(curPath).isDirectory()) {
-          this.deleteFolderRecursive(curPath);
+          await this.deleteFolderRecursive(curPath);
         } else {
           fs.unlinkSync(curPath);
         }
@@ -28,7 +24,7 @@ export class FileOperations {
     }
   }
 
-  public static loadFileNames(arg: string, error = true): string[] {
+  public static async loadFileNames(arg: string, error = true): Promise<string[]> {
     const files = glob.sync(arg, {nosort: true, nodir: true});
     if (files.length === 0 && error) {
       // eslint-disable-next-line no-throw-literal
