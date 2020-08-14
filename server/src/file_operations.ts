@@ -1,5 +1,4 @@
-import {exists} from "fs";
-import {readFile,lstat,unlink,rmdir,readdir} from "fs/promises";
+import {exists,promises} from "fs";
 import * as path from "path";
 import * as glob from "glob";
 import {IFile, MemoryFile} from "@abaplint/core";
@@ -14,6 +13,7 @@ interface FsProvider{
   rmdir:(path: string)=> Promise<void>
 }
 
+const {readFile,lstat,unlink,rmdir,readdir} = promises;
 let provider:FsProvider = {
   readFile:(path:string,encoding:BufferEncoding)=>readFile(path,{encoding}),
   exists:promisify(exists),
