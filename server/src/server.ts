@@ -1,6 +1,7 @@
 import * as LServer from "vscode-languageserver";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
+import {registerProvider} from "./fs_provider";
 
 const connection = LServer.createConnection(LServer.ProposedFeatures.all);
 let handler: Handler;
@@ -14,6 +15,8 @@ let hasWorkspaceFolderCapability: boolean | undefined = false;
 connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progress) => {
 
   const capabilities = params.capabilities;
+  const {provideFsProxy = false} = params.initializationOptions;
+  if(provideFsProxy) {registerProvider(connection);}
 
   // does the client support the `workspace/configuration` request?
   // if not, we will fall back using global settings

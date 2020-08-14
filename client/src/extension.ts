@@ -1,5 +1,5 @@
 import * as path from "path";
-import {workspace, ExtensionContext} from "vscode";
+import {workspace, ExtensionContext, Uri} from "vscode";
 import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient";
 import * as vscode from "vscode";
 import {createArtifact} from "./create";
@@ -16,6 +16,26 @@ let config: Config;
 function dummy() {
 // used for catching shortcuts CTRL+F1 and CTRL+F2
 // dont do anything
+}
+
+function registerAsFsProvider(client:LanguageClient){
+  const {readFile,stat,delete:deleteFile,readDirectory} = vscode.workspace.fs;
+  client.onRequest("readFile",(path:string)=>readFile(Uri.parse(path)));
+  client.onRequest("unlink", (path:string)=>deleteFile(Uri.parse(path)));
+  client.onRequest("exists", async (path:string)=>{
+    try {
+      return !! await stat(Uri.parse(path));
+    } catch (error) {
+      return false;
+    }
+  });
+  client.onRequest("isDirectory", (path:string)=>stat(Uri.parse(path)).then(s=>s.type === vscode.FileType.Directory));
+  client.onRequest("rmdir", (path:string)=>deleteFile(Uri.parse(path)));
+  client.onRequest("readdir", (path:string)=>readDirectory(Uri.parse(path)).then(l=>l.map(e=>e[0])));
+  client.onRequest("glob",async (pattern:string)=>{
+    const files = await vscode.workspace.findFiles(pattern);
+    return files.map(f=>f.toString());
+  });
 }
 
 export function activate(context: ExtensionContext) {
@@ -37,12 +57,16 @@ export function activate(context: ExtensionContext) {
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{language: "abap"}, {language: "xml"}],
     progressOnInitialization: true,
+    initializationOptions:{
+      provideFsProxy: true,
+    },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
     },
   };
 
   client = new LanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
+  registerAsFsProvider(client);
   client.registerProposedFeatures();
 
   highlight = new Highlight(client).register(context);
