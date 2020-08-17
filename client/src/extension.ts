@@ -1,6 +1,6 @@
 import * as path from "path";
 import {workspace, ExtensionContext, Uri} from "vscode";
-import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient";
+import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State} from "vscode-languageclient";
 import * as vscode from "vscode";
 import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
@@ -19,21 +19,29 @@ function dummy() {
 }
 
 function registerAsFsProvider(client:LanguageClient){
-  const {readFile,stat,delete:deleteFile,readDirectory} = vscode.workspace.fs;
-  client.onRequest("readFile",(path:string)=>readFile(Uri.parse(path)));
-  client.onRequest("unlink", (path:string)=>deleteFile(Uri.parse(path)));
+  const removeWorkspace = (path:string)=>{
+    for (const f of workspace.workspaceFolders || []) {
+      if(path.startsWith(f.uri.path)) {
+        return path.substr(f.uri.path.length);
+      }
+    }
+    return path;
+  };
+  const toUri = (path:string)=>Uri.parse(`file://${path}`);
+  client.onRequest("readFile",async (path:string)=>workspace.fs.readFile(toUri(path)).then(b=>b.toString()));
+  client.onRequest("unlink", (path:string)=>workspace.fs.delete(toUri(path)));
   client.onRequest("exists", async (path:string)=>{
     try {
-      return !! await stat(Uri.parse(path));
+      return !! await workspace.fs.stat(toUri(path));
     } catch (error) {
       return false;
     }
   });
-  client.onRequest("isDirectory", (path:string)=>stat(Uri.parse(path)).then(s=>s.type === vscode.FileType.Directory));
-  client.onRequest("rmdir", (path:string)=>deleteFile(Uri.parse(path)));
-  client.onRequest("readdir", (path:string)=>readDirectory(Uri.parse(path)).then(l=>l.map(e=>e[0])));
+  client.onRequest("isDirectory", (path:string)=>workspace.fs.stat(toUri(path)).then(s=>s.type === vscode.FileType.Directory));
+  client.onRequest("rmdir", (path:string)=>workspace.fs.delete(toUri(path)));
+  client.onRequest("readdir", (path:string)=>workspace.fs.readDirectory(toUri(path)).then(l=>l.map(e=>e[0])));
   client.onRequest("glob",async (pattern:string)=>{
-    const files = await vscode.workspace.findFiles(pattern);
+    const files = await vscode.workspace.findFiles(removeWorkspace(pattern));
     return files.map(f=>f.toString());
   });
 }
@@ -66,12 +74,16 @@ export function activate(context: ExtensionContext) {
   };
 
   client = new LanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
-  registerAsFsProvider(client);
   client.registerProposedFeatures();
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
   config = new Config(client).register(context);
+  client.onDidChangeState(change=>{
+    if(change.newState === State.Running){
+      registerAsFsProvider(client);
+    }
+  });
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {

@@ -11,6 +11,7 @@ let handler: Handler;
 const documents = new LServer.TextDocuments(TextDocument);
 let hasConfigurationCapability: boolean | undefined = false;
 let hasWorkspaceFolderCapability: boolean | undefined = false;
+let createHandler = ()=>Promise.resolve();
 
 connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progress) => {
 
@@ -25,10 +26,14 @@ connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progre
   hasWorkspaceFolderCapability =
     capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
-  progress.begin("", 0, "Initialize", true);
-  handler = await Handler.create(connection, params);
-  await handler.loadAndParseAll(progress);
-  progress.done();
+  createHandler = async ()=>{
+    progress.begin("", 0, "Initialize", true);
+    handler = await Handler.create(connection, params);
+    await handler.loadAndParseAll(progress);
+    progress.done();
+  };
+  if(!provideFsProxy) {await createHandler();}
+  // await createHandler();
 
   const result: LServer.InitializeResult = {capabilities: {
     /*
@@ -50,53 +55,67 @@ connection.onInitialize(async (params: LServer.InitializeParams, _cancel, progre
 
   return result;
 });
+const initialized = new Promise((resolve,reject)=>{
+  connection.onInitialized(async () => {
+    try {
+      if(!handler){ await createHandler();}
+      handler.updateTooltip();
 
-connection.onInitialized(() => {
-
-  handler.updateTooltip();
-
-  if (hasConfigurationCapability) {
-    connection.client.register(
-      LServer.DidChangeConfigurationNotification.type,
-      undefined);
-  }
-  if (hasWorkspaceFolderCapability) {
-    connection.workspace.onDidChangeWorkspaceFolders((_event) => {
-      // todo, handle event
-      connection.console.log("Workspace folder change event received.");
-    });
-  }
+      if (hasConfigurationCapability) {
+        connection.client.register(
+          LServer.DidChangeConfigurationNotification.type,
+          undefined);
+      }
+      if (hasWorkspaceFolderCapability) {
+        connection.workspace.onDidChangeWorkspaceFolders((_event) => {
+          // todo, handle event
+          connection.console.log("Workspace folder change event received.");
+        });
+      }
+      resolve(true);
+    } catch (error) {
+      reject(error);
+    }
+  });
 });
 
-connection.onCodeAction((params) => {
+connection.onCodeAction(async(params) => {
+  await initialized;
   return handler.onCodeAction(params);
 });
 
-connection.onDocumentHighlight((params) => {
+connection.onDocumentHighlight(async(params) => {
+  await initialized;
   return handler.onDocumentHighlight(params);
 });
 
-connection.onDefinition((params) => {
+connection.onDefinition(async(params) => {
+  await initialized;
   return handler.onDefinition(params);
 });
 
-connection.onHover((params) => {
+connection.onHover(async(params) => {
+  await initialized;
   return handler.onHover(params);
 });
 
-connection.onRenameRequest((params) => {
+connection.onRenameRequest(async(params) => {
+  await initialized;
   return handler.onRename(params);
 });
 
-connection.onPrepareRename((params) => {
+connection.onPrepareRename(async(params) => {
+  await initialized;
   return handler.onPrepareRename(params);
 });
 
-connection.onDocumentFormatting((params) => {
+connection.onDocumentFormatting(async(params) => {
+  await initialized;
   return handler.onDocumentFormatting(params);
 });
 
-connection.onDocumentSymbol((params) => {
+connection.onDocumentSymbol(async(params) => {
+  await initialized;
   return handler.onDocumentSymbol(params);
 });
 
@@ -123,11 +142,13 @@ connection.onDidChangeWatchedFiles((_change) => {
   }
 });
 
-connection.onImplementation((params) => {
+connection.onImplementation(async(params) => {
+  await initialized;
   return handler.onImplementation(params);
 });
 
-connection.onReferences((params) => {
+connection.onReferences(async (params) => {
+  await initialized;
   return handler.onReferences(params);
 });
 
