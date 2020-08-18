@@ -22,7 +22,7 @@ function registerAsFsProvider(client:LanguageClient){
   const removeWorkspace = (path:string)=>{
     for (const f of workspace.workspaceFolders || []) {
       if(path.startsWith(f.uri.path)) {
-        return path.substr(f.uri.path.length);
+        return path.substr(f.uri.path.length).replace(/^\//,"");
       }
     }
     return path;
@@ -42,7 +42,7 @@ function registerAsFsProvider(client:LanguageClient){
   client.onRequest("readdir", (path:string)=>workspace.fs.readDirectory(toUri(path)).then(l=>l.map(e=>e[0])));
   client.onRequest("glob",async (pattern:string)=>{
     const files = await vscode.workspace.findFiles(removeWorkspace(pattern));
-    return files.map(f=>f.toString());
+    return files.map(f=>f.path);
   });
 }
 

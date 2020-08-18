@@ -121,11 +121,13 @@ connection.onDocumentSymbol(async(params) => {
 
 connection.onDidChangeConfiguration((_change) => { return undefined; });
 
-documents.onDidClose((e) => {
+documents.onDidClose(async (e) => {
+  await initialized;
   connection.sendDiagnostics({uri: e.document.uri, diagnostics: []});
 });
 
-documents.onDidChangeContent((change) => {
+documents.onDidChangeContent(async (change) => {
+  await initialized;
   handler.validateDocument(change.document);
 });
 
@@ -156,19 +158,23 @@ connection.onRequest("abaplint/help/request", (data) => {
   handler.onHelp(data.uri, data.position);
 });
 
-connection.onRequest("abaplint/highlight/definitions/request", (data) => {
+connection.onRequest("abaplint/highlight/definitions/request", async (data) => {
+  await initialized;
   handler.onHighlightDefinitions(data);
 });
 
-connection.onRequest("abaplint/highlight/reads/request", (data) => {
+connection.onRequest("abaplint/highlight/reads/request", async (data) => {
+  await initialized;
   handler.onHighlightReads(data);
 });
 
-connection.onRequest("abaplint/highlight/writes/request", (data) => {
+connection.onRequest("abaplint/highlight/writes/request", async (data) => {
+  await initialized;
   handler.onHighlightWrites(data);
 });
 
-connection.onRequest("abaplint/config/default/request", () => {
+connection.onRequest("abaplint/config/default/request", async () => {
+  await initialized;
   handler.onGetConfig();
 });
 
