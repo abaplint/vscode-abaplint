@@ -97,8 +97,8 @@ export class Handler {
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
-  public configChanged(documents: LServer.TextDocuments<TextDocument>) {
-    this.readAndSetConfig();
+  public async configChanged(documents: LServer.TextDocuments<TextDocument>) {
+    await this.readAndSetConfig();
     for (const document of documents.all()) {
       this.validateDocument(document);
     }
@@ -141,7 +141,8 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgress) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
-      const filenames = await FileOperations.loadFileNames(folder.root + folder.glob, false);
+      const glob = folder.root === "/" ? folder.glob : `${folder.root}${folder.glob}`;
+      const filenames = await FileOperations.loadFileNames(glob, false);
       for (const filename of filenames) {
         const raw = await FileOperations.readFile(filename);
         const uri = URI.file(filename).toString();

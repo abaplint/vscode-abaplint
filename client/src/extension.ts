@@ -6,6 +6,7 @@ import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
+import {sep} from "path";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -19,15 +20,17 @@ function dummy() {
 }
 
 function registerAsFsProvider(client:LanguageClient){
-  const removeWorkspace = (path:string)=>{
+  const removeWorkspace = (osPattern:string)=>{
+    const pattern = sep === "/" ? osPattern : Uri.file(osPattern).path;
     for (const f of workspace.workspaceFolders || []) {
-      if(path.startsWith(f.uri.path)) {
-        return path.substr(f.uri.path.length).replace(/^\//,"");
+      if(pattern.startsWith(f.uri.path)) {
+        return pattern.substr(f.uri.path.length).replace(/^\//,"");
       }
     }
-    return path;
+    return pattern;
   };
-  const toUri = (path:string)=>Uri.parse(`file://${path}`);
+
+  const toUri = (path:string)=>Uri.file(path);
   client.onRequest("readFile",async (path:string)=>workspace.fs.readFile(toUri(path)).then(b=>b.toString()));
   client.onRequest("unlink", (path:string)=>workspace.fs.delete(toUri(path)));
   client.onRequest("exists", async (path:string)=>{
