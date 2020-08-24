@@ -3,20 +3,20 @@ module.exports = {
   "env": {
     "browser": true,
     "mocha": true,
-    "node": true
+    "node": true,
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": ["client/tsconfig.json", "server/tsconfig.json"],
     "tsconfigRootDir": __dirname,
-    "sourceType": "module"
+    "sourceType": "module",
   },
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
-    "plugin:import/typescript"
+    "plugin:import/typescript",
   ],
   "overrides": [],
   "rules": {
@@ -24,13 +24,17 @@ module.exports = {
     "import/namespace": "off",
     "import/named": "off",
     "space-infix-ops": "error",
+    "space-in-parens": "error",
+    "keyword-spacing": "error",
+    "space-before-blocks": "error",
     "prefer-arrow-callback": "error",
+    "arrow-spacing": "error",
     "import/export": "off",
     "import/newline-after-import": [
       "error",
       {
-        "count": 1
-      }
+        "count": 1,
+      },
     ],
     "object-curly-spacing": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
@@ -53,15 +57,15 @@ module.exports = {
         "SwitchCase": 1,
         "ignoreComments": true,
         "CallExpression": {
-          "arguments": "first"
+          "arguments": "first",
         },
         "FunctionDeclaration": {
-          "parameters": "first"
+          "parameters": "first",
         },
         "FunctionExpression": {
-          "parameters": "first"
-        }
-      }
+          "parameters": "first",
+        },
+      },
     ],
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/member-delimiter-style": "off",
@@ -80,25 +84,27 @@ module.exports = {
       "double",
       {
         "avoidEscape": true,
-        "allowTemplateLiterals": true
-      }
+        "allowTemplateLiterals": true,
+      },
     ],
     "@typescript-eslint/restrict-plus-operands": "off",
     "@typescript-eslint/semi": [
       "error",
-      "always"
+      "always",
     ],
     "@typescript-eslint/triple-slash-reference": "error",
-    "@typescript-eslint/type-annotation-spacing": "off",
+    "@typescript-eslint/type-annotation-spacing": "error",
     "@typescript-eslint/unified-signatures": "error",
     "camelcase": "off",
     "capitalized-comments": [
       "off",
-      "never"
+      "never",
     ],
+    "comma-spacing": "off",
+    "@typescript-eslint/comma-spacing": ["error"],
     "comma-dangle": [
       "error",
-      "always-multiline"
+      "always-multiline",
     ],
     "constructor-super": "error",
     "curly": "error",
@@ -107,7 +113,7 @@ module.exports = {
     "eol-last": "off",
     "eqeqeq": [
       "error",
-      "smart"
+      "smart",
     ],
     "guard-for-in": "off",
     "id-blacklist": "off",
@@ -118,8 +124,8 @@ module.exports = {
         "ignoreRegExpLiterals": true,
         "ignoreStrings": true,
         "ignorePattern": "^\\s*\\*",
-        "code": 140
-      }
+        "code": 140,
+      },
     ],
     "new-parens": "error",
     "no-bitwise": "error",
@@ -142,8 +148,8 @@ module.exports = {
     "no-shadow": [
       "off",
       {
-        "hoist": "all"
-      }
+        "hoist": "all",
+      },
     ],
     "no-sparse-arrays": "error",
     "no-trailing-spaces": "error",
@@ -154,12 +160,12 @@ module.exports = {
     "no-void": "error",
     "one-var": [
       "error",
-      "never"
+      "never",
     ],
     "prefer-const": "error",
     "@typescript-eslint/prefer-readonly": "error",
     "radix": "error",
     "spaced-comment": "off",
-    "use-isnan": "error"
-  }
+    "use-isnan": "error",
+  },
 };

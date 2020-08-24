@@ -1,28 +1,28 @@
 import {sep} from "path";
 import {IFile, MemoryFile} from "@abaplint/core";
-import {exists,promises} from "fs";
+import {exists, promises} from "fs";
 import {promisify} from "util";
 import {sync} from "glob";
 
 export interface FsProvider {
-  readFile:(path:string)=>Promise<string>
-  exists:(path:string)=>Promise<boolean>
-  isDirectory:(path: string)=> Promise<boolean>
-  unlink:(path: string)=> Promise<void>
-  readdir:(path: string)=> Promise<string[]>
-  rmdir:(path: string)=> Promise<void>
-  glob:(pattern:string)=>Promise<string[]>
+  readFile: (path: string) => Promise<string>
+  exists: (path: string) => Promise<boolean>
+  isDirectory: (path: string) => Promise<boolean>
+  unlink: (path: string) => Promise<void>
+  readdir: (path: string) => Promise<string[]>
+  rmdir: (path: string) => Promise<void>
+  glob: (pattern: string) => Promise<string[]>
 }
 
 class DefaultProvider implements FsProvider {
-  public readFile(path:string) {
-    return promises.readFile(path,{encoding:"utf-8"});
+  public readFile(path: string) {
+    return promises.readFile(path, {encoding:"utf-8"});
   }
 
   public exists = promisify(exists);
 
-  public isDirectory(path:string) {
-    return promises.lstat(path).then(s=>s.isDirectory());
+  public isDirectory(path: string) {
+    return promises.lstat(path).then(s => s.isDirectory());
   }
 
   public unlink(path: string) {
@@ -51,7 +51,7 @@ export class FileOperations {
     provider = p;
   }
 
-  public static setDefaultProvider(){
+  public static setDefaultProvider() {
     provider = new DefaultProvider();
   }
 

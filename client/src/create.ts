@@ -19,7 +19,7 @@ async function findFolder(uri: vscode.Uri) {
   if (!uri) {
     // fallback logic: folder of currently opened window (if it is in the workspace), otherwise root of workspace
     const activeWindowUri = vscode.window.activeTextEditor?.document.uri;
-    if (activeWindowUri && vscode.workspace.getWorkspaceFolder(activeWindowUri)){
+    if (activeWindowUri && vscode.workspace.getWorkspaceFolder(activeWindowUri)) {
       uri = activeWindowUri;
     } else {
       return vscode.workspace.rootPath + path.sep;
