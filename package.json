@@ -185,8 +185,8 @@
 		"@typescript-eslint/parser": "^4.0.0-alpha.14",
 		"eslint": "^7.7.0",
 		"eslint-plugin-import": "^2.22.0",
-		"merge-options": "^2.0.0",
-		"ts-loader": "^8.0.2",
+		"merge-options": "^3.0.1",
+		"ts-loader": "^8.0.3",
 		"typescript": "^4.0.2",
 		"webpack": "^4.44.1",
 		"webpack-cli": "^3.3.12"
