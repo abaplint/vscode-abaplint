@@ -1,11 +1,12 @@
 import * as path from "path";
-import {workspace, ExtensionContext} from "vscode";
-import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient";
+import {workspace, ExtensionContext, Uri} from "vscode";
+import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State} from "vscode-languageclient";
 import * as vscode from "vscode";
 import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
+import {sep} from "path";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -16,6 +17,37 @@ let config: Config;
 function dummy() {
 // used for catching shortcuts CTRL+F1 and CTRL+F2
 // dont do anything
+}
+
+function registerAsFsProvider(client:LanguageClient) {
+  const removeWorkspace = (osPattern:string)=>{
+    const pattern = sep === "/" ? osPattern : Uri.file(osPattern).path;
+    for (const f of workspace.workspaceFolders || []) {
+      if(pattern.startsWith(f.uri.path)) {
+        return pattern.substr(f.uri.path.length).replace(/^\//,"");
+      }
+    }
+    return pattern;
+  };
+
+  const toUri = (path:string)=>Uri.file(path);
+  client.onRequest("readFile",async (path:string)=>workspace.fs.readFile(toUri(path)).then(b=>b.toString()));
+  client.onRequest("unlink", (path:string)=>workspace.fs.delete(toUri(path)));
+  client.onRequest("exists", async (path:string)=>{
+    try {
+      return !! await workspace.fs.stat(toUri(path));
+    } catch (error) {
+      return false;
+    }
+  });
+  client.onRequest("isDirectory", (path:string)=>workspace.fs.stat(toUri(path)).then(s=>s.type === vscode.FileType.Directory));
+  client.onRequest("rmdir", (path:string)=>workspace.fs.delete(toUri(path)));
+  client.onRequest("readdir", (path:string)=>workspace.fs.readDirectory(toUri(path)).then(l=>l.map(e=>e[0])));
+  client.onRequest("glob",async (pattern:string)=>{
+    const removed = removeWorkspace(pattern);
+    const files = await vscode.workspace.findFiles(removed);
+    return files.map(f=>f.path);
+  });
 }
 
 export function activate(context: ExtensionContext) {
@@ -37,6 +69,9 @@ export function activate(context: ExtensionContext) {
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{language: "abap"}, {language: "xml"}],
     progressOnInitialization: true,
+    initializationOptions:{
+      provideFsProxy: true,
+    },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
     },
@@ -48,6 +83,11 @@ export function activate(context: ExtensionContext) {
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
   config = new Config(client).register(context);
+  client.onDidChangeState(change=>{
+    if(change.newState === State.Running){
+      registerAsFsProvider(client);
+    }
+  });
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {

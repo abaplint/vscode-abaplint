@@ -60,17 +60,23 @@ export class Handler {
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
 
-  public constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
+  public static async create(connection: LServer.Connection, params: LServer.InitializeParams){
+    const handler = new Handler(connection,params);
+    await handler.readAndSetConfig();
+    return handler;
+  }
+
+  private constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
     this.reg = new abaplint.Registry();
     this.connection = connection;
 
     this.setup = new Setup(connection);
     this.folders = this.setup.determineFolders(params.workspaceFolders);
-    this.readAndSetConfig();
   }
 
-  private readAndSetConfig() {
-    this.reg.setConfig(this.setup.readConfig(this.folders));
+  private async readAndSetConfig() {
+    const config = await this.setup.readConfig(this.folders);
+    this.reg.setConfig(config);
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
@@ -91,8 +97,8 @@ export class Handler {
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
   }
 
-  public configChanged(documents: LServer.TextDocuments<TextDocument>) {
-    this.readAndSetConfig();
+  public async configChanged(documents: LServer.TextDocuments<TextDocument>) {
+    await this.readAndSetConfig();
     for (const document of documents.all()) {
       this.validateDocument(document);
     }
@@ -135,7 +141,8 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgress) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
-      const filenames = FileOperations.loadFileNames(folder.root + folder.glob, false);
+      const glob = folder.root === "/" ? folder.glob : `${folder.root}${folder.glob}`;
+      const filenames = await FileOperations.loadFileNames(glob, false);
       for (const filename of filenames) {
         const raw = await FileOperations.readFile(filename);
         const uri = URI.file(filename).toString();
@@ -151,11 +158,11 @@ export class Handler {
 
   private async addDependencies() {
     const deps = this.reg.getConfig().get().dependencies;
-    if (deps) {
-      deps.forEach(async (dep) => {
-        const files = await GitOperations.clone(dep);
+    if (deps !== undefined) {
+      for (const d of deps) {
+        const files = await GitOperations.clone(d);
         this.reg.addFiles(files);
-      });
+      }
     }
   }
 
