@@ -1,7 +1,7 @@
 import * as LServer from "vscode-languageserver";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
-import {registerProvider} from "./fs_provider";
+import {FsProvider, FileOperations} from "./file_operations";
 
 const connection = LServer.createConnection(LServer.ProposedFeatures.all);
 
@@ -18,7 +18,18 @@ function initialize(){
       try {
         const capabilities = params.capabilities;
         const {provideFsProxy = false} = params.initializationOptions;
-        if(provideFsProxy) {registerProvider(connection);}
+        if (provideFsProxy) {
+          const provider: FsProvider = {
+            readFile:(path:string)=>connection.sendRequest("readFile",path),
+            exists:(path:string)=>connection.sendRequest("unlink",path),
+            isDirectory:(path:string)=>connection.sendRequest("exists",path),
+            unlink:(path:string)=>connection.sendRequest("unlink",path),
+            rmdir:(path:string)=>connection.sendRequest("rmdir",path),
+            readdir:(path:string)=>connection.sendRequest("readdir",path),
+            glob:(pattern:string)=>connection.sendRequest("glob",pattern),
+          };
+          FileOperations.setProvider(provider);
+        }
 
     // does the client support the `workspace/configuration` request?
     // if not, we will fall back using global settings

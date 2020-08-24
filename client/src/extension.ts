@@ -19,7 +19,7 @@ function dummy() {
 // dont do anything
 }
 
-function registerAsFsProvider(client:LanguageClient){
+function registerAsFsProvider(client:LanguageClient) {
   const removeWorkspace = (osPattern:string)=>{
     const pattern = sep === "/" ? osPattern : Uri.file(osPattern).path;
     for (const f of workspace.workspaceFolders || []) {
@@ -44,7 +44,8 @@ function registerAsFsProvider(client:LanguageClient){
   client.onRequest("rmdir", (path:string)=>workspace.fs.delete(toUri(path)));
   client.onRequest("readdir", (path:string)=>workspace.fs.readDirectory(toUri(path)).then(l=>l.map(e=>e[0])));
   client.onRequest("glob",async (pattern:string)=>{
-    const files = await vscode.workspace.findFiles(removeWorkspace(pattern));
+    const removed = removeWorkspace(pattern);
+    const files = await vscode.workspace.findFiles(removed);
     return files.map(f=>f.path);
   });
 }

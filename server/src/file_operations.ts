@@ -1,30 +1,85 @@
 import {sep} from "path";
 import {IFile, MemoryFile} from "@abaplint/core";
-import {getProvider} from "./fs_provider";
+import {exists,promises} from "fs";
+import {promisify} from "util";
+import {sync} from "glob";
+
+export interface FsProvider {
+  readFile:(path:string)=>Promise<string>
+  exists:(path:string)=>Promise<boolean>
+  isDirectory:(path: string)=> Promise<boolean>
+  unlink:(path: string)=> Promise<void>
+  readdir:(path: string)=> Promise<string[]>
+  rmdir:(path: string)=> Promise<void>
+  glob:(pattern:string)=>Promise<string[]>
+}
+
+class DefaultProvider implements FsProvider {
+  public readFile(path:string) {
+    return promises.readFile(path,{encoding:"utf-8"});
+  }
+
+  public exists = promisify(exists);
+
+  public isDirectory(path:string) {
+    return promises.lstat(path).then(s=>s.isDirectory());
+  }
+
+  public unlink(path: string) {
+    return promises.unlink(path);
+  }
+
+  public rmdir(path: string) {
+    return promises.rmdir(path);
+  }
+
+  public readdir(path: string) {
+    return promises.readdir(path);
+  }
+
+  public async glob(pattern: string) {
+    const found = sync(pattern, {nosort: true, nodir: true});
+    return found;
+  }
+}
+
+let provider: FsProvider = new DefaultProvider();
 
 export class FileOperations {
 
+  public static setProvider(p: FsProvider): void {
+    provider = p;
+  }
+
+  public static setDefaultProvider(){
+    provider = new DefaultProvider();
+  }
+
+  public static getProvider(): FsProvider {
+    return provider;
+  }
+
   public static async readFile(name: string): Promise<string> {
-    return getProvider().readFile(name);
+    return provider.readFile(name);
   }
 
   public static async deleteFolderRecursive(p: string) {
-    if (await getProvider().exists(p)) {
-      const files = await getProvider().readdir(p);
+    if (await provider.exists(p)) {
+      const files = await provider.readdir(p);
       for (const file of files) {
         const curPath = p + sep + file;
-        if (await getProvider().isDirectory(curPath)) {
+        if (await provider.isDirectory(curPath)) {
           await this.deleteFolderRecursive(curPath);
         } else {
-          await getProvider().unlink(curPath);
+          await provider.unlink(curPath);
         }
       }
-      await getProvider().rmdir(p);
+      await provider.rmdir(p);
     }
   }
 
   public static async loadFileNames(arg: string, error = true): Promise<string[]> {
-    const files = await getProvider().glob(arg);
+    const files = await provider.glob(arg);
     if (files.length === 0 && error) {
       // eslint-disable-next-line no-throw-literal
       throw "Error: No files found";

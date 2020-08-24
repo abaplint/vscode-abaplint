@@ -8,18 +8,20 @@ import {FileOperations} from "./file_operations";
 export class GitOperations {
 
   public static async clone(dep: abaplint.IDependency): Promise<abaplint.IFile[]> {
+    // workaround for FS Provider, git operation happens on server side
+    const oldProvider = FileOperations.getProvider();
+    FileOperations.setDefaultProvider();
+
     process.stderr.write("Clone: " + dep.url + "\n");
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
     childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir, stdio: "inherit"});
     const names = await FileOperations.loadFileNames(dir + dep.files);
-    let files: abaplint.IFile[] = [];
-    files = files.concat(await FileOperations.loadFiles(names));
-    const ret: abaplint.IFile[] = [];
-    files.forEach((file) => {
-      ret.push(new abaplint.MemoryFile(file.getFilename(), file.getRaw()));
-    });
+    const files = await FileOperations.loadFiles(names);
     await FileOperations.deleteFolderRecursive(dir);
-    return ret;
+
+    FileOperations.setProvider(oldProvider);
+
+    return files;
   }
 
 }

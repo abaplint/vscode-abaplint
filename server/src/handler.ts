@@ -158,11 +158,11 @@ export class Handler {
 
   private async addDependencies() {
     const deps = this.reg.getConfig().get().dependencies;
-    if (deps) {
-      deps.forEach(async (dep) => {
-        const files = await GitOperations.clone(dep);
+    if (deps !== undefined) {
+      for (const d of deps) {
+        const files = await GitOperations.clone(d);
         this.reg.addFiles(files);
-      });
+      }
     }
   }
 
