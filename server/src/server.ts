@@ -11,22 +11,22 @@ const documents = new LServer.TextDocuments(TextDocument);
 let hasConfigurationCapability: boolean | undefined = false;
 let hasWorkspaceFolderCapability: boolean | undefined = false;
 
-function initialize(){
+function initialize() {
 
-  const handlerParams = new Promise<LServer.InitializeParams>((resolve,reject)=>{
+  const handlerParams = new Promise<LServer.InitializeParams>((resolve, reject) => {
     connection.onInitialize(async (params: LServer.InitializeParams, _cancel) => {
       try {
         const capabilities = params.capabilities;
         const {provideFsProxy = false} = params.initializationOptions;
         if (provideFsProxy) {
           const provider: FsProvider = {
-            readFile:(path:string)=>connection.sendRequest("readFile",path),
-            exists:(path:string)=>connection.sendRequest("unlink",path),
-            isDirectory:(path:string)=>connection.sendRequest("exists",path),
-            unlink:(path:string)=>connection.sendRequest("unlink",path),
-            rmdir:(path:string)=>connection.sendRequest("rmdir",path),
-            readdir:(path:string)=>connection.sendRequest("readdir",path),
-            glob:(pattern:string)=>connection.sendRequest("glob",pattern),
+            readFile:(path: string) => connection.sendRequest("readFile", path),
+            exists:(path: string) => connection.sendRequest("unlink", path),
+            isDirectory:(path: string) => connection.sendRequest("exists", path),
+            unlink:(path: string) => connection.sendRequest("unlink", path),
+            rmdir:(path: string) => connection.sendRequest("rmdir", path),
+            readdir:(path: string) => connection.sendRequest("readdir", path),
+            glob:(pattern: string) => connection.sendRequest("glob", pattern),
           };
           FileOperations.setProvider(provider);
         }
@@ -61,14 +61,14 @@ function initialize(){
         //
       } catch (error) {
         reject(error);
-        throw(error);
+        throw error;
       }
     });
 
 
   });
 
-  const initialized = new Promise((resolve,reject)=>{
+  const initialized = new Promise((resolve, reject) => {
     connection.onInitialized(async () => {
       try {
         if (hasConfigurationCapability) {
@@ -89,9 +89,9 @@ function initialize(){
     });
   });
 
-  let handler:Promise<Handler>;
+  let handler: Promise<Handler>;
 
-  const createHandler = async() =>{
+  const createHandler = async() => {
     await initialized;
     const params = await handlerParams;
     const progress = await connection.window.createWorkDoneProgress();
@@ -103,8 +103,8 @@ function initialize(){
     return handler;
   };
 
-  return ()=>{
-    if(!handler){handler = createHandler();}
+  return () => {
+    if (!handler) {handler = createHandler();}
     return handler;
   };
 }

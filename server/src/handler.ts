@@ -60,8 +60,8 @@ export class Handler {
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
 
-  public static async create(connection: LServer.Connection, params: LServer.InitializeParams){
-    const handler = new Handler(connection,params);
+  public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
+    const handler = new Handler(connection, params);
     await handler.readAndSetConfig();
     return handler;
   }
