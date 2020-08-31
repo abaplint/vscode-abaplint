@@ -1,9 +1,9 @@
-name: Main
+name: Test
 
 on: [push, pull_request]
 
 jobs:
-  main:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
