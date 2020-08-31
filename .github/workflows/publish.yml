@@ -1,0 +1,30 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Commands
+      run: |
+        npm install vsce -g
+        npm install
+        npm test
+        vsce publish patch -p $VSCE_TOKEN
+        git status
+        git diff
+      env:
+        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}        
