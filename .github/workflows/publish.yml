@@ -9,21 +9,21 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 1
-    - uses: actions/setup-node@v1
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
       with:
         node-version: '12.x'
     - name: Commands
       env:
-        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}              
+        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
       run: |
         git config --global user.email "actions@github.com"
-        git config --global user.name "Actions CI"        
+        git config --global user.name "Actions CI"
         npm install vsce -g
         npm install
         npm test
         vsce publish patch -p $VSCE_TOKEN
         git status
         git diff
+        git commit -m "Automatic update"
+        git push
