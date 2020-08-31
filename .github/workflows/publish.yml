@@ -25,6 +25,4 @@ jobs:
         git status
         vsce publish patch -p $VSCE_TOKEN
         git status
-        git diff
-        git commit -m "Automatic update"
         git push
