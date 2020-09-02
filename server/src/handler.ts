@@ -160,6 +160,10 @@ export class Handler {
     const deps = this.reg.getConfig().get().dependencies;
     if (deps !== undefined) {
       for (const d of deps) {
+        if (d.url === undefined || d.url === "") {
+          // todo, check if files exists in the repo
+          continue;
+        }
         const files = await GitOperations.clone(d);
         this.reg.addFiles(files);
       }
