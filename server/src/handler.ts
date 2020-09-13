@@ -160,12 +160,22 @@ export class Handler {
     const deps = this.reg.getConfig().get().dependencies;
     if (deps !== undefined) {
       for (const d of deps) {
-        if (d.url === undefined || d.url === "") {
-          // todo, check if files exists in the repo
-          continue;
+        let files: abaplint.IFile[] = [];
+        // try looking in the folder first
+        if (d.folder && d.folder !== "") {
+          const glob = this.folders[0].root + d.folder + d.files;
+          const filenames = await FileOperations.getProvider().glob(glob);
+          for (const filename of filenames) {
+            const raw = await FileOperations.readFile(filename);
+            const uri = URI.file(filename).toString();
+            files.push(new abaplint.MemoryFile(uri, raw));
+          }
         }
-        const files = await GitOperations.clone(d);
-        this.reg.addFiles(files);
+        if (files.length === 0 && d.url !== undefined && d.url !== "") {
+          files = await GitOperations.clone(d);
+        }
+        console.log(files.length + " dependencies found");
+        this.reg.addDependencies(files);
       }
     }
   }
