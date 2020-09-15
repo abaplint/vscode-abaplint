@@ -70,6 +70,14 @@
 			{
 				"fileMatch": "abaplint.json",
 				"url": "https://schema.abaplint.org/schema.json"
+			},
+			{
+				"fileMatch": "abaplint.jsonc",
+				"url": "https://schema.abaplint.org/schema.json"
+			},
+			{
+				"fileMatch": "abaplint.json5",
+				"url": "https://schema.abaplint.org/schema.json"
 			}
 		],
 		"menus": {
