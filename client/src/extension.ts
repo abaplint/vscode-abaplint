@@ -73,7 +73,7 @@ export function activate(context: ExtensionContext) {
       provideFsProxy: true,
     },
     synchronize: {
-      fileEvents: workspace.createFileSystemWatcher("**/abaplint.json"),
+      fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),
     },
   };
 

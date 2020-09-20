@@ -32,20 +32,41 @@ export class Setup {
 
   public async readConfig(folders: IFolder[]) {
 
-    try {
-      if (folders.length > 0) {
-        const name = folders[0].root + path.sep + "abaplint.json";
-        const raw = await FileOperations.readFile(name);
-        this.connection.console.log("custom abaplint.json found");
-        const config = new abaplint.Config(raw);
-        folders[0].glob = config.get().global.files;
-        return config;
-      }
-    // eslint-disable-next-line no-empty
-    } catch {}
+    const raw = await this.findCustomConfig(folders);
+    if (raw && raw !== "") {
+      this.connection.console.log("custom abaplint configuration found");
+      const config = new abaplint.Config(raw);
+      folders[0].glob = config.get().global.files;
+      return config;
+    }
 
     this.connection.console.log("no custom abaplint config, using defaults");
     return abaplint.Config.getDefault();
+  }
+
+  private async findCustomConfig(folders: IFolder[]): Promise<string | undefined> {
+    if (folders.length === 0) {
+      return undefined;
+    }
+
+    const prefix = folders[0].root + path.sep;
+
+    try {
+      return await FileOperations.readFile(prefix + "abaplint.json");
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    try {
+      return await FileOperations.readFile(prefix + "abaplint.jsonc");
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    try {
+      return await FileOperations.readFile(prefix + "abaplint.json5");
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    return undefined;
   }
 
 }

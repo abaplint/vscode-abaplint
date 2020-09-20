@@ -168,7 +168,7 @@ connection.onDidChangeWatchedFiles(async (_change) => {
   connection.console.log("We received a file change event");
   const handler = await getHandler();
   for (const change of _change.changes.values()) {
-    if (change.uri.endsWith("abaplint.json")) {
+    if (change.uri.includes("abaplint.json")) {
       connection.console.log("abaplint.json was changed, reloading...");
       handler.configChanged(documents);
       break;

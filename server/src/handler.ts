@@ -174,7 +174,7 @@ export class Handler {
         if (files.length === 0 && d.url !== undefined && d.url !== "") {
           files = await GitOperations.clone(d);
         }
-        console.log(files.length + " dependencies found");
+        console.log(files.length + " files in dependencies found");
         this.reg.addDependencies(files);
       }
     }
