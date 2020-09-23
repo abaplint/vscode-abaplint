@@ -4,7 +4,7 @@
 	"description": "abaplint",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.4.124",
+	"version": "0.4.125",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
