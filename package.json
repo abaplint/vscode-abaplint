@@ -11,9 +11,9 @@
 	},
 	"publisher": "larshp",
 	"keywords": [
-    "abap",
-    "SAP",
-    "abaplint"
+		"abap",
+		"SAP",
+		"abaplint"
 	],
 	"categories": [
 		"Linters"
