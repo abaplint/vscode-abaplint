@@ -1,7 +1,7 @@
 {
 	"name": "vscode-abaplint",
 	"displayName": "abaplint",
-	"description": "abaplint",
+	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
 	"version": "0.4.128",
@@ -11,7 +11,9 @@
 	},
 	"publisher": "larshp",
 	"keywords": [
-		"abap"
+    "abap",
+    "SAP",
+    "abaplint"
 	],
 	"categories": [
 		"Linters"
