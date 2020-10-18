@@ -70,15 +70,15 @@
 		],
 		"jsonValidation": [
 			{
-				"fileMatch": "abaplint.json",
+				"fileMatch": "abaplint*.json",
 				"url": "https://schema.abaplint.org/schema.json"
 			},
 			{
-				"fileMatch": "abaplint.jsonc",
+				"fileMatch": "abaplint*.jsonc",
 				"url": "https://schema.abaplint.org/schema.json"
 			},
 			{
-				"fileMatch": "abaplint.json5",
+				"fileMatch": "abaplint*.json5",
 				"url": "https://schema.abaplint.org/schema.json"
 			}
 		],
