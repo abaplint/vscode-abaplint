@@ -2,7 +2,7 @@ import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
 import {URI} from "vscode-uri";
 import {Setup} from "./setup";
-import {WorkDoneProgress} from "vscode-languageserver/lib/progress";
+import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {FileOperations} from "./file_operations";
 import {GitOperations} from "./git";
@@ -14,12 +14,12 @@ export interface IFolder {
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
-  private readonly progress: WorkDoneProgress;
+  private readonly progress: WorkDoneProgressReporter;
   private total: number;
   private lastRender: number;
   private current: number;
 
-  public constructor(progress: WorkDoneProgress) {
+  public constructor(progress: WorkDoneProgressReporter) {
     this.progress = progress;
   }
 
@@ -138,7 +138,7 @@ export class Handler {
     return edits;
   }
 
-  public async loadAndParseAll(progress: WorkDoneProgress) {
+  public async loadAndParseAll(progress: WorkDoneProgressReporter) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
       const glob = folder.root === "/" ? folder.glob : `${folder.root}${folder.glob}`;

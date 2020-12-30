@@ -1,4 +1,4 @@
-import * as LServer from "vscode-languageserver";
+import * as LServer from "vscode-languageserver/node";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
 import {FsProvider, FileOperations} from "./file_operations";
