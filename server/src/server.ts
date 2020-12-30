@@ -95,7 +95,7 @@ function initialize() {
     await initialized;
     const params = await handlerParams;
     const progress = await connection.window.createWorkDoneProgress();
-    progress.begin("", 0, "Initialize", true);
+    progress.begin("", 0, "Initialize");
     const handler = await Handler.create(connection, params);
     await handler.loadAndParseAll(progress);
     progress.done();

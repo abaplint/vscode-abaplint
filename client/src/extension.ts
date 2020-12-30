@@ -1,6 +1,6 @@
 import * as path from "path";
 import {workspace, ExtensionContext, Uri} from "vscode";
-import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State} from "vscode-languageclient";
+import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State} from "vscode-languageclient/node";
 import * as vscode from "vscode";
 import {createArtifact} from "./create";
 import {Highlight} from "./highlight";

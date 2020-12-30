@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import {ExtensionContext, TextEditorDecorationType} from "vscode";
-import {LanguageClient} from "vscode-languageclient";
+import {LanguageClient} from "vscode-languageclient/node";
 
 // todo, refactor, a lot of the code in this class is similar, lazy me
 

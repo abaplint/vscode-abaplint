@@ -1,4 +1,4 @@
-import {LanguageClient} from "vscode-languageclient";
+import {LanguageClient} from "vscode-languageclient/node";
 import * as vscode from "vscode";
 import * as Create from "./create";
 
