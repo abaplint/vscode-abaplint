@@ -59,6 +59,7 @@ export class Handler {
   private readonly reg: abaplint.IRegistry;
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
+  private timeouts: {[index: string]: any} = {};
 
   public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
     const handler = new Handler(connection, params);
@@ -93,8 +94,16 @@ export class Handler {
       this.reg.addFile(file);
     }
 
+    // set a timeout so everything is not parsed at every keyboard press
+    clearTimeout(this.timeouts[textDocument.uri]);
+    this.timeouts[textDocument.uri] = setTimeout(() => this.run.bind(this)(textDocument), 200);
+  }
+
+  private run(textDocument: LServer.TextDocument): void {
+//    console.dir("start validation " + textDocument.uri);
     const diagnostics = new abaplint.LanguageServer(this.reg).diagnostics(textDocument);
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
+    delete this.timeouts[textDocument.uri];
   }
 
   public async configChanged(documents: LServer.TextDocuments<TextDocument>) {
