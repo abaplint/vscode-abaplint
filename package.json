@@ -196,8 +196,8 @@
 		"eslint-plugin-import": "^2.22.1",
 		"merge-options": "^3.0.4",
 		"ts-loader": "^8.0.17",
-		"typescript": "^4.1.5",
-		"webpack": "^5.24.0",
+		"typescript": "^4.2.2",
+		"webpack": "^5.24.1",
 		"webpack-cli": "^4.5.0"
 	}
 }
