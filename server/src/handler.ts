@@ -171,7 +171,7 @@ export class Handler {
       for (const d of deps) {
         let files: abaplint.IFile[] = [];
         // try looking in the folder first
-        if (d.folder && d.folder !== "") {
+        if (d.folder && d.folder !== "" && this.folders[0] !== undefined) {
           const glob = this.folders[0].root + d.folder + d.files;
           const filenames = await FileOperations.getProvider().glob(glob);
           for (const filename of filenames) {

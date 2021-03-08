@@ -45,7 +45,7 @@ export class Setup {
   }
 
   private async findCustomConfig(folders: IFolder[]): Promise<string | undefined> {
-    if (folders.length === 0) {
+    if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
     }
 
