@@ -48,7 +48,7 @@ class Progress implements abaplint.IProgress {
       const percent = Math.floor((this.current / this.total) * 100);
       this.progress.report(percent, text);
       // hack
-      await new Promise((resolve) => {setTimeout(resolve, 0); });
+      await new Promise((resolve) => {setTimeout(resolve, 0, undefined); });
       this.lastRender = Date.now();
     }
   }
