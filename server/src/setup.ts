@@ -23,11 +23,15 @@ export class Setup {
       }
     }
 
+    this.dumpFolders(ret);
+    return ret;
+  }
+
+  public dumpFolders(folders: IFolder[]) {
     this.connection.console.log("Folder overview:");
-    for (const folder of ret) {
+    for (const folder of folders) {
       this.connection.console.log(folder.root + " " + folder.glob);
     }
-    return ret;
   }
 
   public async readConfig(folders: IFolder[]) {

@@ -78,6 +78,7 @@ export class Handler {
   private async readAndSetConfig() {
     const config = await this.setup.readConfig(this.folders);
     this.reg.setConfig(config);
+    this.setup.dumpFolders(this.folders);
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
