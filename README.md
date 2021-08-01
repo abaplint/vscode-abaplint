@@ -24,4 +24,4 @@ Keybindings:
 * Ctrl+Shift+< = uncomment
 
 ### Diagnostics
-![diagnostics](https://raw.githubusercontent.com/abaplint/vscode-abaplint/master/img/screenshot_20200824.png)
+![diagnostics](https://raw.githubusercontent.com/abaplint/vscode-abaplint/main/img/screenshot_20200824.png)
