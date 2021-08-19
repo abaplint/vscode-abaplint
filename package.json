@@ -88,11 +88,6 @@
 					"when": "editorLangId == 'abap'",
 					"command": "abaplint.show",
 					"group": "navigation"
-				},
-				{
-					"when": "editorLangId == 'xml'",
-					"command": "abaplint.show",
-					"group": "navigation"
 				}
 			],
 			"explorer/context": [
@@ -111,16 +106,6 @@
 				"command": "editor.action.formatDocument",
 				"key": "shift+f1",
 				"when": "editorLangId == 'abap' && editorTextFocus && !editorReadonly"
-			},
-			{
-				"command": "abaplint.dummy",
-				"key": "ctrl+f1",
-				"when": "editorLangId == 'abap' && editorTextFocus"
-			},
-			{
-				"command": "abaplint.dummy",
-				"key": "ctrl+f2",
-				"when": "editorLangId == 'abap' && editorTextFocus"
 			},
 			{
 				"command": "workbench.action.files.save",
