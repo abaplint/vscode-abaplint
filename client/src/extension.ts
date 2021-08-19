@@ -14,11 +14,6 @@ let highlight: Highlight;
 let help: Help;
 let config: Config;
 
-function dummy() {
-// used for catching shortcuts CTRL+F1 and CTRL+F2
-// dont do anything
-}
-
 function registerAsFsProvider(client: LanguageClient) {
   const removeWorkspace = (osPattern: string) => {
     const pattern = sep === "/" ? osPattern : Uri.file(osPattern).path;
@@ -58,7 +53,6 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.text = "abaplint";
   myStatusBarItem.show();
 
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.dummy", dummy));
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
 
   const serverOptions: ServerOptions = {

@@ -15,8 +15,6 @@ Features:
 
 Keybindings:
 * Shift+F1 = pretty print
-* Ctrl+F1 = do nothing
-* Ctrl+F2 = do nothing
 * Ctrl+F3 = save
 * Ctrl+Shift+a = open file
 * F1 = language help
