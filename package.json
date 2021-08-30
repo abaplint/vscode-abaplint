@@ -27,7 +27,7 @@
 		"onCommand:abaplint.create.default-config"
 	],
 	"icon": "img/abaplint_icon.png",
-	"main": "./client/out/extension",
+	"main": "./out-native/extension",
 	"contributes": {
 		"commands": [
 			{
@@ -159,13 +159,13 @@
 	},
 	"scripts": {
 		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
-		"vscode:prepublish": "npm run compile && npm run webpack",
-		"webpack": "webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js",
+		"vscode:prepublish": "npm run compile",
+		"webpack": "webpack --mode none --config ./native.webpack.config.js",
 		"compile:client": "tsc -p ./client/tsconfig.json",
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
-		"compile": "npm run compile:client && npm run compile:server",
+		"compile": "npm run compile:client && npm run compile:server && npm run webpack",
 		"test": "npm run compile && npm run lint",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
@@ -174,7 +174,7 @@
 	],
 	"devDependencies": {
 		"@types/mocha": "^9.0.0",
-		"@types/node": "^16.7.4",
+		"@types/node": "^16.7.6",
 		"@typescript-eslint/eslint-plugin": "^4.29.3",
 		"@typescript-eslint/parser": "^4.29.3",
 		"eslint": "^7.32.0",

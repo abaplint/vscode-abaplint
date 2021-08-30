@@ -1,4 +1,6 @@
 out
+out-native
+out-web
 node_modules
 client/server
 .vscode-test

@@ -6,7 +6,7 @@
 const path = require('path');
 const merge = require('merge-options');
 
-module.exports = function withDefaults(/**@type WebpackConfig*/extConfig) {
+function withDefaults(/**@type WebpackConfig*/extConfig) {
 
 	/** @type WebpackConfig */
 	let defaultConfig = {
@@ -51,3 +51,27 @@ module.exports = function withDefaults(/**@type WebpackConfig*/extConfig) {
 
 	return merge(defaultConfig, extConfig);
 };
+
+const nativeClientConfig = withDefaults({
+	context: path.join(__dirname, 'client'),
+	entry: {
+		extension: './src/extension.ts',
+	},
+	output: {
+		filename: 'extension.js',
+		path: path.join(__dirname, 'out-native')
+	}
+});
+
+const nativeServerConfig = withDefaults({
+  context: path.join(__dirname, 'server'),
+	entry: {
+		extension: './src/server.ts',
+	},
+	output: {
+		filename: 'server.js',
+		path: path.join(__dirname, 'out-native')
+	}
+});
+
+module.exports = [nativeClientConfig, nativeServerConfig];
