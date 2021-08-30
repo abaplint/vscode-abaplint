@@ -28,7 +28,7 @@
 	],
 	"icon": "img/abaplint_icon.png",
 	"main": "./out-native/extension",
-  "browser": "./out-browser/client",
+	"browser": "./out-browser/client",
 	"contributes": {
 		"commands": [
 			{
