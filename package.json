@@ -160,12 +160,13 @@
 	"scripts": {
 		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
 		"vscode:prepublish": "npm run compile",
-		"webpack": "webpack --mode none --config ./native.webpack.config.js",
+		"webpack:native": "webpack --mode none --config ./native.webpack.config.js",
+    "webpack:browser": "webpack --mode none --config ./browser.webpack.config.js",
 		"compile:client": "tsc -p ./client/tsconfig.json",
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
-		"compile": "npm run compile:client && npm run compile:server && npm run webpack",
+		"compile": "npm run compile:client && npm run compile:server && npm run webpack:native",
 		"test": "npm run compile && npm run lint",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
