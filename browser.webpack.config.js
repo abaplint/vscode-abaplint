@@ -22,6 +22,8 @@ const browserClientConfig = /** @type WebpackConfig */ {
 		extensions: ['.ts', '.js'], // support ts-files and js-files
 		alias: {},
 		fallback: {
+      "buffer": require.resolve("buffer"),
+      "path": require.resolve("path-browserify")
 		},
 	},
 	module: {
