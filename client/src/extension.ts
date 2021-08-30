@@ -1,6 +1,7 @@
 import * as path from "path";
 import {workspace, ExtensionContext, Uri} from "vscode";
-import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State} from "vscode-languageclient/node";
+import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, CommonLanguageClient} from "vscode-languageclient/node";
+import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
 import * as vscode from "vscode";
 import * as fs from "fs";
 import {createArtifact} from "./create";
@@ -8,13 +9,13 @@ import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
 
-let client: LanguageClient;
+let client: CommonLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
 let help: Help;
 let config: Config;
 
-function registerAsFsProvider(client: LanguageClient) {
+function registerAsFsProvider(client: CommonLanguageClient) {
   const removeWorkspace = (osPattern: string) => {
     const pattern = path.sep === "/" ? osPattern : Uri.file(osPattern).path;
     for (const f of workspace.workspaceFolders || []) {
@@ -26,7 +27,7 @@ function registerAsFsProvider(client: LanguageClient) {
   };
 
   const toUri = (path: string) => Uri.file(path);
-  client.onRequest("readFile", async (path: string) => workspace.fs.readFile(toUri(path)).then(b => b.toString()));
+  client.onRequest("readFile", async (path: string) => workspace.fs.readFile(toUri(path)).then(b => Buffer.from(b).toString("utf-8")));
   client.onRequest("unlink", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("exists", async (path: string) => {
     try {
@@ -50,21 +51,6 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.text = "abaplint";
   myStatusBarItem.show();
 
-  if (fs.read === undefined) {
-    myStatusBarItem.text = "abaplint: web, todo";
-    return;
-  }
-
-  const serverModule = context.asAbsolutePath(path.join("out-native", "server.js"));
-  const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
-
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
-
-  const serverOptions: ServerOptions = {
-    run: {module: serverModule, transport: TransportKind.ipc},
-    debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
-  };
-
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{language: "abap"}, {language: "xml"}],
     progressOnInitialization: true,
@@ -76,7 +62,24 @@ export function activate(context: ExtensionContext) {
     },
   };
 
-  client = new LanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
+
+  if (fs.read === undefined) {
+    myStatusBarItem.text = "abaplint: web";
+    const serverMain = Uri.joinPath(context.extensionUri, "out-browser/server.js");
+    const worker = new Worker(serverMain.toString());
+    client = new BrowserLanguageClient("languageServerABAP", "Language Server ABAP", clientOptions, worker);
+  } else {
+    myStatusBarItem.text = "abaplint: native";
+    const serverModule = context.asAbsolutePath(path.join("out-native", "server.js"));
+    const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
+    const serverOptions: ServerOptions = {
+      run: {module: serverModule, transport: TransportKind.ipc},
+      debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
+    };
+    client = new NodeLanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
+  }
+
   client.registerProposedFeatures();
 
   highlight = new Highlight(client).register(context);

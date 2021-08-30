@@ -4,6 +4,7 @@
 'use strict';
 
 const path = require('path');
+const { ProvidePlugin } = require('webpack');
 
 const browserClientConfig = /** @type WebpackConfig */ {
 	context: path.join(__dirname, 'client'),
@@ -22,11 +23,15 @@ const browserClientConfig = /** @type WebpackConfig */ {
 		extensions: ['.ts', '.js'], // support ts-files and js-files
 		alias: {},
 		fallback: {
-      "buffer": require.resolve("buffer"),
       "fs": false,
       "path": require.resolve("path-browserify")
 		},
 	},
+  plugins: [
+    new ProvidePlugin({
+      Buffer: [require.resolve("buffer/"), "Buffer"],
+    }),
+  ],
 	module: {
 		rules: [
 			{
@@ -65,9 +70,11 @@ const browserServerConfig = /** @type WebpackConfig */ {
 	resolve: {
 		mainFields: ['module', 'main'],
 		extensions: ['.ts', '.js'], // support ts-files and js-files
-		alias: {},
+		alias: {
+      glob: false,
+    },
 		fallback: {
-			path: false,
+			"path": require.resolve("path-browserify"),
       util: false,
       fs: false,
       child_process: false,

@@ -5,11 +5,11 @@
 		"target": "es6",
 		"outDir": "out",
 		"rootDir": "src",
-		"lib": [ "es6" ],
+		"lib": [ "es6", "webworker" ],
 		"sourceMap": true
 	},
 	"include": [
-		"src",		
+		"src",
 		"../.eslintrc.js"
 	],
 	"exclude": [

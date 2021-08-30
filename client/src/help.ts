@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
 import {ExtensionContext} from "vscode";
-import {LanguageClient} from "vscode-languageclient/node";
+import {CommonLanguageClient} from "vscode-languageclient/node";
 
 export class Help {
   private helpPanel: vscode.WebviewPanel | undefined;
-  private readonly client: LanguageClient;
+  private readonly client: CommonLanguageClient;
 
-  public constructor(client: LanguageClient) {
+  public constructor(client: CommonLanguageClient) {
     this.client = client;
   }
 

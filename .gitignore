@@ -4,3 +4,4 @@ node_modules
 client/server
 .vscode-test
 bash.exe.stackdump
+.vscode-test-web

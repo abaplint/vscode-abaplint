@@ -9,3 +9,4 @@ client/**
 !client/out/extension.js
 server/**
 !server/out/server.js
+.vscode-test-web/
