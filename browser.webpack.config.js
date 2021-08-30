@@ -23,6 +23,7 @@ const browserClientConfig = /** @type WebpackConfig */ {
 		alias: {},
 		fallback: {
       "buffer": require.resolve("buffer"),
+      "fs": false,
       "path": require.resolve("path-browserify")
 		},
 	},

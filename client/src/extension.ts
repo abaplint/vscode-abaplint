@@ -2,11 +2,11 @@ import * as path from "path";
 import {workspace, ExtensionContext, Uri} from "vscode";
 import {LanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State} from "vscode-languageclient/node";
 import * as vscode from "vscode";
+import * as fs from "fs";
 import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
-import {sep} from "path";
 
 let client: LanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -16,7 +16,7 @@ let config: Config;
 
 function registerAsFsProvider(client: LanguageClient) {
   const removeWorkspace = (osPattern: string) => {
-    const pattern = sep === "/" ? osPattern : Uri.file(osPattern).path;
+    const pattern = path.sep === "/" ? osPattern : Uri.file(osPattern).path;
     for (const f of workspace.workspaceFolders || []) {
       if (pattern.startsWith(f.uri.path)) {
         return pattern.substr(f.uri.path.length).replace(/^\//, "");
@@ -46,12 +46,17 @@ function registerAsFsProvider(client: LanguageClient) {
 }
 
 export function activate(context: ExtensionContext) {
-  const serverModule = context.asAbsolutePath(path.join("server", "out", "server.js"));
-  const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
-
   myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   myStatusBarItem.text = "abaplint";
   myStatusBarItem.show();
+
+  if (fs.read === undefined) {
+    myStatusBarItem.text = "abaplint: web, todo";
+    return;
+  }
+
+  const serverModule = context.asAbsolutePath(path.join("out-native", "server.js"));
+  const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
 
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
 

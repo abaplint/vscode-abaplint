@@ -28,6 +28,7 @@
 	],
 	"icon": "img/abaplint_icon.png",
 	"main": "./out-native/extension",
+  "browser": "./out-browser/client",
 	"contributes": {
 		"commands": [
 			{
@@ -166,7 +167,7 @@
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
-		"compile": "npm run compile:client && npm run compile:server && npm run webpack:native",
+		"compile": "npm run compile:client && npm run compile:server && npm run webpack:native && npm run webpack:browser",
 		"test": "npm run compile && npm run lint",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
