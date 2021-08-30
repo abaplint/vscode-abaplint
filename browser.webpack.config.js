@@ -64,7 +64,12 @@ const browserServerConfig = /** @type WebpackConfig */ {
 		extensions: ['.ts', '.js'], // support ts-files and js-files
 		alias: {},
 		fallback: {
-			//path: require.resolve("path-browserify")
+			path: false,
+      util: false,
+      fs: false,
+      child_process: false,
+      os: false,
+      assert: false
 		},
 	},
 	module: {
