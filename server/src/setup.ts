@@ -17,8 +17,11 @@ export class Setup {
 
     if (workspaces) {
       for (const workspace of workspaces) {
+        this.connection.console.log("Workspace uri: " + workspace.uri.toString());
+        const parsed = URI.parse(workspace.uri);
         ret.push({
-          root: URI.parse(workspace.uri).fsPath,
+          root: parsed.path,
+          scheme: parsed.scheme,
           glob: "/src/**/*.*"});  // todo, this should be taken from abaplint.json
       }
     }
@@ -53,20 +56,22 @@ export class Setup {
     }
 
     const prefix = folders[0].root + path.sep;
+    this.connection.console.log("prefix: " + prefix);
+    this.connection.console.log("scheme: " + folders[0].scheme);
+//    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
-    // todo, URI.file wont work in browser/github.dev
     try {
-      return await FileOperations.readFile(URI.file(prefix + "abaplint.json").toString());
+      return await FileOperations.readFile(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
     try {
-      return await FileOperations.readFile(URI.file(prefix + "abaplint.jsonc").toString());
+      return await FileOperations.readFile(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.jsonc"}).toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
     try {
-      return await FileOperations.readFile(URI.file(prefix + "abaplint.json5").toString());
+      return await FileOperations.readFile(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json5"}).toString());
     // eslint-disable-next-line no-empty
     } catch {}
 

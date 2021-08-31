@@ -9,6 +9,7 @@ import {GitOperations} from "./git";
 
 export interface IFolder {
   root: string;
+  scheme: string;
   glob: string;
 }
 
