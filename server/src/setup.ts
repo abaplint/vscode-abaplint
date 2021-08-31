@@ -3,7 +3,6 @@ import {IFolder} from "./handler";
 import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
-import * as path from "path";
 
 export class Setup {
   private readonly connection: LServer.Connection;
@@ -55,23 +54,29 @@ export class Setup {
       return undefined;
     }
 
-    const prefix = folders[0].root + path.sep;
+    const prefix = folders[0].root + "/";
     this.connection.console.log("prefix: " + prefix);
     this.connection.console.log("scheme: " + folders[0].scheme);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
+    let uri = URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"});
     try {
-      return await FileOperations.readFile(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
+    uri = URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.jsonc"});
     try {
-      return await FileOperations.readFile(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.jsonc"}).toString());
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
+    uri = URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json5"});
     try {
-      return await FileOperations.readFile(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json5"}).toString());
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
