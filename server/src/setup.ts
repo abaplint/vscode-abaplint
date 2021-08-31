@@ -54,18 +54,19 @@ export class Setup {
 
     const prefix = folders[0].root + path.sep;
 
+    // todo, URI.file wont work in browser/github.dev
     try {
-      return await FileOperations.readFile(prefix + "abaplint.json");
+      return await FileOperations.readFile(URI.file(prefix + "abaplint.json").toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
     try {
-      return await FileOperations.readFile(prefix + "abaplint.jsonc");
+      return await FileOperations.readFile(URI.file(prefix + "abaplint.jsonc").toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
     try {
-      return await FileOperations.readFile(prefix + "abaplint.json5");
+      return await FileOperations.readFile(URI.file(prefix + "abaplint.json5").toString());
     // eslint-disable-next-line no-empty
     } catch {}
 

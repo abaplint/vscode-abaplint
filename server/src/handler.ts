@@ -155,8 +155,9 @@ export class Handler {
       const glob = folder.glob;
       const filenames = await FileOperations.loadFileNames(glob, false);
       for (const filename of filenames) {
+//        console.log("read " + filename);
         const raw = await FileOperations.readFile(filename);
-        const uri = URI.file(filename).toString();
+        const uri = filename;
         this.reg.addFile(new abaplint.MemoryFile(uri, raw));
       }
     }

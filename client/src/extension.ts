@@ -29,7 +29,7 @@ function registerAsFsProvider(client: CommonLanguageClient) {
   */
 
   const toUri = (path: string) => Uri.file(path);
-  client.onRequest("readFile", async (path: string) => workspace.fs.readFile(toUri(path)).then(b => Buffer.from(b).toString("utf-8")));
+  client.onRequest("readFile", async (uri: string) => workspace.fs.readFile(Uri.parse(uri)).then(b => Buffer.from(b).toString("utf-8")));
   client.onRequest("unlink", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("exists", async (path: string) => {
     try {
@@ -48,7 +48,7 @@ function registerAsFsProvider(client: CommonLanguageClient) {
     }
     const files = await vscode.workspace.findFiles(p);
     console.log(files.length + " files found in " + p);
-    return files.map(f => f.path);
+    return files.map(f => f.toString());
   });
 }
 
