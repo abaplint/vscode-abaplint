@@ -151,7 +151,8 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgressReporter) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
-      const glob = folder.root === "/" ? folder.glob : `${folder.root}${folder.glob}`;
+//      const glob = folder.root === "/" ? folder.glob : `${folder.root}${folder.glob}`;
+      const glob = folder.glob;
       const filenames = await FileOperations.loadFileNames(glob, false);
       for (const filename of filenames) {
         const raw = await FileOperations.readFile(filename);
@@ -173,7 +174,7 @@ export class Handler {
         let files: abaplint.IFile[] = [];
         // try looking in the folder first
         if (d.folder && d.folder !== "" && this.folders[0] !== undefined) {
-          const glob = this.folders[0].root + d.folder + d.files;
+          const glob = d.folder + d.files;
           const filenames = await FileOperations.getProvider().glob(glob);
           for (const filename of filenames) {
             const raw = await FileOperations.readFile(filename);

@@ -16,6 +16,7 @@ let help: Help;
 let config: Config;
 
 function registerAsFsProvider(client: CommonLanguageClient) {
+  /*
   const removeWorkspace = (osPattern: string) => {
     const pattern = path.sep === "/" ? osPattern : Uri.file(osPattern).path;
     for (const f of workspace.workspaceFolders || []) {
@@ -25,6 +26,7 @@ function registerAsFsProvider(client: CommonLanguageClient) {
     }
     return pattern;
   };
+  */
 
   const toUri = (path: string) => Uri.file(path);
   client.onRequest("readFile", async (path: string) => workspace.fs.readFile(toUri(path)).then(b => Buffer.from(b).toString("utf-8")));
@@ -40,8 +42,12 @@ function registerAsFsProvider(client: CommonLanguageClient) {
   client.onRequest("rmdir", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("readdir", (path: string) => workspace.fs.readDirectory(toUri(path)).then(l => l.map(e => e[0])));
   client.onRequest("glob", async (pattern: string) => {
-    const removed = removeWorkspace(pattern);
-    const files = await vscode.workspace.findFiles(removed);
+    let p = pattern;
+    if (p.startsWith("/")) {
+      p = p.substr(1);
+    }
+    const files = await vscode.workspace.findFiles(p);
+    console.log(files.length + " files found in " + p);
     return files.map(f => f.path);
   });
 }

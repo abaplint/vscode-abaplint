@@ -104,7 +104,9 @@ function initialize() {
     const progress = await connection.window.createWorkDoneProgress();
     progress.begin("", 0, "Initialize");
     const handler = await Handler.create(connection, params);
+    connection.console.log("call loadAndParseAll");
     await handler.loadAndParseAll(progress);
+    connection.console.log("loadAndParseAll done");
     progress.done();
     handler.updateTooltip();
     return handler;

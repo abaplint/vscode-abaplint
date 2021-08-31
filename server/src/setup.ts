@@ -35,7 +35,6 @@ export class Setup {
   }
 
   public async readConfig(folders: IFolder[]) {
-
     const raw = await this.findCustomConfig(folders);
     if (raw && raw !== "") {
       this.connection.console.log("custom abaplint configuration found");
