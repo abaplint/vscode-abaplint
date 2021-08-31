@@ -3,7 +3,6 @@ import {IFolder} from "./handler";
 import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
-import * as path from "path";
 
 export class Setup {
   private readonly connection: LServer.Connection;
@@ -17,8 +16,12 @@ export class Setup {
 
     if (workspaces) {
       for (const workspace of workspaces) {
+        this.connection.console.log("Workspace uri: " + workspace.uri.toString());
+        const parsed = URI.parse(workspace.uri);
         ret.push({
-          root: URI.parse(workspace.uri).fsPath,
+          root: parsed.path,
+          scheme: parsed.scheme,
+          authority: parsed.authority,
           glob: "/src/**/*.*"});  // todo, this should be taken from abaplint.json
       }
     }
@@ -35,7 +38,6 @@ export class Setup {
   }
 
   public async readConfig(folders: IFolder[]) {
-
     const raw = await this.findCustomConfig(folders);
     if (raw && raw !== "") {
       this.connection.console.log("custom abaplint configuration found");
@@ -53,20 +55,29 @@ export class Setup {
       return undefined;
     }
 
-    const prefix = folders[0].root + path.sep;
+    const prefix = folders[0].root + "/";
+    this.connection.console.log("prefix: " + prefix);
+    this.connection.console.log("scheme: " + folders[0].scheme);
+//    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
+    let uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json"});
     try {
-      return await FileOperations.readFile(prefix + "abaplint.json");
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
+    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.jsonc"});
     try {
-      return await FileOperations.readFile(prefix + "abaplint.jsonc");
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
+    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json5"});
     try {
-      return await FileOperations.readFile(prefix + "abaplint.json5");
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 

@@ -1,9 +1,18 @@
+import {createConnection as createBrowserConnection, BrowserMessageReader, BrowserMessageWriter} from "vscode-languageserver/browser";
 import * as LServer from "vscode-languageserver/node";
+import * as fs from "fs";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
 import {FsProvider, FileOperations} from "./file_operations";
 
-const connection = LServer.createConnection(LServer.ProposedFeatures.all);
+let connection: LServer.Connection;
+if (fs.read === undefined) {
+  const messageReader = new BrowserMessageReader(self);
+  const messageWriter = new BrowserMessageWriter(self);
+  connection = createBrowserConnection(messageReader, messageWriter);
+} else {
+  connection = LServer.createConnection(LServer.ProposedFeatures.all);
+}
 
 // create a simple text document manager. The text document manager
 // supports full document sync only
@@ -64,8 +73,6 @@ function initialize() {
         throw error;
       }
     });
-
-
   });
 
   const initialized = new Promise((resolve, reject) => {
@@ -97,7 +104,9 @@ function initialize() {
     const progress = await connection.window.createWorkDoneProgress();
     progress.begin("", 0, "Initialize");
     const handler = await Handler.create(connection, params);
+    connection.console.log("call loadAndParseAll");
     await handler.loadAndParseAll(progress);
+    connection.console.log("loadAndParseAll done");
     progress.done();
     handler.updateTooltip();
     return handler;

@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.4.314",
+	"version": "0.5.4",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -27,7 +27,8 @@
 		"onCommand:abaplint.create.default-config"
 	],
 	"icon": "img/abaplint_icon.png",
-	"main": "./client/out/extension",
+	"main": "./out-native/extension",
+	"browser": "./out-browser/client",
 	"contributes": {
 		"commands": [
 			{
@@ -159,14 +160,16 @@
 	},
 	"scripts": {
 		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
-		"vscode:prepublish": "npm run compile && npm run webpack",
-		"webpack": "webpack --mode none --config ./client/webpack.config.js && webpack --mode none --config ./server/webpack.config.js",
+		"vscode:prepublish": "npm run compile",
+		"webpack:native": "webpack --mode none --config ./native.webpack.config.js",
+		"webpack:browser": "webpack --config ./browser.webpack.config.js",
 		"compile:client": "tsc -p ./client/tsconfig.json",
 		"compile:server": "tsc -p ./server/tsconfig.json",
 		"watch:client": "tsc -w -p ./client/tsconfig.json",
 		"watch:server": "tsc -w -p ./server/tsconfig.json",
-		"compile": "npm run compile:client && npm run compile:server",
+		"compile": "npm run compile:client && npm run compile:server && npm run webpack:native && npm run webpack:browser",
 		"test": "npm run compile && npm run lint",
+		"chrome": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=.",
 		"postinstall": "cd client && npm install && cd ../server && npm install && cd .."
 	},
 	"extensionDependencies": [
@@ -174,12 +177,15 @@
 	],
 	"devDependencies": {
 		"@types/mocha": "^9.0.0",
-		"@types/node": "^16.7.4",
-		"@typescript-eslint/eslint-plugin": "^4.29.3",
-		"@typescript-eslint/parser": "^4.29.3",
+		"@types/node": "^16.7.8",
+		"@typescript-eslint/eslint-plugin": "^4.30.0",
+		"@typescript-eslint/parser": "^4.30.0",
+		"@vscode/test-web": "^0.0.8",
 		"eslint": "^7.32.0",
 		"eslint-plugin-import": "^2.24.2",
+		"path-browserify": "^1.0.1",
 		"merge-options": "^3.0.4",
+		"buffer": "^6.0.3",
 		"ts-loader": "^9.2.5",
 		"typescript": "^4.4.2",
 		"webpack": "^5.51.1",

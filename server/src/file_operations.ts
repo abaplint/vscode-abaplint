@@ -19,7 +19,9 @@ class DefaultProvider implements FsProvider {
     return promises.readFile(path, {encoding:"utf-8"});
   }
 
-  public exists = promisify(exists);
+  public exists(path: string) {
+    return promisify(exists)(path);
+  }
 
   public isDirectory(path: string) {
     return promises.lstat(path).then(s => s.isDirectory());

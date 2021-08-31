@@ -8,6 +8,10 @@ import {FileOperations} from "./file_operations";
 export class GitOperations {
 
   public static async clone(dep: abaplint.IDependency): Promise<abaplint.IFile[]> {
+    if (fs.read === undefined) {
+      return []; // running in web
+    }
+
     // workaround for FS Provider, git operation happens on server side
     const oldProvider = FileOperations.getProvider();
     FileOperations.setDefaultProvider();

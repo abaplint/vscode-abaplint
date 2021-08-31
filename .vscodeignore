@@ -4,8 +4,9 @@
 **/tsconfig.eslint.json
 **/tsconfig.base.json
 **/.eslintrc.js
-shared.webpack.config.js
+*.webpack.config.js
 client/**
 !client/out/extension.js
 server/**
 !server/out/server.js
+.vscode-test-web/

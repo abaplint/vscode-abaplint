@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import {ExtensionContext, TextEditorDecorationType} from "vscode";
-import {LanguageClient} from "vscode-languageclient/node";
+import {CommonLanguageClient} from "vscode-languageclient/node";
 
 // todo, refactor, a lot of the code in this class is similar, lazy me
 
 export class Highlight {
-  private readonly client: LanguageClient;
+  private readonly client: CommonLanguageClient;
   private readonly definitionsType: TextEditorDecorationType;
   private readonly readsType: TextEditorDecorationType;
   private readonly writesType: TextEditorDecorationType;
@@ -13,7 +13,7 @@ export class Highlight {
   private readonly readsActivated: string[];
   private readonly writesActivated: string[];
 
-  public constructor(client: LanguageClient) {
+  public constructor(client: CommonLanguageClient) {
     this.client = client;
     this.definitionsType = vscode.window.createTextEditorDecorationType({backgroundColor: "darkgreen"});
     this.readsType = vscode.window.createTextEditorDecorationType({border: "1px solid red"});
