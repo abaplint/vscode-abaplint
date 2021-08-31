@@ -21,6 +21,7 @@ export class Setup {
         ret.push({
           root: parsed.path,
           scheme: parsed.scheme,
+          authority: parsed.authority,
           glob: "/src/**/*.*"});  // todo, this should be taken from abaplint.json
       }
     }
@@ -59,21 +60,21 @@ export class Setup {
     this.connection.console.log("scheme: " + folders[0].scheme);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
-    let uri = URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"});
+    let uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json"});
     try {
       this.connection.console.log("search: " + uri.toString());
       return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
-    uri = URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.jsonc"});
+    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.jsonc"});
     try {
       this.connection.console.log("search: " + uri.toString());
       return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
-    uri = URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json5"});
+    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json5"});
     try {
       this.connection.console.log("search: " + uri.toString());
       return await FileOperations.readFile(uri.toString());
