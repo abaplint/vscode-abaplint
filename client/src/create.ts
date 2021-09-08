@@ -101,7 +101,7 @@ async function createCLAS(uri: vscode.Uri) {
 
   const uriABAP = vscode.Uri.file(filename + ".abap");
   const dataABAP = `CLASS ${name.toLowerCase()} DEFINITION PUBLIC.
-
+  PUBLIC SECTION.
 ENDCLASS.
 
 CLASS ${name.toLowerCase()} IMPLEMENTATION.
