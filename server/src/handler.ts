@@ -150,6 +150,13 @@ export class Handler {
     return edits;
   }
 
+  public onSemanticTokensRange(_params: LServer.SemanticTokensRangeParams): LServer.SemanticTokens {
+//    console.log("onSemanticTokensRange, todo");
+//    console.dir(params);
+// todo
+    return {data: []};
+  }
+
   public async loadAndParseAll(progress: WorkDoneProgressReporter) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {

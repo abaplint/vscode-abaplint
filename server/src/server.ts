@@ -54,6 +54,18 @@ function initialize() {
       completionProvider
       codeLensProvider
       */
+            semanticTokensProvider: {
+              legend: {
+                tokenTypes: [],
+                tokenModifiers: [],
+              },
+              range: true,
+              /*
+              full: {
+                delta: false,
+              },
+              */
+            },
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
             documentFormattingProvider: true,
             definitionProvider: true,
@@ -119,6 +131,11 @@ function initialize() {
 }
 
 const getHandler = initialize();
+
+connection.languages.semanticTokens.onRange(async (params) => {
+  const handler = await getHandler();
+  return handler.onSemanticTokensRange(params);
+});
 
 connection.onCodeAction(async(params) => {
   const handler = await getHandler();
