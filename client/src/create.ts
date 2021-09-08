@@ -88,7 +88,7 @@ async function createCLAS(uri: vscode.Uri) {
    <VSEOCLASS>
     <CLSNAME>${name.toUpperCase()}</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Description</DESCRIPT>
+    <DESCRIPT>${name.toUpperCase()}</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
@@ -127,7 +127,7 @@ async function createINTF(uri: vscode.Uri) {
    <VSEOINTERF>
     <CLSNAME>${name.toUpperCase()}</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Description</DESCRIPT>
+    <DESCRIPT>${name.toUpperCase()}</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>
