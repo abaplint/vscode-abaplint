@@ -150,11 +150,13 @@ export class Handler {
     return edits;
   }
 
-  public onSemanticTokensRange(_params: LServer.SemanticTokensRangeParams): LServer.SemanticTokens {
-//    console.log("onSemanticTokensRange, todo");
-//    console.dir(params);
-// todo
-    return {data: []};
+  public onSemanticTokensRange(params: LServer.SemanticTokensRangeParams): LServer.SemanticTokens {
+    const range = {
+      textDocument: params.textDocument,
+      start: params.range.start,
+      end: params.range.end,
+    };
+    return new abaplint.LanguageServer(this.reg).semanticTokensRange(range);
   }
 
   public async loadAndParseAll(progress: WorkDoneProgressReporter) {

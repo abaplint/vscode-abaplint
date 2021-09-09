@@ -27,8 +27,7 @@ function initialize() {
     connection.onInitialize(async (params: LServer.InitializeParams, _cancel) => {
       try {
         const capabilities = params.capabilities;
-        const {provideFsProxy = false} = params.initializationOptions;
-        if (provideFsProxy) {
+        if (params.initializationOptions.provideFsProxy === true) {
           const provider: FsProvider = {
             readFile:(path: string) => connection.sendRequest("readFile", path),
             exists:(path: string) => connection.sendRequest("unlink", path),
@@ -41,12 +40,19 @@ function initialize() {
           FileOperations.setProvider(provider);
         }
 
+        let tokensProvider: LServer.SemanticTokensOptions | undefined = undefined;
+        if (params.initializationOptions.enableSemanticHighlighting === true) {
+          tokensProvider = {
+            legend: abaplint.LanguageServer.semanticTokensLegend(),
+            range: true,
+            // full: { delta: false},
+          };
+        }
+
     // does the client support the `workspace/configuration` request?
     // if not, we will fall back using global settings
-        hasConfigurationCapability =
-      capabilities.workspace && !!capabilities.workspace.configuration;
-        hasWorkspaceFolderCapability =
-      capabilities.workspace && !!capabilities.workspace.workspaceFolders;
+        hasConfigurationCapability = capabilities.workspace && !!capabilities.workspace.configuration;
+        hasWorkspaceFolderCapability = capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
         const result: LServer.InitializeResult = {
           capabilities: {
@@ -55,11 +61,7 @@ function initialize() {
       completionProvider
       codeLensProvider
       */
-            semanticTokensProvider: {
-              legend: abaplint.LanguageServer.semanticTokensLegend(),
-              range: true,
-              // full: { delta: false},
-            },
+            semanticTokensProvider: tokensProvider,
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
             documentFormattingProvider: true,
             definitionProvider: true,
@@ -84,9 +86,7 @@ function initialize() {
     connection.onInitialized(async () => {
       try {
         if (hasConfigurationCapability) {
-          connection.client.register(
-            LServer.DidChangeConfigurationNotification.type,
-            undefined);
+          connection.client.register(LServer.DidChangeConfigurationNotification.type, undefined);
         }
         if (hasWorkspaceFolderCapability) {
           connection.workspace.onDidChangeWorkspaceFolders((_event) => {

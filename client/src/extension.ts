@@ -60,8 +60,9 @@ export function activate(context: ExtensionContext) {
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{language: "abap"}, {language: "xml"}],
     progressOnInitialization: true,
-    initializationOptions:{
+    initializationOptions: {
       provideFsProxy: true,
+      enableSemanticHighlighting: workspace.getConfiguration("abaplint").get("enableSemanticHighlighting", false),
     },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),

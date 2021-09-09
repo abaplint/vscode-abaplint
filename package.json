@@ -136,24 +136,13 @@
 		],
 		"configuration": {
 			"type": "object",
-			"title": "abaplint Configuration",
+			"title": "abaplint",
 			"properties": {
-				"abaplint.maxNumberOfProblems": {
-					"scope": "resource",
-					"type": "number",
-					"default": 100,
-					"description": "Controls the maximum number of problems produced by the server."
-				},
-				"abaplint.trace.server": {
+				"abaplint.enableSemanticHighlighting": {
 					"scope": "window",
-					"type": "string",
-					"enum": [
-						"off",
-						"messages",
-						"verbose"
-					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
+					"type": "boolean",
+					"default": false,
+					"description": "Enable semantic highlighting, requires vscode restart"
 				}
 			}
 		}

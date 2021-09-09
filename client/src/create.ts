@@ -5,7 +5,6 @@ import {Buffer} from "buffer";
 // todo: run formatter on generated ABAP
 
 async function createFile(uri: vscode.Uri, content: string) {
-
   if (await fileExists(uri)) {
     vscode.window.showErrorMessage("File already exists!");
     return;
