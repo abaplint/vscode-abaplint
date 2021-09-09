@@ -1,6 +1,7 @@
 import {createConnection as createBrowserConnection, BrowserMessageReader, BrowserMessageWriter} from "vscode-languageserver/browser";
 import * as LServer from "vscode-languageserver/node";
 import * as fs from "fs";
+import * as abaplint from "@abaplint/core";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
 import {FsProvider, FileOperations} from "./file_operations";
@@ -55,16 +56,9 @@ function initialize() {
       codeLensProvider
       */
             semanticTokensProvider: {
-              legend: {
-                tokenTypes: [],
-                tokenModifiers: [],
-              },
+              legend: abaplint.LanguageServer.semanticTokensLegend(),
               range: true,
-              /*
-              full: {
-                delta: false,
-              },
-              */
+              // full: { delta: false},
             },
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
             documentFormattingProvider: true,
@@ -79,7 +73,6 @@ function initialize() {
           }};
         resolve(params);
         return result;
-        //
       } catch (error) {
         reject(error);
         throw error;
@@ -188,7 +181,7 @@ documents.onDidChangeContent(async (change) => {
   handler.validateDocument(change.document);
 });
 
-// todo, documents.onDelete, how are file deletions handled ?
+// todo, documents.onDelete, how are file deletions handled ? possible via language server protocol 3.16.0
 
 connection.onDidChangeWatchedFiles(async (_change) => {
   connection.console.log("We received a file change event");
