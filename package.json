@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.5.7",
+	"version": "0.5.8",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -136,24 +136,13 @@
 		],
 		"configuration": {
 			"type": "object",
-			"title": "abaplint Configuration",
+			"title": "abaplint",
 			"properties": {
-				"abaplint.maxNumberOfProblems": {
-					"scope": "resource",
-					"type": "number",
-					"default": 100,
-					"description": "Controls the maximum number of problems produced by the server."
-				},
-				"abaplint.trace.server": {
+				"abaplint.enableSemanticHighlighting": {
 					"scope": "window",
-					"type": "string",
-					"enum": [
-						"off",
-						"messages",
-						"verbose"
-					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
+					"type": "boolean",
+					"default": false,
+					"description": "Enable semantic highlighting, requires vscode restart"
 				}
 			}
 		}
@@ -177,7 +166,7 @@
 	],
 	"devDependencies": {
 		"@types/mocha": "^9.0.0",
-		"@types/node": "^16.7.13",
+		"@types/node": "^16.9.0",
 		"@typescript-eslint/eslint-plugin": "^4.31.0",
 		"@typescript-eslint/parser": "^4.31.0",
 		"@vscode/test-web": "^0.0.8",

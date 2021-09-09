@@ -1,6 +1,7 @@
 import {createConnection as createBrowserConnection, BrowserMessageReader, BrowserMessageWriter} from "vscode-languageserver/browser";
 import * as LServer from "vscode-languageserver/node";
 import * as fs from "fs";
+import * as abaplint from "@abaplint/core";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
 import {FsProvider, FileOperations} from "./file_operations";
@@ -26,8 +27,7 @@ function initialize() {
     connection.onInitialize(async (params: LServer.InitializeParams, _cancel) => {
       try {
         const capabilities = params.capabilities;
-        const {provideFsProxy = false} = params.initializationOptions;
-        if (provideFsProxy) {
+        if (params.initializationOptions.provideFsProxy === true) {
           const provider: FsProvider = {
             readFile:(path: string) => connection.sendRequest("readFile", path),
             exists:(path: string) => connection.sendRequest("unlink", path),
@@ -40,12 +40,19 @@ function initialize() {
           FileOperations.setProvider(provider);
         }
 
+        let tokensProvider: LServer.SemanticTokensOptions | undefined = undefined;
+        if (params.initializationOptions.enableSemanticHighlighting === true) {
+          tokensProvider = {
+            legend: abaplint.LanguageServer.semanticTokensLegend(),
+            range: true,
+            // full: { delta: false},
+          };
+        }
+
     // does the client support the `workspace/configuration` request?
     // if not, we will fall back using global settings
-        hasConfigurationCapability =
-      capabilities.workspace && !!capabilities.workspace.configuration;
-        hasWorkspaceFolderCapability =
-      capabilities.workspace && !!capabilities.workspace.workspaceFolders;
+        hasConfigurationCapability = capabilities.workspace && !!capabilities.workspace.configuration;
+        hasWorkspaceFolderCapability = capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
         const result: LServer.InitializeResult = {
           capabilities: {
@@ -54,6 +61,7 @@ function initialize() {
       completionProvider
       codeLensProvider
       */
+            semanticTokensProvider: tokensProvider,
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
             documentFormattingProvider: true,
             definitionProvider: true,
@@ -67,7 +75,6 @@ function initialize() {
           }};
         resolve(params);
         return result;
-        //
       } catch (error) {
         reject(error);
         throw error;
@@ -79,9 +86,7 @@ function initialize() {
     connection.onInitialized(async () => {
       try {
         if (hasConfigurationCapability) {
-          connection.client.register(
-            LServer.DidChangeConfigurationNotification.type,
-            undefined);
+          connection.client.register(LServer.DidChangeConfigurationNotification.type, undefined);
         }
         if (hasWorkspaceFolderCapability) {
           connection.workspace.onDidChangeWorkspaceFolders((_event) => {
@@ -119,6 +124,11 @@ function initialize() {
 }
 
 const getHandler = initialize();
+
+connection.languages.semanticTokens.onRange(async (params) => {
+  const handler = await getHandler();
+  return handler.onSemanticTokensRange(params);
+});
 
 connection.onCodeAction(async(params) => {
   const handler = await getHandler();
@@ -171,7 +181,7 @@ documents.onDidChangeContent(async (change) => {
   handler.validateDocument(change.document);
 });
 
-// todo, documents.onDelete, how are file deletions handled ?
+// todo, documents.onDelete, how are file deletions handled ? possible via language server protocol 3.16.0
 
 connection.onDidChangeWatchedFiles(async (_change) => {
   connection.console.log("We received a file change event");

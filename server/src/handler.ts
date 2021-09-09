@@ -150,6 +150,15 @@ export class Handler {
     return edits;
   }
 
+  public onSemanticTokensRange(params: LServer.SemanticTokensRangeParams): LServer.SemanticTokens {
+    const range = {
+      textDocument: params.textDocument,
+      start: params.range.start,
+      end: params.range.end,
+    };
+    return new abaplint.LanguageServer(this.reg).semanticTokensRange(range);
+  }
+
   public async loadAndParseAll(progress: WorkDoneProgressReporter) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
