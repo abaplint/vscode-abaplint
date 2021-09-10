@@ -149,7 +149,11 @@ export function activate(context: ExtensionContext) {
         }
 
         const testName = `abaplint-${t.global}-${t.testClass}-${t.method}`;
-        classItem.children.add(testController.createTestItem(testName, t.method, Uri.parse(t.filename)));
+        const add = testController.createTestItem(testName, t.method, Uri.parse(t.filename));
+        add.range = new vscode.Range(
+          new vscode.Position(t.start.row - 1, t.start.col - 1),
+          new vscode.Position(t.start.row - 1, t.start.col - 1 + t.method.length));
+        classItem.children.add(add);
       }
     });
     client.sendRequest("abaplint/unittests/list/request");
