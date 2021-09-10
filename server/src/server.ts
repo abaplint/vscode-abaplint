@@ -184,7 +184,7 @@ documents.onDidChangeContent(async (change) => {
 // todo, documents.onDelete, how are file deletions handled ? possible via language server protocol 3.16.0
 
 connection.onDidChangeWatchedFiles(async (_change) => {
-  connection.console.log("We received a file change event");
+  connection.console.log("File change event received");
   const handler = await getHandler();
   for (const change of _change.changes.values()) {
     if (change.uri.includes("abaplint.json")) {
@@ -227,7 +227,12 @@ connection.onRequest("abaplint/highlight/writes/request", async (data) => {
 
 connection.onRequest("abaplint/config/default/request", async () => {
   const handler = await getHandler();
-  handler.onGetConfig();
+  handler.onRequestConfig();
+});
+
+connection.onRequest("abaplint/unittests/list/request", async () => {
+  const handler = await getHandler();
+  handler.onListUnitTests();
 });
 
 documents.listen(connection);

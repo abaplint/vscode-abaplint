@@ -8,10 +8,13 @@ Features:
 * Outline
 * Hover information
 * Go to definition
+* Go to implementation
 * Quick fixes
 * Find references
 * Rename classes
 * Document formatting
+* Semantic highlighting
+* Listing unit tests in test explorer
 
 Keybindings:
 * Shift+F1 = pretty print

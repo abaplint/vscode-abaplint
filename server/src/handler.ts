@@ -6,6 +6,7 @@ import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progres
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {FileOperations} from "./file_operations";
 import {GitOperations} from "./git";
+import {UnitTests} from "./unit";
 
 export interface IFolder {
   root: string;
@@ -225,9 +226,14 @@ export class Handler {
     return result;
   }
 
-  public onGetConfig() {
+  public onRequestConfig() {
     const defaultConfigString = JSON.stringify(abaplint.Config.getDefault().get(), undefined, 2);
     this.connection.sendNotification("abaplint/config/default/response", defaultConfigString);
+  }
+
+  public onListUnitTests() {
+    const tests = new UnitTests(this.reg).list();
+    this.connection.sendNotification("abaplint/unittests/list/response", tests);
   }
 
   public onCodeAction(params: LServer.CodeActionParams): LServer.CodeAction[] {

@@ -9,6 +9,8 @@ import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
 
+const ABAPLINT_LOADING = "abaplint_loading";
+
 let client: CommonLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
@@ -98,6 +100,11 @@ export function activate(context: ExtensionContext) {
     }
   });
 
+  const testController = vscode.tests.createTestController("abaplintTests", "abaplnit Tests");
+  const testItem = testController.createTestItem(ABAPLINT_LOADING, "loading abaplint");
+  testItem.busy = true;
+  testController.items.add(testItem);
+
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
       myStatusBarItem.text = "abaplint: " + message.text;
@@ -107,7 +114,6 @@ export function activate(context: ExtensionContext) {
         myStatusBarItem.tooltip = "";
       }
     });
-
     client.onNotification("abaplint/help/response", (data) => {
       help.helpResponse(data);
     });
@@ -123,6 +129,30 @@ export function activate(context: ExtensionContext) {
     client.onNotification("abaplint/highlight/writes/response", (data) => {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
+    client.onNotification("abaplint/unittests/list/response", (data) => {
+      console.dir("unit test list response");
+      console.dir(data);
+      testController.items.delete(ABAPLINT_LOADING);
+      for (const t of data) {
+        const globalName = `abaplint-${t.global}`;
+        let globalItem = testController.items.get(globalName);
+        if (globalItem === undefined) {
+          globalItem = testController.createTestItem(globalName, t.global);
+          testController.items.add(globalItem);
+        }
+
+        const className = `abaplint-${t.global}-${t.testClass}`;
+        let classItem = globalItem.children.get(className);
+        if (classItem === undefined) {
+          classItem = testController.createTestItem(className, t.testClass);
+          globalItem.children.add(classItem);
+        }
+
+        const testName = `abaplint-${t.global}-${t.testClass}-${t.method}`;
+        classItem.children.add(testController.createTestItem(testName, t.method, Uri.parse(t.filename)));
+      }
+    });
+    client.sendRequest("abaplint/unittests/list/request");
   });
 
   context.subscriptions.push(client.start());
