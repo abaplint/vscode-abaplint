@@ -44,7 +44,7 @@ export class Help {
     if (this.helpPanel === undefined) {
       this.helpPanel = vscode.window.createWebviewPanel(
         "abaplint_help",
-        "abaplint",
+        "abaplint help",
         {viewColumn: vscode.ViewColumn.Beside, preserveFocus: true},
         {enableFindWidget: true, enableCommandUris: true, enableScripts: true}
       );

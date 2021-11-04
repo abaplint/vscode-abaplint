@@ -47,6 +47,12 @@
 				"category": "abaplint"
 			},
 			{
+				"command": "abaplint.dumpstatementflows",
+				"title": "ABAP dump flows for current file",
+				"enablement": "editorLangId == 'abap'",
+				"category": "abaplint"
+			},
+			{
 				"command": "abaplint.highlight.reads",
 				"title": "ABAP Toggle Highlight Reads",
 				"enablement": "editorLangId == 'abap'",

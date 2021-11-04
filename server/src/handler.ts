@@ -137,6 +137,14 @@ export class Handler {
     this.connection.sendNotification("abaplint/highlight/writes/response", {ranges, uri: doc.uri});
   }
 
+  public onDumpStatementFlows(doc: {uri: string}) {
+    let result = new abaplint.LanguageServer(this.reg).dumpStatementFlows(doc);
+    if (result === "") {
+      result = "empty";
+    }
+    this.connection.sendNotification("abaplint/dumpstatementflows/response", result);
+  }
+
   public onDefinition(params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
     return new abaplint.LanguageServer(this.reg).gotoDefinition(params);
   }

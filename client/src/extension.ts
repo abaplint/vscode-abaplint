@@ -8,6 +8,7 @@ import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
+import {Flows} from "./flows";
 
 const ABAPLINT_LOADING = "abaplint_loading";
 
@@ -15,21 +16,10 @@ let client: CommonLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
 let help: Help;
+let flows: Flows;
 let config: Config;
 
 function registerAsFsProvider(client: CommonLanguageClient) {
-  /*
-  const removeWorkspace = (osPattern: string) => {
-    const pattern = path.sep === "/" ? osPattern : Uri.file(osPattern).path;
-    for (const f of workspace.workspaceFolders || []) {
-      if (pattern.startsWith(f.uri.path)) {
-        return pattern.substr(f.uri.path.length).replace(/^\//, "");
-      }
-    }
-    return pattern;
-  };
-  */
-
   const toUri = (path: string) => Uri.file(path);
   client.onRequest("readFile", async (uri: string) => workspace.fs.readFile(Uri.parse(uri)).then(b => Buffer.from(b).toString("utf-8")));
   client.onRequest("unlink", (path: string) => workspace.fs.delete(toUri(path)));
@@ -93,6 +83,7 @@ export function activate(context: ExtensionContext) {
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
+  flows = new Flows(client).register(context);
   config = new Config(client).register(context);
   client.onDidChangeState(change => {
     if (change.newState === State.Running) {
@@ -117,6 +108,9 @@ export function activate(context: ExtensionContext) {
     client.onNotification("abaplint/help/response", (data) => {
       help.helpResponse(data);
     });
+    client.onNotification("abaplint/dumpstatementflows/response", (data) => {
+      flows.flowResponse(data);
+    });
     client.onNotification("abaplint/config/default/response", (data) => {
       config.defaultConfigResponse(data);
     });
@@ -131,7 +125,7 @@ export function activate(context: ExtensionContext) {
     });
     client.onNotification("abaplint/unittests/list/response", (data) => {
       console.dir("unit test list response");
-      console.dir(data);
+//      console.dir(data);
       testController.items.delete(ABAPLINT_LOADING);
       for (const t of data) {
         const globalName = `abaplint-${t.global}`;
