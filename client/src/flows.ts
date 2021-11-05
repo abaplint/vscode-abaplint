@@ -24,16 +24,15 @@ export class Flows {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>abaplint flows</title>
     </head>
-    <body><pre>` + html + `</pre></body>
+    <body>` + html + `</body>
     </html>`;
   }
 
-  public flowResponse(html: string) {
-    console.dir("flows response");
-    console.dir(html);
-    console.dir("after");
+  public flowResponse(response: string) {
     if (this.panel) {
-      this.panel.webview.html = this.build(html);
+      let list = JSON.parse(response) as string[];
+      list = list.map(l => "<pre>" + l + "</pre>");
+      this.panel.webview.html = this.build(list.join("<br><br>\n"));
     }
   }
 
