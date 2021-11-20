@@ -6,7 +6,8 @@ import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progres
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {FileOperations} from "./file_operations";
 import {GitOperations} from "./git";
-import {UnitTests} from "./unit";
+import {UnitTests} from "./handlers/unit_test";
+import {Artifacts} from "./handlers/artifacts";
 
 export interface IFolder {
   root: string;
@@ -242,6 +243,11 @@ export class Handler {
   public onListUnitTests() {
     const tests = new UnitTests(this.reg).list();
     this.connection.sendNotification("abaplint/unittests/list/response", tests);
+  }
+
+  public onListArtifacts() {
+    const tests = new Artifacts(this.reg).list();
+    this.connection.sendNotification("abaplint/artifacts/list/response", tests);
   }
 
   public onCodeAction(params: LServer.CodeActionParams): LServer.CodeAction[] {
