@@ -15,6 +15,7 @@ Features:
 * Document formatting
 * Semantic highlighting
 * Listing unit tests in test explorer
+* Object view
 
 Keybindings:
 * Shift+F1 = pretty print
