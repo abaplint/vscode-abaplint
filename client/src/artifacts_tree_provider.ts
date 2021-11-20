@@ -20,7 +20,7 @@ export class ArtifactsTreeProvider implements vscode.TreeDataProvider<ArtifactTr
     return element;
   }
 
-  public async getChildren(): Promise<ArtifactTreeItem[]> {
+  public async getChildren(_parent?: ArtifactTreeItem): Promise<ArtifactTreeItem[]> {
     await this.client.onReady();
 
     this.items = [];
