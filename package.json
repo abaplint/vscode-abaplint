@@ -23,6 +23,7 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
+    "onView:abaplint.artifacts",
 		"onCommand:abaplint.create.artifact",
 		"onCommand:abaplint.create.default-config"
 	],
@@ -89,6 +90,23 @@
 				"url": "https://schema.abaplint.org/schema.json"
 			}
 		],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "abaplint",
+          "title": "abaplint",
+          "icon": "img/abaplint.svg"
+        }
+      ]
+    },
+    "views": {
+      "abaplint": [
+        {
+          "id": "abaplint.artifacts",
+          "name": "Artifacts"
+        }
+      ]
+    },
 		"menus": {
 			"editor/title": [
 				{
