@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.5.46",
+	"version": "0.6.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -23,7 +23,7 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
-    "onView:abaplint.artifacts",
+		"onView:abaplint.artifacts",
 		"onCommand:abaplint.create.artifact",
 		"onCommand:abaplint.create.default-config"
 	],
@@ -90,23 +90,23 @@
 				"url": "https://schema.abaplint.org/schema.json"
 			}
 		],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "abaplint",
-          "title": "abaplint",
-          "icon": "img/abaplint.svg"
-        }
-      ]
-    },
-    "views": {
-      "abaplint": [
-        {
-          "id": "abaplint.artifacts",
-          "name": "Artifacts"
-        }
-      ]
-    },
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "abaplint",
+					"title": "abaplint",
+					"icon": "img/abaplint.svg"
+				}
+			]
+		},
+		"views": {
+			"abaplint": [
+				{
+					"id": "abaplint.artifacts",
+					"name": "Artifacts"
+				}
+			]
+		},
 		"menus": {
 			"editor/title": [
 				{
