@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import {CommonLanguageClient} from "vscode-languageclient";
+import {UnitTestInformation} from "./common_types";
 
 const ABAPLINT_LOADING = "abaplint_loading";
 
@@ -20,7 +21,7 @@ export class TestController {
     });
   }
 
-  public response(data: any) {
+  public response(data: UnitTestInformation[]) {
     this.testController.items.delete(ABAPLINT_LOADING);
     for (const t of data) {
       const globalName = `abaplint-${t.global}`;
