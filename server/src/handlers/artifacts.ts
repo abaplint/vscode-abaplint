@@ -1,4 +1,5 @@
 import * as abaplint from "@abaplint/core";
+import {ArtifactInformation} from "../common_types";
 
 export class Artifacts {
   private readonly reg: abaplint.IRegistry;
@@ -7,10 +8,10 @@ export class Artifacts {
     this.reg = reg;
   }
 
-  public list() {
-    const list: any = [];
+  public list(): ArtifactInformation[] {
+    const list: ArtifactInformation[] = [];
     for (const o of this.reg.getObjects()) {
-      list.push(o.getName());
+      list.push({name: o.getName()});
     }
     return list;
   }

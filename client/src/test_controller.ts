@@ -1,15 +1,23 @@
 import * as vscode from "vscode";
+import {CommonLanguageClient} from "vscode-languageclient";
 
 const ABAPLINT_LOADING = "abaplint_loading";
 
 export class TestController {
   private readonly testController: vscode.TestController;
 
-  public constructor() {
+  public constructor(client: CommonLanguageClient) {
     this.testController = vscode.tests.createTestController("abaplintTests", "abaplint Tests");
     const testItem = this.testController.createTestItem(ABAPLINT_LOADING, "loading abaplint");
     testItem.busy = true;
     this.testController.items.add(testItem);
+
+    client.onReady().then(() => {
+      client.onNotification("abaplint/unittests/list/response", (data) => {
+        this.response(data);
+      });
+      client.sendRequest("abaplint/unittests/list/request");
+    });
   }
 
   public response(data: any) {

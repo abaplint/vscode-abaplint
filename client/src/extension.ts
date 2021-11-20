@@ -91,7 +91,7 @@ export function activate(context: ExtensionContext) {
     }
   });
 
-  const tc = new TestController();
+  new TestController(client);
 
   vscode.window.registerTreeDataProvider("abaplint.artifacts", new ArtifactsTreeProvider());
 
@@ -122,10 +122,6 @@ export function activate(context: ExtensionContext) {
     client.onNotification("abaplint/highlight/writes/response", (data) => {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
-    client.onNotification("abaplint/unittests/list/response", (data) => {
-      tc.response(data);
-    });
-    client.sendRequest("abaplint/unittests/list/request");
   });
 
   context.subscriptions.push(client.start());
