@@ -93,7 +93,7 @@ export function activate(context: ExtensionContext) {
 
   new TestController(client);
 
-  vscode.window.registerTreeDataProvider("abaplint.artifacts", new ArtifactsTreeProvider());
+  vscode.window.registerTreeDataProvider("abaplint.artifacts", new ArtifactsTreeProvider(client));
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
