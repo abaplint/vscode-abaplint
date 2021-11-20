@@ -9,6 +9,7 @@ import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
 import {Flows} from "./flows";
+import {ArtifactsTreeProvider} from "./artifacts_tree_provider";
 
 const ABAPLINT_LOADING = "abaplint_loading";
 
@@ -95,6 +96,8 @@ export function activate(context: ExtensionContext) {
   const testItem = testController.createTestItem(ABAPLINT_LOADING, "loading abaplint");
   testItem.busy = true;
   testController.items.add(testItem);
+
+  vscode.window.registerTreeDataProvider("abaplint.artifacts", new ArtifactsTreeProvider());
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
