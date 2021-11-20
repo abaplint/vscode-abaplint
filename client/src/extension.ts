@@ -9,8 +9,8 @@ import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
 import {Flows} from "./flows";
-
-const ABAPLINT_LOADING = "abaplint_loading";
+import {ArtifactsTreeProvider} from "./artifacts_tree_provider";
+import {TestController} from "./test_controller";
 
 let client: CommonLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -91,10 +91,9 @@ export function activate(context: ExtensionContext) {
     }
   });
 
-  const testController = vscode.tests.createTestController("abaplintTests", "abaplnit Tests");
-  const testItem = testController.createTestItem(ABAPLINT_LOADING, "loading abaplint");
-  testItem.busy = true;
-  testController.items.add(testItem);
+  new TestController(client);
+
+  vscode.window.registerTreeDataProvider("abaplint.artifacts", new ArtifactsTreeProvider(client));
 
   client.onReady().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
@@ -123,34 +122,6 @@ export function activate(context: ExtensionContext) {
     client.onNotification("abaplint/highlight/writes/response", (data) => {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
-    client.onNotification("abaplint/unittests/list/response", (data) => {
-      console.dir("unit test list response");
-//      console.dir(data);
-      testController.items.delete(ABAPLINT_LOADING);
-      for (const t of data) {
-        const globalName = `abaplint-${t.global}`;
-        let globalItem = testController.items.get(globalName);
-        if (globalItem === undefined) {
-          globalItem = testController.createTestItem(globalName, t.global);
-          testController.items.add(globalItem);
-        }
-
-        const className = `abaplint-${t.global}-${t.testClass}`;
-        let classItem = globalItem.children.get(className);
-        if (classItem === undefined) {
-          classItem = testController.createTestItem(className, t.testClass);
-          globalItem.children.add(classItem);
-        }
-
-        const testName = `abaplint-${t.global}-${t.testClass}-${t.method}`;
-        const add = testController.createTestItem(testName, t.method, Uri.parse(t.filename));
-        add.range = new vscode.Range(
-          new vscode.Position(t.start.row - 1, t.start.col - 1),
-          new vscode.Position(t.start.row - 1, t.start.col - 1 + t.method.length));
-        classItem.children.add(add);
-      }
-    });
-    client.sendRequest("abaplint/unittests/list/request");
   });
 
   context.subscriptions.push(client.start());

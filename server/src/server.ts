@@ -240,5 +240,10 @@ connection.onRequest("abaplint/unittests/list/request", async () => {
   handler.onListUnitTests();
 });
 
+connection.onRequest("abaplint/artifacts/list/request", async () => {
+  const handler = await getHandler();
+  handler.onListArtifacts();
+});
+
 documents.listen(connection);
 connection.listen();

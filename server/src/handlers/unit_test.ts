@@ -1,4 +1,5 @@
 import * as abaplint from "@abaplint/core";
+import {UnitTestInformation} from "../common_types";
 
 export class UnitTests {
   private readonly reg: abaplint.IRegistry;
@@ -8,7 +9,7 @@ export class UnitTests {
   }
 
   public list() {
-    const ret: any[] = [];
+    const ret: UnitTestInformation[] = [];
     for (const obj of this.reg.getObjects()) {
       if (this.reg.isDependency(obj) || !(obj instanceof abaplint.Objects.Class)) {
         continue;
