@@ -11,7 +11,19 @@ export class Artifacts {
   public list(): ArtifactInformation[] {
     const list: ArtifactInformation[] = [];
     for (const o of this.reg.getObjects()) {
-      list.push({name: o.getName()});
+      if (this.reg.isDependency(o)) {
+        continue;
+      }
+      let mainFile = o.getXMLFile()?.getFilename() || "";
+      if (o instanceof abaplint.ABAPObject) {
+        mainFile = o.getMainABAPFile()?.getFilename() || "";
+      }
+      list.push({
+        type: o.getType(),
+        name: o.getName(),
+        description: o.getDescription() || "",
+        mainFile,
+      });
     }
     return list;
   }
