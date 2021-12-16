@@ -88,6 +88,18 @@
 			{
 				"fileMatch": "abaplint.json5",
 				"url": "https://schema.abaplint.org/schema.json"
+			},
+      {
+				"fileMatch": "abaplint-app.json",
+				"url": "https://schema.abaplint.app/schema.json"
+			},
+			{
+				"fileMatch": "abaplint-app.jsonc",
+				"url": "https://schema.abaplint.app/schema.json"
+			},
+			{
+				"fileMatch": "abaplint-app.json5",
+				"url": "https://schema.abaplint.app/schema.json"
 			}
 		],
 		"viewsContainers": {
