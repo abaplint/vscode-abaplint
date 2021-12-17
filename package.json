@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.17",
+	"version": "0.6.18",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -89,7 +89,7 @@
 				"fileMatch": "abaplint.json5",
 				"url": "https://schema.abaplint.org/schema.json"
 			},
-      {
+			{
 				"fileMatch": "abaplint-app.json",
 				"url": "https://schema.abaplint.app/schema.json"
 			},
