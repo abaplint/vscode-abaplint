@@ -72,7 +72,7 @@
 			},
 			{
 				"command": "abaplint.create.default-config",
-				"title": "abaplint: Create default config",
+				"title": "abaplint: Create Default Config",
 				"category": "abaplint"
 			}
 		],
@@ -127,13 +127,19 @@
 					"group": "navigation"
 				}
 			],
-			"explorer/context": [
+			"file/newFile": [
 				{
 					"command": "abaplint.create.artifact",
 					"group": "abaplint@1"
 				},
 				{
 					"command": "abaplint.create.default-config",
+					"group": "abaplint@1"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "abaplint.create.artifact",
 					"group": "abaplint@1"
 				}
 			]
