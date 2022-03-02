@@ -217,7 +217,7 @@
 		"path-browserify": "^1.0.1",
 		"merge-options": "^3.0.4",
 		"buffer": "^6.0.3",
-		"ts-loader": "^9.2.6",
+		"ts-loader": "^9.2.7",
 		"typescript": "^4.6.2",
 		"webpack": "^5.69.1",
 		"webpack-cli": "^4.9.2"
