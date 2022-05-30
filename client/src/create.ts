@@ -2,7 +2,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import {Buffer} from "buffer";
 
-// todo: run formatter on generated ABAP
+// todo: run formatter, ie user settings, on generated ABAP
 
 async function createFile(uri: vscode.Uri, content: string) {
   if (await fileExists(uri)) {
@@ -77,7 +77,7 @@ async function createCLAS(uri: vscode.Uri) {
   }
 
   const dir = await findFolder(uri);
-  const filename = dir + name.toLowerCase() + ".clas";
+  const filename = dir + name.replace(/\//g, "#").toLowerCase() + ".clas";
 
   const uriXML = vscode.Uri.file(filename + ".xml");
   const dataXML = `<?xml version="1.0" encoding="utf-8"?>
