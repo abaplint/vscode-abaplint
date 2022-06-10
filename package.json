@@ -206,6 +206,9 @@
 	"extensionDependencies": [
 		"larshp.vscode-abap"
 	],
+  "sponsor": {
+    "url": "https://github.com/sponsors/larshp"
+  },
 	"devDependencies": {
 		"@types/mocha": "^9.1.1",
 		"@types/node": "^17.0.41",
