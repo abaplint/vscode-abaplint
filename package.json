@@ -212,8 +212,8 @@
 	"devDependencies": {
 		"@types/mocha": "^9.1.1",
 		"@types/node": "^18.0.3",
-		"@typescript-eslint/eslint-plugin": "^5.30.5",
-		"@typescript-eslint/parser": "^5.30.5",
+		"@typescript-eslint/eslint-plugin": "^5.30.6",
+		"@typescript-eslint/parser": "^5.30.6",
 		"@vscode/test-web": "^0.0.27",
 		"eslint": "^8.19.0",
 		"eslint-plugin-import": "^2.26.0",
