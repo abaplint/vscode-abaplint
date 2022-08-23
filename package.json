@@ -23,6 +23,7 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
+		"onLanguage:abap_cds",
 		"onView:abaplint.artifacts",
 		"onCommand:abaplint.create.artifact",
 		"onCommand:abaplint.create.default-config"
