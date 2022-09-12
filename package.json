@@ -212,11 +212,11 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^9.1.1",
-		"@types/node": "^18.7.15",
+		"@types/node": "^18.7.16",
 		"@typescript-eslint/eslint-plugin": "^5.36.2",
 		"@typescript-eslint/parser": "^5.36.2",
 		"@vscode/test-web": "^0.0.30",
-		"eslint": "^8.23.0",
+		"eslint": "^8.23.1",
 		"eslint-plugin-import": "^2.26.0",
 		"path-browserify": "^1.0.1",
 		"merge-options": "^3.0.4",
