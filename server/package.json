@@ -17,10 +17,10 @@
 		"@types/glob": "^7.2.0"
 	},
 	"dependencies": {
-		"@abaplint/core": "^2.93.15",
-		"vscode-uri": "^3.0.3",
+		"@abaplint/core": "^2.93.17",
+		"vscode-uri": "=3.0.3",
 		"glob": "^7.2.3",
-		"vscode-languageserver-textdocument": "^1.0.5",
+		"vscode-languageserver-textdocument": "^1.0.7",
 		"vscode-languageserver": "^7.0.0"
 	},
 	"scripts": {}
