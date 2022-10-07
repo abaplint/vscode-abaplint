@@ -76,7 +76,7 @@ export class Handler {
     this.connection = connection;
 
     this.setup = new Setup(connection);
-    this.folders = this.setup.determineFolders(params.workspaceFolders);
+    this.folders = this.setup.determineFolders(params.workspaceFolders || []);
   }
 
   private async readAndSetConfig() {

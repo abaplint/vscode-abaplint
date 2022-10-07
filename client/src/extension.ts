@@ -1,6 +1,6 @@
 import * as path from "path";
 import {workspace, ExtensionContext, Uri} from "vscode";
-import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, CommonLanguageClient} from "vscode-languageclient/node";
+import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
 import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
 import * as vscode from "vscode";
 import * as fs from "fs";
@@ -12,14 +12,14 @@ import {Flows} from "./flows";
 import {ArtifactsTreeProvider} from "./artifacts_tree_provider";
 import {TestController} from "./test_controller";
 
-let client: CommonLanguageClient;
+let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
 let help: Help;
 let flows: Flows;
 let config: Config;
 
-function registerAsFsProvider(client: CommonLanguageClient) {
+function registerAsFsProvider(client: BaseLanguageClient) {
   const toUri = (path: string) => Uri.file(path);
   client.onRequest("readFile", async (uri: string) => workspace.fs.readFile(Uri.parse(uri)).then(b => Buffer.from(b).toString("utf-8")));
   client.onRequest("unlink", (path: string) => workspace.fs.delete(toUri(path)));
@@ -95,7 +95,7 @@ export function activate(context: ExtensionContext) {
 
   vscode.window.registerTreeDataProvider("abaplint.artifacts", new ArtifactsTreeProvider(client));
 
-  client.onReady().then(() => {
+  client.start().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
       myStatusBarItem.text = "abaplint: " + message.text;
       if (message.tooltip) {
@@ -124,7 +124,8 @@ export function activate(context: ExtensionContext) {
     });
   });
 
-  context.subscriptions.push(client.start());
+// removed, TODO: what was this used for?
+//  context.subscriptions.push(await client.start());
 }
 
 export function deactivate(): Thenable<void> | undefined {

@@ -1,12 +1,12 @@
-import {CommonLanguageClient} from "vscode-languageclient/node";
+import {BaseLanguageClient} from "vscode-languageclient/node";
 import * as vscode from "vscode";
 import * as Create from "./create";
 
 export class Config {
-  private readonly client: CommonLanguageClient;
+  private readonly client: BaseLanguageClient;
   private uri: vscode.Uri;
 
-  public constructor(client: CommonLanguageClient) {
+  public constructor(client: BaseLanguageClient) {
     this.client = client;
   }
 

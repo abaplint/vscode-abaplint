@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
 import {ExtensionContext} from "vscode";
-import {CommonLanguageClient} from "vscode-languageclient/node";
+import {BaseLanguageClient} from "vscode-languageclient/node";
 
 export class Flows {
   private panel: vscode.WebviewPanel | undefined;
-  private readonly client: CommonLanguageClient;
+  private readonly client: BaseLanguageClient;
 
-  public constructor(client: CommonLanguageClient) {
+  public constructor(client: BaseLanguageClient) {
     this.client = client;
   }
 

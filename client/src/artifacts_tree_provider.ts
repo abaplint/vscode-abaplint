@@ -1,15 +1,15 @@
 import * as vscode from "vscode";
-import {CommonLanguageClient} from "vscode-languageclient";
+import {BaseLanguageClient} from "vscode-languageclient";
 import {ArtifactInformation} from "./common_types";
 
 export class ArtifactsTreeProvider implements vscode.TreeDataProvider<ArtifactTreeItem> {
-  private readonly client: CommonLanguageClient;
+  private readonly client: BaseLanguageClient;
   private items: ArtifactInformation[] = [];
 
-  public constructor(client: CommonLanguageClient) {
+  public constructor(client: BaseLanguageClient) {
     this.client = client;
 
-    this.client.onReady().then(() => {
+    this.client.start().then(() => {
       client.onNotification("abaplint/artifacts/list/response", (data) => {
         this.response(data);
       });
@@ -21,7 +21,7 @@ export class ArtifactsTreeProvider implements vscode.TreeDataProvider<ArtifactTr
   }
 
   public async getChildren(_parent?: ArtifactTreeItem): Promise<ArtifactTreeItem[]> {
-    await this.client.onReady();
+    await this.client.start();
 
     this.items = [];
     await this.client.sendRequest("abaplint/artifacts/list/request");
