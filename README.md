@@ -11,7 +11,7 @@ Features:
 * Go to implementation
 * Quick fixes
 * Find references
-* Rename classes
+* Rename classes, interfaces and variables
 * Document formatting
 * Semantic highlighting
 * Listing unit tests in test explorer
