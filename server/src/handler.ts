@@ -226,13 +226,11 @@ export class Handler {
 
   public onPrepareRename(params: LServer.TextDocumentPositionParams): {range: LServer.Range, placeholder: string} | undefined {
     const result = new abaplint.LanguageServer(this.reg).prepareRename(params);
-    /*
     if (result === undefined) {
-// todo, https://github.com/microsoft/vscode/issues/85157
-      throw new Error(`abaplint, the element can't be renamed`);
+      return undefined;
     }
-    */
-    return result;
+    const res = {range: result?.range, placeholder: result?.placeholder};
+    return res;
   }
 
   public onRequestConfig() {
