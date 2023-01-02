@@ -216,7 +216,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.47.1",
 		"@typescript-eslint/parser": "^5.47.1",
 		"@vscode/test-web": "^0.0.33",
-		"eslint": "^8.30.0",
+		"eslint": "^8.31.0",
 		"eslint-plugin-import": "^2.26.0",
 		"path-browserify": "^1.0.1",
 		"merge-options": "^3.0.4",
