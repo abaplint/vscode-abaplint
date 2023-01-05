@@ -178,6 +178,9 @@ export class Handler {
       for (const filename of filenames) {
 //        console.log("read " + filename);
         const raw = await FileOperations.readFile(filename);
+        if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
+          continue; // skip SMIM contents
+        }
         const uri = filename;
         this.reg.addFile(new abaplint.MemoryFile(uri, raw));
       }
@@ -199,6 +202,9 @@ export class Handler {
           const glob = d.folder + d.files;
           const filenames = await FileOperations.getProvider().glob(glob);
           for (const filename of filenames) {
+            if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
+              continue; // skip SMIM contents
+            }
             const raw = await FileOperations.readFile(filename);
             const uri = URI.file(filename).toString();
             files.push(new abaplint.MemoryFile(uri, raw));
