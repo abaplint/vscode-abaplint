@@ -17,7 +17,7 @@
 		"@types/glob": "^7.2.0"
 	},
 	"dependencies": {
-		"@abaplint/core": "^2.94.20",
+		"@abaplint/core": "^2.94.22",
 		"vscode-uri": "^3.0.7",
 		"glob": "^7.2.3",
 		"vscode-languageserver-textdocument": "^1.0.8",
