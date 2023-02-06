@@ -23,10 +23,7 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
-		"onLanguage:abap_cds",
-		"onView:abaplint.artifacts",
-		"onCommand:abaplint.create.artifact",
-		"onCommand:abaplint.create.default-config"
+		"onLanguage:abap_cds"
 	],
 	"icon": "img/abaplint_icon.png",
 	"main": "./out-native/extension",
