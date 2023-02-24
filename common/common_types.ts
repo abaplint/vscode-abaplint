@@ -5,6 +5,7 @@ export interface ArtifactInformation {
   name: string,
   description: string,
   mainFile: string,
+  subFiles: {name: string, file: string}[];
 }
 
 export interface UnitTestInformation {

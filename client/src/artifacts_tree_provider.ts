@@ -8,6 +8,7 @@ export class ArtifactsTreeProvider implements vscode.TreeDataProvider<ArtifactTr
 
   public constructor(client: BaseLanguageClient) {
     this.client = client;
+    this.items = [];
 
     this.client.start().then(() => {
       client.onNotification("abaplint/artifacts/list/response", (data) => {
@@ -20,17 +21,23 @@ export class ArtifactsTreeProvider implements vscode.TreeDataProvider<ArtifactTr
     return element;
   }
 
-  public async getChildren(_parent?: ArtifactTreeItem): Promise<ArtifactTreeItem[]> {
+  public async getChildren(parent?: ArtifactTreeItem): Promise<ArtifactTreeItem[]> {
     await this.client.start();
 
-    this.items = [];
-    await this.client.sendRequest("abaplint/artifacts/list/request");
-
-    const treeItems: ArtifactTreeItem[] = [];
-    for (const i of this.items) {
-      treeItems.push(new ArtifactTreeItem(i));
+    if (this.items.length === 0) {
+      await this.client.sendRequest("abaplint/artifacts/list/request");
     }
-    return treeItems;
+
+    if (parent !== undefined) {
+      // todo, children here
+      return [];
+    } else {
+      const treeItems: ArtifactTreeItem[] = [];
+      for (const i of this.items) {
+        treeItems.push(new ArtifactTreeItem(i));
+      }
+      return treeItems;
+    }
   }
 
   private response(data: any) {
@@ -40,7 +47,12 @@ export class ArtifactsTreeProvider implements vscode.TreeDataProvider<ArtifactTr
 
 export class ArtifactTreeItem extends vscode.TreeItem {
   public constructor(info: ArtifactInformation) {
-    super(info.name, vscode.TreeItemCollapsibleState.None);
+    let state = vscode.TreeItemCollapsibleState.None;
+    if (info.subFiles.length > 0) {
+      state = vscode.TreeItemCollapsibleState.Collapsed;
+    }
+
+    super(info.name, state);
     this.tooltip = info.type;
     this.description = info.description;
     this.resourceUri = vscode.Uri.parse(info.mainFile);
