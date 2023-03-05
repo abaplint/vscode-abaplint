@@ -22,6 +22,9 @@ export class UnitTests {
             continue;
           }
           for (const m of def.methods) {
+            if (m.isForTesting === false) {
+              continue;
+            }
             const upper = m.name.toUpperCase();
             if (upper === "SETUP"
                 || upper === "TEARDOWN"
