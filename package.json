@@ -213,14 +213,14 @@
 		"@typescript-eslint/eslint-plugin": "^5.54.1",
 		"@typescript-eslint/parser": "^5.54.1",
 		"@vscode/test-web": "^0.0.35",
-		"eslint": "^8.35.0",
+		"eslint": "^8.36.0",
 		"eslint-plugin-import": "^2.27.5",
 		"path-browserify": "^1.0.1",
 		"merge-options": "^3.0.4",
 		"buffer": "^6.0.3",
 		"ts-loader": "^9.4.2",
 		"typescript": "=4.6.4",
-		"webpack": "^5.75.0",
+		"webpack": "^5.76.1",
 		"webpack-cli": "^5.0.1"
 	}
 }
