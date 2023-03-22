@@ -209,9 +209,9 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.1",
-		"@types/node": "^18.15.3",
-		"@typescript-eslint/eslint-plugin": "^5.55.0",
-		"@typescript-eslint/parser": "^5.55.0",
+		"@types/node": "^18.15.5",
+		"@typescript-eslint/eslint-plugin": "^5.56.0",
+		"@typescript-eslint/parser": "^5.56.0",
 		"@vscode/test-web": "^0.0.35",
 		"eslint": "^8.36.0",
 		"eslint-plugin-import": "^2.27.5",
