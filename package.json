@@ -156,7 +156,7 @@
 			{
 				"command": "workbench.action.quickOpen",
 				"key": "ctrl+shift+a",
-				"when": ""
+				"when": "true"
 			},
 			{
 				"command": "editor.action.commentLine",
