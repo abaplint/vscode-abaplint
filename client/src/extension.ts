@@ -54,7 +54,8 @@ export function activate(context: ExtensionContext) {
     progressOnInitialization: true,
     initializationOptions: {
       provideFsProxy: true,
-      enableSemanticHighlighting: workspace.getConfiguration("abaplint").get("enableSemanticHighlighting", false),
+      enableSemanticHighlighting: workspace.getConfiguration("abaplint").get("enableSemanticHighlighting", true),
+      codeLens: workspace.getConfiguration("abaplint").get("codeLens", true),
     },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),

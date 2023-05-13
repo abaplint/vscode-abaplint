@@ -49,6 +49,13 @@ function initialize() {
           };
         }
 
+        let codeLensProvider: LServer.CodeLensOptions | undefined = {
+          resolveProvider: false,
+        };
+        if (params.initializationOptions.codeLens === false) {
+          codeLensProvider = undefined;
+        }
+
     // does the client support the `workspace/configuration` request?
     // if not, we will fall back using global settings
         hasConfigurationCapability = capabilities.workspace && !!capabilities.workspace.configuration;
@@ -59,12 +66,12 @@ function initialize() {
       /*
       signatureHelpProvider: [],
       completionProvider
-      codeLensProvider
       */
             semanticTokensProvider: tokensProvider,
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
             documentFormattingProvider: true,
             definitionProvider: true,
+            codeLensProvider: codeLensProvider,
             codeActionProvider: true,
             referencesProvider: true,
             documentHighlightProvider: true,
@@ -168,6 +175,11 @@ connection.onDocumentFormatting(async(params) => {
 connection.onDocumentSymbol(async(params) => {
   const handler = await getHandler();
   return handler.onDocumentSymbol(params);
+});
+
+connection.onCodeLens(async(params) => {
+  const handler = await getHandler();
+  return handler.onCodeLens(params);
 });
 
 connection.onDidChangeConfiguration((_change) => { return undefined; });

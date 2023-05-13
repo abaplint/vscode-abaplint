@@ -181,8 +181,14 @@
 				"abaplint.enableSemanticHighlighting": {
 					"scope": "window",
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"description": "Enable semantic highlighting, requires vscode restart"
+				},
+				"abaplint.codeLens": {
+					"scope": "window",
+					"type": "boolean",
+					"default": true,
+					"description": "Enable code lens"
 				}
 			}
 		}

@@ -160,6 +160,16 @@ export class Handler {
     return edits;
   }
 
+  public onCodeLens(params: LServer.CodeLensParams): LServer.CodeLens[] {
+    let lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument);
+    // todo, this is a workaround, taking data to command title,
+    lenses = lenses.map(l => {return {
+      range: l.range,
+      command: LServer.Command.create(l.data, ""),
+    };});
+    return lenses;
+  }
+
   public onSemanticTokensRange(params: LServer.SemanticTokensRangeParams): LServer.SemanticTokens {
     const range = {
       textDocument: params.textDocument,
