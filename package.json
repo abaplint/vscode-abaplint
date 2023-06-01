@@ -216,8 +216,8 @@
 	"devDependencies": {
 		"@types/mocha": "^10.0.1",
 		"@types/node": "^20.2.5",
-		"@typescript-eslint/eslint-plugin": "^5.59.7",
-		"@typescript-eslint/parser": "^5.59.7",
+		"@typescript-eslint/eslint-plugin": "^5.59.8",
+		"@typescript-eslint/parser": "^5.59.8",
 		"@vscode/test-web": "^0.0.43",
 		"eslint": "^8.41.0",
 		"eslint-plugin-import": "^2.27.5",
@@ -226,7 +226,7 @@
 		"buffer": "^6.0.3",
 		"ts-loader": "^9.4.3",
 		"typescript": "^5.0.4",
-		"webpack": "^5.84.1",
+		"webpack": "^5.85.0",
 		"webpack-cli": "^5.1.1"
 	}
 }
