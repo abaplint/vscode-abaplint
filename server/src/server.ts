@@ -66,6 +66,10 @@ function initialize() {
       /*
       signatureHelpProvider: [],
       completionProvider
+      inlayHintProvider // shows implicit types/parameters
+      inlineValueProvider // same as inlay hints, but at end of line?
+      typeDefinitionProvider // "goto type definition"
+      typeHierarchyProvider // super/sub classes listing
       */
             semanticTokensProvider: tokensProvider,
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
