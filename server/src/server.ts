@@ -52,8 +52,15 @@ function initialize() {
         let codeLensProvider: LServer.CodeLensOptions | undefined = {
           resolveProvider: false,
         };
-        if (params.initializationOptions.codeLens === false) {
+        if (params.initializationOptions.codeLens.messageTexts === false) {
           codeLensProvider = undefined;
+        }
+
+        let inlayHintProvider: LServer.InlayHintOptions | undefined = {
+          resolveProvider: false,
+        };
+        if (params.initializationOptions.inlayHints.inferredTypes === false) {
+          inlayHintProvider = undefined;
         }
 
     // does the client support the `workspace/configuration` request?
@@ -61,21 +68,21 @@ function initialize() {
         hasConfigurationCapability = capabilities.workspace && !!capabilities.workspace.configuration;
         hasWorkspaceFolderCapability = capabilities.workspace && !!capabilities.workspace.workspaceFolders;
 
+        /*
+        signatureHelpProvider: [],
+        completionProvider
+        inlineValueProvider // same as inlay hints, but at end of line?
+        typeDefinitionProvider // "goto type definition"
+        typeHierarchyProvider // super/sub classes listing
+        */
         const result: LServer.InitializeResult = {
           capabilities: {
-      /*
-      signatureHelpProvider: [],
-      completionProvider
-      inlayHintProvider // shows implicit types/parameters
-      inlineValueProvider // same as inlay hints, but at end of line?
-      typeDefinitionProvider // "goto type definition"
-      typeHierarchyProvider // super/sub classes listing
-      */
             semanticTokensProvider: tokensProvider,
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
             documentFormattingProvider: true,
             definitionProvider: true,
             codeLensProvider: codeLensProvider,
+            inlayHintProvider: inlayHintProvider,
             codeActionProvider: true,
             referencesProvider: true,
             documentHighlightProvider: true,
@@ -169,6 +176,11 @@ connection.onRenameRequest(async(params) => {
 connection.onPrepareRename(async(params) => {
   const handler = await getHandler();
   return handler.onPrepareRename(params);
+});
+
+connection.languages.inlayHint.on(async(params) => {
+  const handler = await getHandler();
+  return handler.onInlayHint(params);
 });
 
 connection.onDocumentFormatting(async(params) => {

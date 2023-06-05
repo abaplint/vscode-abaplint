@@ -161,12 +161,8 @@ export class Handler {
   }
 
   public onCodeLens(params: LServer.CodeLensParams): LServer.CodeLens[] {
-    let lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument);
-    // todo, this is a workaround, taking data to command title,
-    lenses = lenses.map(l => {return {
-      range: l.range,
-      command: LServer.Command.create(l.data, ""),
-    };});
+    // todo: pass code lens settings,
+    const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument);
     return lenses;
   }
 
@@ -182,11 +178,9 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgressReporter) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
-//      const glob = folder.root === "/" ? folder.glob : `${folder.root}${folder.glob}`;
       const glob = folder.glob;
       const filenames = await FileOperations.loadFileNames(glob, false);
       for (const filename of filenames) {
-//        console.log("read " + filename);
         const raw = await FileOperations.readFile(filename);
         if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
           continue; // skip SMIM contents
@@ -282,6 +276,11 @@ export class Handler {
 
   public onImplementation(params: LServer.TextDocumentPositionParams): LServer.Location[] {
     return new abaplint.LanguageServer(this.reg).implementation(params);
+  }
+
+  public onInlayHint(params: LServer.InlayHintParams): LServer.InlayHint[] {
+    // todo: pass inlay hints settings,
+    return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument);
   }
 
 }

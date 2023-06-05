@@ -184,11 +184,35 @@
 					"default": true,
 					"description": "Enable semantic highlighting, requires vscode restart"
 				},
+				"abaplint.inlayHints": {
+					"type": "object",
+          "title": "Inlay Hints",
+					"properties": {
+						"inferredTypes": {
+							"type": "boolean",
+              "description": "Show inferred types",
+							"default": true
+						}
+					},
+					"additionalProperties": false,
+					"default": {
+						"inferredTypes": true
+					}
+				},
 				"abaplint.codeLens": {
-					"scope": "window",
-					"type": "boolean",
-					"default": true,
-					"description": "Enable code lens"
+					"type": "object",
+          "title": "Code Lens",
+					"properties": {
+						"messageTexts": {
+							"type": "boolean",
+              "description": "Show message texts",
+							"default": true
+						}
+					},
+					"additionalProperties": false,
+					"default": {
+						"messageText": true
+					}
 				}
 			}
 		}
