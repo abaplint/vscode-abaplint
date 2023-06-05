@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.252",
+	"version": "0.6.253",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -186,11 +186,11 @@
 				},
 				"abaplint.inlayHints": {
 					"type": "object",
-          "title": "Inlay Hints",
+					"title": "Inlay Hints",
 					"properties": {
 						"inferredTypes": {
 							"type": "boolean",
-              "description": "Show inferred types",
+							"description": "Show inferred types",
 							"default": true
 						}
 					},
@@ -201,11 +201,11 @@
 				},
 				"abaplint.codeLens": {
 					"type": "object",
-          "title": "Code Lens",
+					"title": "Code Lens",
 					"properties": {
 						"messageTexts": {
 							"type": "boolean",
-              "description": "Show message texts",
+							"description": "Show message texts",
 							"default": true
 						}
 					},
