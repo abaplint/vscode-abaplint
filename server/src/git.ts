@@ -18,7 +18,7 @@ export class GitOperations {
 
     process.stderr.write("Clone: " + dep.url + "\n");
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
-    childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir, stdio: "inherit"});
+    childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir});
     const names = await FileOperations.loadFileNames(dir + dep.files);
     const files = await FileOperations.loadFiles(names);
     await FileOperations.deleteFolderRecursive(dir);
