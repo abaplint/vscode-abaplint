@@ -249,8 +249,8 @@
 		"merge-options": "^3.0.4",
 		"buffer": "^6.0.3",
 		"ts-loader": "^9.4.4",
-		"typescript": "^5.1.5",
-		"webpack": "^5.88.0",
+		"typescript": "^5.1.6",
+		"webpack": "^5.88.1",
 		"webpack-cli": "^5.1.4"
 	}
 }
