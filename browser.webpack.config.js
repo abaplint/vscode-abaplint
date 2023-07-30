@@ -75,6 +75,7 @@ const browserServerConfig = /** @type WebpackConfig */ {
     },
 		fallback: {
 			"path": require.resolve("path-browserify"),
+      "crypto": require.resolve("crypto-browserify"),
       util: false,
       fs: false,
       child_process: false,
