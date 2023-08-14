@@ -58,25 +58,32 @@ class Progress implements abaplint.IProgress {
   }
 }
 
+type ExtraSettings = {
+  codeLens?: any,
+  inlayHints?: any,
+};
+
 export class Handler {
   private readonly folders: IFolder[] = [];
   private readonly reg: abaplint.IRegistry;
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
+  private readonly settings: ExtraSettings;
   private timeouts: {[index: string]: any} = {};
 
-  public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
+  public static async create(connection: LServer.Connection, params: LServer.InitializeParams & ExtraSettings) {
     const handler = new Handler(connection, params);
     await handler.readAndSetConfig();
     return handler;
   }
 
-  private constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
+  private constructor(connection: LServer.Connection, params: LServer.InitializeParams & ExtraSettings) {
     this.reg = new abaplint.Registry();
     this.connection = connection;
 
     this.setup = new Setup(connection);
     this.folders = this.setup.determineFolders(params.workspaceFolders || []);
+    this.settings = params;
   }
 
   private async readAndSetConfig() {
@@ -161,8 +168,7 @@ export class Handler {
   }
 
   public onCodeLens(params: LServer.CodeLensParams): LServer.CodeLens[] {
-    // todo: pass code lens settings,
-    const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument);
+    const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
     return lenses;
   }
 
@@ -279,8 +285,7 @@ export class Handler {
   }
 
   public onInlayHint(params: LServer.InlayHintParams): LServer.InlayHint[] {
-    // todo: pass inlay hints settings,
-    return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument);
+    return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument, this.settings.inlayHints);
   }
 
 }
