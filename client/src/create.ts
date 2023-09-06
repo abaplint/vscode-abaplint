@@ -116,7 +116,7 @@ async function createINTF(uri: vscode.Uri) {
   }
 
   const dir = await findFolder(uri);
-  const filename = dir + name.toLowerCase() + ".intf";
+  const filename = dir + name.replace(/\//g, "#").toLowerCase() + ".intf";
 
   const uriXML = vscode.Uri.file(filename + ".xml");
   const dataXML = `<?xml version="1.0" encoding="utf-8"?>
