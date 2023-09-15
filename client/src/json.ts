@@ -33,7 +33,7 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
   }
 
   public watch(_uri: vscode.Uri, _options: { readonly recursive: boolean; readonly excludes: readonly string[]; }): vscode.Disposable {
-    console.dir("watch");
+    console.dir("jsonFileSystemProvider, watch");
     throw new Error("Method not implemented.");
   }
 
@@ -47,12 +47,12 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
   }
 
   public readDirectory(_uri: vscode.Uri): [string, vscode.FileType][] | Thenable<[string, vscode.FileType][]> {
-    console.dir("readDirectory");
+    console.dir("jsonFileSystemProvider, readDirectory");
     throw new Error("Method not implemented.");
   }
 
   public createDirectory(_uri: vscode.Uri): void | Thenable<void> {
-    console.dir("createDirectory");
+    console.dir("jsonFileSystemProvider, createDirectory");
     throw new Error("Method not implemented.");
   }
 
@@ -116,17 +116,17 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
 
   public delete(_uri: vscode.Uri, _options: { readonly recursive: boolean; }): void | Thenable<void> {
     console.dir("delete");
-    throw new Error("Method not implemented.");
+    throw new Error("jsonFileSystemProvider, Method delete not implemented.");
   }
 
   public rename(_oldUri: vscode.Uri, _newUri: vscode.Uri, _options: { readonly overwrite: boolean; }): void | Thenable<void> {
     console.dir("rename");
-    throw new Error("Method not implemented.");
+    throw new Error("jsonFileSystemProvider, Method rename not implemented.");
   }
 
   public copy?(_source: vscode.Uri, _destination: vscode.Uri, _options: { readonly overwrite: boolean; }): void | Thenable<void> {
     console.dir("copy");
-    throw new Error("Method not implemented.");
+    throw new Error("jsonFileSystemProvider, Method copy not implemented.");
   }
 
 }
@@ -142,7 +142,7 @@ export async function editJson(params: CodeActionParams) {
   jsonFileSystemProvider.files[name] = {
     target: params.textDocument.uri,
     contents: `{\n  "hello": 2\n}`,   // todo, analyze, source.getText();
-    startRow: 132 - 1,
+    startRow: params.range.start.line,
   };
 
   const uri = vscode.Uri.parse(JSON_FILE_SYSTEM_PROVIDER_SCHEME + ":/" + name);
