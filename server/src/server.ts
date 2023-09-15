@@ -151,21 +151,8 @@ connection.languages.semanticTokens.onRange(async (params) => {
 });
 
 connection.onCodeAction(async(params) => {
-
   const handler = await getHandler();
-  const found = handler.onCodeAction(params);
-
-  found.push({
-    title: "Edit as JSON",
-    kind: LServer.CodeActionKind.Source,
-    command: {
-      title: "Edit as JSON",
-      command: "abaplint.json.edit",
-      arguments: [params],
-    },
-  });
-
-  return found;
+  return handler.onCodeAction(params);
 });
 
 connection.onDocumentHighlight(async(params) => {

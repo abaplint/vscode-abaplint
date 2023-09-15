@@ -265,7 +265,22 @@ export class Handler {
   }
 
   public onCodeAction(params: LServer.CodeActionParams): LServer.CodeAction[] {
-    return new abaplint.LanguageServer(this.reg).codeActions(params);
+    const found = new abaplint.LanguageServer(this.reg).codeActions(params);
+
+    const rows = this.reg.getFileByName(params.textDocument.uri)?.getRawRows();
+    if (rows && rows[params.range.start.line].includes("`{")) {
+      found.push({
+        title: "Edit as JSON",
+        kind: LServer.CodeActionKind.Source,
+        command: {
+          title: "Edit as JSON",
+          command: "abaplint.json.edit",
+          arguments: [params],
+        },
+      });
+    }
+
+    return found;
   }
 
   public onDocumentHighlight(params: LServer.DocumentHighlightParams): LServer.DocumentHighlight[] {
