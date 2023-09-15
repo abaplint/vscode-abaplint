@@ -7,13 +7,26 @@ import {CodeActionParams} from "vscode-languageclient";
 // https://code.visualstudio.com/api/extension-guides/virtual-documents
 // https://github.com/microsoft/vscode-extension-samples/tree/main/contentprovider-sample
 
+function findDocument(uri: string): vscode.TextDocument | undefined {
+  let source: vscode.TextDocument | undefined = undefined;
+  for (const t of vscode.workspace.textDocuments) {
+    if (t.uri.toString() === uri) {
+      source = t;
+    }
+  }
+  return source;
+}
+
 export const JSON_FILE_SYSTEM_PROVIDER_SCHEME = "abaplintJson";
 
 export class jsonFileSystemProvider implements vscode.FileSystemProvider {
   public onDidChangeFile: vscode.Event<vscode.FileChangeEvent[]>;
 
   public static files: {[name: string]: {
+    target: string,
     contents: string,
+    start: vscode.Position,
+    end: vscode.Position,
   }} = {};
 
   public constructor() {
@@ -50,24 +63,48 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
     return Buffer.from(jsonFileSystemProvider.files[Utils.basename(uri)].contents);
   }
 
-  public writeFile(_uri: vscode.Uri, content: Uint8Array, _options: { readonly create: boolean; readonly overwrite: boolean; }): void | Thenable<void> {
-    console.dir("writeFile");
-
-    const lines = Buffer.from(content).toString().split("\n");
+  public static update(uri: vscode.Uri, content: string) {
     let output = "";
-    for (let index = 0; index < lines.length; index++) {
-      const line = lines[index];
-      if (index === 0) {
-        output += "`" + line + "` && |\\n| &&\n";
-      } else if (index === lines.length - 1) {
-        output += "      `" + line + "`.";
-      } else {
-        output += "      `" + line + "` && |\\n| &&\n";
+    {
+      const lines = content.split("\n");
+      for (let index = 0; index < lines.length; index++) {
+        const line = lines[index];
+        if (index === 0) {
+          output += "`" + line + "` && |\\n| &&\n";
+        } else if (index === lines.length - 1) {
+          output += "      `" + line + "`.";
+        } else {
+          output += "      `" + line + "` && |\\n| &&\n";
+        }
       }
     }
-    console.dir(output);
 
-//    132, 15 to
+    const file = jsonFileSystemProvider.files[Utils.basename(uri)];
+    const target = file.target;
+    const found = findDocument(target);
+    if (found === undefined) {
+      console.dir("not found");
+      return;
+    }
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(found?.uri, new vscode.Range(file.start, file.end), output);
+    vscode.workspace.applyEdit(edit).then(() =>
+    {
+      const lines = found.getText().split("\n");
+      for (let index = file.start.line; index < lines.length; index++) {
+        const line = lines[index];
+        if (line.trim().endsWith(".")) {
+          file.end = new vscode.Position(index, file.end.character);
+          break;
+        }
+      }
+    }
+    );
+  }
+
+  public writeFile(uri: vscode.Uri, content: Uint8Array, _options: { readonly create: boolean; readonly overwrite: boolean; }): void | Thenable<void> {
+    console.dir("writeFile");
+    jsonFileSystemProvider.update(uri, Buffer.from(content).toString());
   }
 
   public delete(_uri: vscode.Uri, _options: { readonly recursive: boolean; }): void | Thenable<void> {
@@ -87,47 +124,8 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
 
 }
 
-/*
-class myProvider implements vscode.TextDocumentContentProvider {
-  private readonly onDidChangeEmitter: vscode.EventEmitter<vscode.Uri>;
-
-  public constructor() {
-    this.onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
-  }
-
-  public provideTextDocumentContent(_uri: vscode.Uri): string {
-    console.dir("provide");
-    return `{"sdf": 2}`;
-  }
-
-  public notifyChanged(uri: vscode.Uri) {
-    console.dir("notify");
-    this.onDidChangeEmitter.fire(uri);
-  }
-
-  public get onDidChange() {
-    console.dir("did");
-//    console.dir(this.onDidChangeEmitter.event);
-    return this.onDidChangeEmitter.event;
-  }
-
-  public update(uri: vscode.Uri) {
-    console.dir("update");
-    this.onDidChangeEmitter.fire(uri);
-  }
-}
-*/
-
 export async function editJson(params: CodeActionParams) {
-  console.dir("editJson");
-  console.dir(params);
-
-  let source: vscode.TextDocument | undefined = undefined;
-  for (const t of vscode.workspace.textDocuments) {
-    if (t.uri.toString() === params.textDocument.uri) {
-      source = t;
-    }
-  }
+  const source = findDocument(params.textDocument.uri);
   if (source === undefined) {
     return;
   }
@@ -136,7 +134,10 @@ export async function editJson(params: CodeActionParams) {
 
   // todo, analyze, source.getText();
   jsonFileSystemProvider.files[name] = {
+    target: params.textDocument.uri,
     contents: `{\n  "hello": 2\n}`,
+    start: new vscode.Position(132 - 1, 15 - 1),
+    end: new vscode.Position(134 - 1, 10),
   };
 
   const uri = vscode.Uri.parse(JSON_FILE_SYSTEM_PROVIDER_SCHEME + ":/" + name);
@@ -146,10 +147,8 @@ export async function editJson(params: CodeActionParams) {
 
   vscode.workspace.onDidChangeTextDocument(event => {
     if (event.document.uri.scheme === JSON_FILE_SYSTEM_PROVIDER_SCHEME) {
-      event.document.save();
+      jsonFileSystemProvider.update(event.document.uri, event.document.getText());
     }
   });
-
-//  vscode.workspace.openTextDocument({content: `{"sdf": 2}`, language: "json"});
 
 }
