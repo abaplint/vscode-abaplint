@@ -11,6 +11,7 @@ import {Config} from "./config";
 import {Flows} from "./flows";
 import {ArtifactsTreeProvider} from "./artifacts_tree_provider";
 import {TestController} from "./test_controller";
+import {JSON_FILE_SYSTEM_PROVIDER_SCHEME, editJson, jsonFileSystemProvider} from "./json";
 
 let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -49,6 +50,8 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.text = "abaplint";
   myStatusBarItem.show();
 
+  vscode.workspace.registerFileSystemProvider(JSON_FILE_SYSTEM_PROVIDER_SCHEME, new jsonFileSystemProvider(), {isCaseSensitive: true});
+
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{language: "abap"}, {language: "xml"}],
     progressOnInitialization: true,
@@ -64,6 +67,7 @@ export function activate(context: ExtensionContext) {
   };
 
   context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
+  context.subscriptions.push(vscode.commands.registerCommand("abaplint.json.edit", editJson));
 
   if (fs.read === undefined) {
     myStatusBarItem.text = "abaplint: web";

@@ -83,7 +83,9 @@ function initialize() {
             definitionProvider: true,
             codeLensProvider: codeLensProvider,
             inlayHintProvider: inlayHintProvider,
-            codeActionProvider: true,
+            codeActionProvider: {
+              codeActionKinds: [LServer.CodeActionKind.QuickFix, LServer.CodeActionKind.Source],
+            },
             referencesProvider: true,
             documentHighlightProvider: true,
             documentSymbolProvider: true,
@@ -149,8 +151,21 @@ connection.languages.semanticTokens.onRange(async (params) => {
 });
 
 connection.onCodeAction(async(params) => {
+
   const handler = await getHandler();
-  return handler.onCodeAction(params);
+  const found = handler.onCodeAction(params);
+
+  found.push({
+    title: "Edit as JSON",
+    kind: LServer.CodeActionKind.Source,
+    command: {
+      title: "Edit as JSON",
+      command: "abaplint.json.edit",
+      arguments: [params],
+    },
+  });
+
+  return found;
 });
 
 connection.onDocumentHighlight(async(params) => {
