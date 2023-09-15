@@ -26,7 +26,6 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
     target: string,
     contents: string,
     start: vscode.Position,
-    end: vscode.Position,
   }} = {};
 
   public constructor() {
@@ -63,43 +62,52 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
     return Buffer.from(jsonFileSystemProvider.files[Utils.basename(uri)].contents);
   }
 
-  public static update(uri: vscode.Uri, content: string) {
+  public static update(uri: vscode.Uri, updatedJson: string) {
+    const file = jsonFileSystemProvider.files[Utils.basename(uri)];
+
+    const found = findDocument(file.target);
+    if (found === undefined) {
+      console.dir("document not found");
+      return;
+    }
+
+    let end: vscode.Position | undefined = undefined;
+    let indentation = 0;
+    {
+      const lines = found.getText().split("\n");
+      indentation = lines[file.start.line].search(/\S/) + 2;
+      for (let index = file.start.line; index < lines.length; index++) {
+        const line = lines[index];
+        const trimmed = line.trimEnd();
+        if (trimmed.endsWith(".")) {
+          end = new vscode.Position(index, trimmed.length);
+          break;
+        }
+      }
+    }
+    if (end === undefined) {
+      console.dir("end not found");
+      return;
+    }
+
     let output = "";
     {
-      const lines = content.split("\n");
+      const lines = updatedJson.split("\n");
       for (let index = 0; index < lines.length; index++) {
         const line = lines[index];
         if (index === 0) {
           output += "`" + line + "` && |\\n| &&\n";
         } else if (index === lines.length - 1) {
-          output += "      `" + line + "`.";
+          output += " ".repeat(indentation) + "`" + line + "`.";
         } else {
-          output += "      `" + line + "` && |\\n| &&\n";
+          output += " ".repeat(indentation) + "`" + line + "` && |\\n| &&\n";
         }
       }
     }
 
-    const file = jsonFileSystemProvider.files[Utils.basename(uri)];
-    const target = file.target;
-    const found = findDocument(target);
-    if (found === undefined) {
-      console.dir("not found");
-      return;
-    }
     const edit = new vscode.WorkspaceEdit();
-    edit.replace(found?.uri, new vscode.Range(file.start, file.end), output);
-    vscode.workspace.applyEdit(edit).then(() =>
-    {
-      const lines = found.getText().split("\n");
-      for (let index = file.start.line; index < lines.length; index++) {
-        const line = lines[index];
-        if (line.trim().endsWith(".")) {
-          file.end = new vscode.Position(index, file.end.character);
-          break;
-        }
-      }
-    }
-    );
+    edit.replace(found?.uri, new vscode.Range(file.start, end), output);
+    vscode.workspace.applyEdit(edit);
   }
 
   public writeFile(uri: vscode.Uri, content: Uint8Array, _options: { readonly create: boolean; readonly overwrite: boolean; }): void | Thenable<void> {
@@ -137,7 +145,6 @@ export async function editJson(params: CodeActionParams) {
     target: params.textDocument.uri,
     contents: `{\n  "hello": 2\n}`,
     start: new vscode.Position(132 - 1, 15 - 1),
-    end: new vscode.Position(134 - 1, 10),
   };
 
   const uri = vscode.Uri.parse(JSON_FILE_SYSTEM_PROVIDER_SCHEME + ":/" + name);
