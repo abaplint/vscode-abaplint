@@ -25,7 +25,7 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
   public static files: {[name: string]: {
     target: string,
     contents: string,
-    start: vscode.Position,
+    startRow: number,
   }} = {};
 
   public constructor() {
@@ -38,7 +38,6 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
   }
 
   public stat(_uri: vscode.Uri): vscode.FileStat | Thenable<vscode.FileStat> {
-    console.dir("stat");
     return {
       type: vscode.FileType.File,
       ctime: Date.now(),
@@ -58,7 +57,6 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
   }
 
   public readFile(uri: vscode.Uri): Uint8Array | Thenable<Uint8Array> {
-    console.dir("readFile");
     return Buffer.from(jsonFileSystemProvider.files[Utils.basename(uri)].contents);
   }
 
@@ -73,10 +71,12 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
 
     let end: vscode.Position | undefined = undefined;
     let indentation = 0;
+    let startCol = 0;
     {
       const lines = found.getText().split("\n");
-      indentation = lines[file.start.line].search(/\S/) + 2;
-      for (let index = file.start.line; index < lines.length; index++) {
+      indentation = lines[file.startRow].search(/\S/) + 2;
+      startCol = lines[file.startRow].search(/`{/);
+      for (let index = file.startRow; index < lines.length; index++) {
         const line = lines[index];
         const trimmed = line.trimEnd();
         if (trimmed.endsWith(".")) {
@@ -106,12 +106,11 @@ export class jsonFileSystemProvider implements vscode.FileSystemProvider {
     }
 
     const edit = new vscode.WorkspaceEdit();
-    edit.replace(found?.uri, new vscode.Range(file.start, end), output);
+    edit.replace(found?.uri, new vscode.Range(new vscode.Position(file.startRow, startCol), end), output);
     vscode.workspace.applyEdit(edit);
   }
 
   public writeFile(uri: vscode.Uri, content: Uint8Array, _options: { readonly create: boolean; readonly overwrite: boolean; }): void | Thenable<void> {
-    console.dir("writeFile");
     jsonFileSystemProvider.update(uri, Buffer.from(content).toString());
   }
 
@@ -140,11 +139,10 @@ export async function editJson(params: CodeActionParams) {
 
   const name = Utils.basename(vscode.Uri.parse(params.textDocument.uri)) + ".json";
 
-  // todo, analyze, source.getText();
   jsonFileSystemProvider.files[name] = {
     target: params.textDocument.uri,
-    contents: `{\n  "hello": 2\n}`,
-    start: new vscode.Position(132 - 1, 15 - 1),
+    contents: `{\n  "hello": 2\n}`,   // todo, analyze, source.getText();
+    startRow: 132 - 1,
   };
 
   const uri = vscode.Uri.parse(JSON_FILE_SYSTEM_PROVIDER_SCHEME + ":/" + name);
