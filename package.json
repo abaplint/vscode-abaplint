@@ -32,7 +32,7 @@
 		"commands": [
 			{
 				"command": "abaplint.show",
-				"title": "show abaplint",
+				"title": "show abaplint help",
 				"category": "abaplint",
 				"icon": {
 					"dark": "img/abaplint.svg",
@@ -65,12 +65,12 @@
 			},
 			{
 				"command": "abaplint.create.artifact",
-				"title": "abaplint: Create ABAP Artifact",
+				"title": "Create ABAP Artifact",
 				"category": "abaplint"
 			},
 			{
 				"command": "abaplint.create.default-config",
-				"title": "abaplint: Create Default Config",
+				"title": "Create Default Config",
 				"category": "abaplint"
 			}
 		],
@@ -245,7 +245,7 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.1",
-		"@types/node": "^20.6.0",
+		"@types/node": "^20.6.2",
 		"@typescript-eslint/eslint-plugin": "^6.7.0",
 		"@typescript-eslint/parser": "^6.7.0",
 		"@vscode/test-web": "^0.0.45",
