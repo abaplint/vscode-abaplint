@@ -210,6 +210,7 @@ export class Handler {
         // try looking in the folder first
         if (d.folder && d.folder !== "" && this.folders[0] !== undefined) {
           const glob = d.folder + d.files;
+          console.log("Dependency glob: " + glob);
           const filenames = await FileOperations.getProvider().glob(glob);
           for (const filename of filenames) {
             if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {

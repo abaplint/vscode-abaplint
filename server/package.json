@@ -20,8 +20,8 @@
 		"@abaplint/core": "^2.102.48",
 		"vscode-uri": "^3.0.7",
 		"glob": "^7.2.3",
-		"vscode-languageserver-textdocument": "^1.0.8",
-		"vscode-languageserver": "^8.1.0"
+		"vscode-languageserver-textdocument": "^1.0.11",
+		"vscode-languageserver": "^9.0.1"
 	},
 	"scripts": {}
 }
