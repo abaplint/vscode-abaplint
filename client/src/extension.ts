@@ -4,7 +4,6 @@ import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptio
 import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
 import * as vscode from "vscode";
 import * as fs from "fs";
-import {createArtifact} from "./create";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
@@ -62,8 +61,6 @@ export function activate(context: ExtensionContext) {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),
     },
   };
-
-  context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.artifact", createArtifact));
 
   if (fs.read === undefined) {
     myStatusBarItem.text = "abaplint: web";

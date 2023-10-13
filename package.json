@@ -127,17 +127,7 @@
 			],
 			"file/newFile": [
 				{
-					"command": "abaplint.create.artifact",
-					"group": "abaplint@1"
-				},
-				{
 					"command": "abaplint.create.default-config",
-					"group": "abaplint@1"
-				}
-			],
-			"explorer/context": [
-				{
-					"command": "abaplint.create.artifact",
 					"group": "abaplint@1"
 				}
 			]

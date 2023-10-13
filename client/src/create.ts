@@ -2,8 +2,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 import {Buffer} from "buffer";
 
-// todo: run formatter, ie user settings, on generated ABAP
-
 async function createFile(uri: vscode.Uri, content: string) {
   if (await fileExists(uri)) {
     vscode.window.showErrorMessage("File already exists!");
@@ -44,132 +42,9 @@ async function fileExists(uri: vscode.Uri): Promise<boolean> {
   }
 }
 
-export async function createArtifact(uri: vscode.Uri) {
-  const type = await vscode.window.showQuickPick(["Class", "Interface", "Program"]);
-  if (type === undefined || type === "") {
-    return;
-  }
-
-  switch (type) {
-    case "Class":
-      return createCLAS(uri);
-    case "Interface":
-      return createINTF(uri);
-    case "Program":
-      return createPROG(uri);
-    default:
-      break;
-  }
-
-}
-
 export async function createConfig(uri: vscode.Uri, config: string) {
   const dir = await findFolder(uri);
   const filename = dir + "abaplint.json";
   const uriConfig = vscode.Uri.file(filename);
   await createFile(uriConfig, config);
-}
-
-async function createCLAS(uri: vscode.Uri) {
-  const name = await vscode.window.showInputBox({placeHolder: "cl_name"});
-  if (name === undefined || name === "") {
-    return;
-  }
-
-  const dir = await findFolder(uri);
-  const filename = dir + name.replace(/\//g, "#").toLowerCase() + ".clas";
-
-  const uriXML = vscode.Uri.file(filename + ".xml");
-  const dataXML = `<?xml version="1.0" encoding="utf-8"?>
-<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
- <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
-  <asx:values>
-   <VSEOCLASS>
-    <CLSNAME>${name.toUpperCase()}</CLSNAME>
-    <LANGU>E</LANGU>
-    <DESCRIPT>${name.toUpperCase()}</DESCRIPT>
-    <STATE>1</STATE>
-    <CLSCCINCL>X</CLSCCINCL>
-    <FIXPT>X</FIXPT>
-    <UNICODE>X</UNICODE>
-   </VSEOCLASS>
-  </asx:values>
- </asx:abap>
-</abapGit>`;
-  await createFile(uriXML, dataXML);
-
-  const uriABAP = vscode.Uri.file(filename + ".abap");
-  const dataABAP = `CLASS ${name.toLowerCase()} DEFINITION PUBLIC.
-  PUBLIC SECTION.
-ENDCLASS.
-
-CLASS ${name.toLowerCase()} IMPLEMENTATION.
-
-ENDCLASS.`;
-  await createFile(uriABAP, dataABAP);
-}
-
-async function createINTF(uri: vscode.Uri) {
-  const name = await vscode.window.showInputBox({placeHolder: "if_name"});
-  if (name === undefined || name === "") {
-    return;
-  }
-
-  const dir = await findFolder(uri);
-  const filename = dir + name.replace(/\//g, "#").toLowerCase() + ".intf";
-
-  const uriXML = vscode.Uri.file(filename + ".xml");
-  const dataXML = `<?xml version="1.0" encoding="utf-8"?>
-<abapGit version="v1.0.0" serializer="LCL_OBJECT_INTF" serializer_version="v1.0.0">
- <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
-  <asx:values>
-   <VSEOINTERF>
-    <CLSNAME>${name.toUpperCase()}</CLSNAME>
-    <LANGU>E</LANGU>
-    <DESCRIPT>${name.toUpperCase()}</DESCRIPT>
-    <EXPOSURE>2</EXPOSURE>
-    <STATE>1</STATE>
-    <UNICODE>X</UNICODE>
-   </VSEOINTERF>
-  </asx:values>
- </asx:abap>
-</abapGit>`;
-  await createFile(uriXML, dataXML);
-
-  const uriABAP = vscode.Uri.file(filename + ".abap");
-  const dataABAP = `INTERFACE ${name.toLowerCase()} PUBLIC.
-
-ENDINTERFACE.`;
-  await createFile(uriABAP, dataABAP);
-}
-
-async function createPROG(uri: vscode.Uri) {
-  const name = await vscode.window.showInputBox({placeHolder: "zreport"});
-  if (name === undefined || name === "") {
-    return;
-  }
-
-  const dir = await findFolder(uri);
-  const filename = dir + name.toLowerCase() + ".prog";
-
-  const uriXML = vscode.Uri.file(filename + ".xml");
-  const dataXML = `<?xml version="1.0" encoding="utf-8"?>
-<abapGit version="v1.0.0" serializer="LCL_OBJECT_PROG" serializer_version="v1.0.0">
- <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
-  <asx:values>
-   <PROGDIR>
-    <NAME>${name.toUpperCase()}</NAME>
-    <DBAPL>S</DBAPL>
-    <SUBC>1</SUBC>
-    <FIXPT>X</FIXPT>
-    <UCCHECK>X</UCCHECK>
-   </PROGDIR>
-  </asx:values>
- </asx:abap>
-</abapGit>`;
-  await createFile(uriXML, dataXML);
-
-  const uriABAP = vscode.Uri.file(filename + ".abap");
-  const dataABAP = `REPORT ${name.toLowerCase()}.\n\n`;
-  await createFile(uriABAP, dataABAP);
 }
