@@ -8,7 +8,6 @@ import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
 import {Flows} from "./flows";
-import {ArtifactsTreeProvider} from "./artifacts_tree_provider";
 import {TestController} from "./test_controller";
 
 let client: BaseLanguageClient;
@@ -91,8 +90,6 @@ export function activate(context: ExtensionContext) {
   });
 
   new TestController(client);
-
-  vscode.window.registerTreeDataProvider("abaplint.artifacts", new ArtifactsTreeProvider(client));
 
   client.start().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {

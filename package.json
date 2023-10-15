@@ -64,11 +64,6 @@
 				"category": "abaplint"
 			},
 			{
-				"command": "abaplint.create.artifact",
-				"title": "Create ABAP Artifact",
-				"category": "abaplint"
-			},
-			{
 				"command": "abaplint.create.default-config",
 				"title": "Create Default Config",
 				"category": "abaplint"
@@ -100,23 +95,6 @@
 				"url": "https://schema.abaplint.app/schema.json"
 			}
 		],
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "abaplint",
-					"title": "abaplint",
-					"icon": "img/abaplint.svg"
-				}
-			]
-		},
-		"views": {
-			"abaplint": [
-				{
-					"id": "abaplint.artifacts",
-					"name": "Artifacts"
-				}
-			]
-		},
 		"menus": {
 			"editor/title": [
 				{

@@ -1,13 +1,5 @@
 // no abaplint types, but vscode types should be okay in this file
 
-export interface ArtifactInformation {
-  type: string,
-  name: string,
-  description: string,
-  mainFile: string,
-  subFiles: {name: string, file: string}[];
-}
-
 export interface UnitTestInformation {
   global: string,
   testClass: string,
