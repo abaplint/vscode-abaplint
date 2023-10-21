@@ -34,6 +34,7 @@ export class Flows {
     const path = editor.document.uri.path.replace(/\.[^\.]*/, "").replace(/.*\//, "");
     const uri = vscode.Uri.parse(`${ABAPLINTSCHEME}:${path}.dot`);
     setDocument(uri, "Loading");
+    const startTime = new Date().getTime();
     const doc = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(doc, {preview: false, viewColumn: vscode.ViewColumn.Beside});
 
@@ -41,8 +42,13 @@ export class Flows {
       await this.pending;
     }
     this.pending = new Promise((resolve) => {
-      this.emitter.event((content) => {
+      const disposable = this.emitter.event(async (content) => {
+        disposable.dispose();
         const contents = JSON.parse(content).join("\n\n");
+        const dt = new Date().getTime() - startTime;
+        if (dt < 500) {
+          await new Promise((resolve) => setTimeout(resolve, 500 - dt));
+        }
         setDocument(uri, contents);
         this.pending = undefined;
         resolve();
