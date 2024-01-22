@@ -14,10 +14,10 @@
 	},
 	"devDependencies": {
 		"@types/node": "^20.11.5",
-		"@types/glob": "^7.2.0"
+		"@types/glob": "^8.1.0"
 	},
 	"dependencies": {
-		"@abaplint/core": "^2.105.11",
+		"@abaplint/core": "^2.105.12",
 		"vscode-uri": "^3.0.8",
 		"glob": "^7.2.3",
 		"vscode-languageserver-textdocument": "^1.0.11",
