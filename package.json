@@ -213,9 +213,9 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.6",
-		"@types/node": "^20.11.16",
-		"@typescript-eslint/eslint-plugin": "^6.20.0",
-		"@typescript-eslint/parser": "^6.20.0",
+		"@types/node": "^20.11.19",
+		"@typescript-eslint/eslint-plugin": "^6.21.0",
+		"@typescript-eslint/parser": "^6.21.0",
 		"@vscode/test-web": "^0.0.51",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.0",
@@ -225,7 +225,7 @@
 		"path-browserify": "^1.0.1",
 		"ts-loader": "^9.5.1",
 		"typescript": "^5.3.3",
-		"webpack": "^5.90.1",
+		"webpack": "^5.90.2",
 		"webpack-cli": "^5.1.4"
 	}
 }
