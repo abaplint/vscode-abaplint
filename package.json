@@ -213,9 +213,9 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.6",
-		"@types/node": "^20.11.20",
-		"@typescript-eslint/eslint-plugin": "^7.0.2",
-		"@typescript-eslint/parser": "^7.0.2",
+		"@types/node": "^20.11.22",
+		"@typescript-eslint/eslint-plugin": "^7.1.0",
+		"@typescript-eslint/parser": "^7.1.0",
 		"@vscode/test-web": "^0.0.52",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.0",
