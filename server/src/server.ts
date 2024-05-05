@@ -64,7 +64,7 @@ function initialize() {
         }
 
         let documentFormattingProvider = true;
-        if (params.initializationOptions.formatting?.version === "off") {
+        if (params.initializationOptions.formatting?.enable === false) {
           documentFormattingProvider = false;
         }
 
@@ -84,7 +84,7 @@ function initialize() {
           capabilities: {
             semanticTokensProvider: tokensProvider,
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
-            documentFormattingProvider: true,
+            documentFormattingProvider: documentFormattingProvider,
             definitionProvider: true,
             codeLensProvider: codeLensProvider,
             inlayHintProvider: inlayHintProvider,
