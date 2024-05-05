@@ -150,54 +150,66 @@
 				"when": "editorLangId == 'abap' && editorTextFocus"
 			}
 		],
-		"configuration": {
-			"type": "object",
-			"title": "abaplint",
-			"properties": {
-				"abaplint.enableSemanticHighlighting": {
-					"scope": "window",
-					"type": "boolean",
-					"default": true,
-					"description": "Enable semantic highlighting, requires vscode restart"
-				},
-				"abaplint.inlayHints": {
-					"type": "object",
-					"title": "Inlay Hints",
-					"properties": {
-						"inferredTypes": {
-							"type": "boolean",
-							"description": "Show inferred types",
-							"default": true
-						}
-					},
-					"additionalProperties": false,
-					"default": {
-						"inferredTypes": true
-					}
-				},
-				"abaplint.codeLens": {
-					"type": "object",
-					"title": "Code Lens",
-					"properties": {
-						"messageText": {
-							"type": "boolean",
-							"description": "Show message texts",
-							"default": true
-						},
-						"dynamicExceptions": {
-							"type": "boolean",
-							"description": "Show dynamic exceptions",
-							"default": true
-						}
-					},
-					"additionalProperties": false,
-					"default": {
-						"messageText": true,
-						"dynamicExceptions": true
-					}
-				}
-			}
-		}
+    "configuration": [
+      {
+        "order": 10,
+        "id": "semanticHighlighting",
+        "title": "Semantic Highlighting",
+        "properties": {
+          "abaplint.enableSemanticHighlighting": {
+            "scope": "window",
+            "type": "boolean",
+            "default": true,
+            "description": "Enable semantic highlighting, requires restart"
+          }
+        }
+      },
+      {
+        "order": 20,
+        "id": "codeLens",
+        "title": "Code Lens",
+        "properties": {
+          "abaplint.codeLens.messageText": {
+            "type": "boolean",
+            "description": "Show message texts",
+            "default": true
+          },
+          "abaplint.codeLens.dynamicExceptions": {
+            "type": "boolean",
+            "description": "Show dynamic exceptions",
+            "default": true
+          }
+        }
+      },
+      {
+        "order": 30,
+        "id": "inlayHints",
+        "title": "Inlay Hints",
+        "properties": {
+          "abaplint.inlayHints.inferredTypes": {
+            "type": "boolean",
+            "description": "Show inferred types, requires restart",
+            "default": true
+          }
+        }
+      },
+      {
+        "order": 40,
+        "id": "formatting",
+        "title": "Formatting",
+        "properties": {
+          "abaplint.formatting.version": {
+						"type": "string",
+						"enum": [
+              "off",
+							"classic",
+              "experimental"
+						],
+            "default": "classic"
+          }
+        }
+      }
+    ]
 	},
 	"scripts": {
 		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
