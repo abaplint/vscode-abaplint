@@ -79,6 +79,14 @@
 				"url": "https://schema.abaplint.org/schema.json"
 			},
 			{
+				"fileMatch": "abaplint-downport.json",
+				"url": "https://schema.abaplint.org/schema.json"
+			},
+			{
+				"fileMatch": "abaplint-downport.jsonc",
+				"url": "https://schema.abaplint.org/schema.json"
+			},
+			{
 				"fileMatch": "abaplint.json5",
 				"url": "https://schema.abaplint.org/schema.json"
 			},
