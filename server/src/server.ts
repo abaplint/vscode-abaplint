@@ -52,14 +52,14 @@ function initialize() {
         let codeLensProvider: LServer.CodeLensOptions | undefined = {
           resolveProvider: false,
         };
-        if (params.initializationOptions.codeLens.messageTexts === false) {
+        if (params.initializationOptions.codeLens?.messageTexts === false) {
           codeLensProvider = undefined;
         }
 
         let inlayHintProvider: LServer.InlayHintOptions | undefined = {
           resolveProvider: false,
         };
-        if (params.initializationOptions.inlayHints.inferredTypes === false) {
+        if (params.initializationOptions.inlayHints?.inferredTypes === false) {
           inlayHintProvider = undefined;
         }
 

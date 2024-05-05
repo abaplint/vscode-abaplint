@@ -53,8 +53,9 @@ export function activate(context: ExtensionContext) {
     initializationOptions: {
       provideFsProxy: true,
       enableSemanticHighlighting: workspace.getConfiguration("abaplint").get("enableSemanticHighlighting", true),
-      codeLens: workspace.getConfiguration("abaplint").get("codeLens"),
-      inlayHints: workspace.getConfiguration("abaplint").get("inlayHints"),
+// when running in web mode, it fails posting these values as messages, so convert to raw JSON,
+      codeLens: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("codeLens"))),
+      inlayHints: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("inlayHints"))),
     },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),
