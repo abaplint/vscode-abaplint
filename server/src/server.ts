@@ -63,6 +63,11 @@ function initialize() {
           inlayHintProvider = undefined;
         }
 
+        let documentFormattingProvider = true;
+        if (params.initializationOptions.formatting?.version === "off") {
+          documentFormattingProvider = false;
+        }
+
     // does the client support the `workspace/configuration` request?
     // if not, we will fall back using global settings
         hasConfigurationCapability = capabilities.workspace && !!capabilities.workspace.configuration;

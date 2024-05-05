@@ -56,6 +56,7 @@ export function activate(context: ExtensionContext) {
 // when running in web mode, it fails posting these values as messages, so convert to raw JSON,
       codeLens: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("codeLens"))),
       inlayHints: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("inlayHints"))),
+      formatting: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("formatting"))),
     },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),
