@@ -15,6 +15,8 @@ if (fs.read === undefined) {
   connection = LServer.createConnection(LServer.ProposedFeatures.all);
 }
 
+let experimentalFormatting = false;
+
 // create a simple text document manager. The text document manager
 // supports full document sync only
 const documents = new LServer.TextDocuments(TextDocument);
@@ -63,6 +65,14 @@ function initialize() {
           inlayHintProvider = undefined;
         }
 
+        let documentFormattingProvider = true;
+        if (params.initializationOptions.formatting?.enable === false) {
+          documentFormattingProvider = false;
+        }
+        if (params.initializationOptions.formatting?.experimental === true) {
+          experimentalFormatting = true;
+        }
+
     // does the client support the `workspace/configuration` request?
     // if not, we will fall back using global settings
         hasConfigurationCapability = capabilities.workspace && !!capabilities.workspace.configuration;
@@ -79,7 +89,7 @@ function initialize() {
           capabilities: {
             semanticTokensProvider: tokensProvider,
             textDocumentSync: LServer.TextDocumentSyncKind.Full,
-            documentFormattingProvider: true,
+            documentFormattingProvider: documentFormattingProvider,
             definitionProvider: true,
             codeLensProvider: codeLensProvider,
             inlayHintProvider: inlayHintProvider,
@@ -185,7 +195,7 @@ connection.languages.inlayHint.on(async(params) => {
 
 connection.onDocumentFormatting(async(params) => {
   const handler = await getHandler();
-  return handler.onDocumentFormatting(params);
+  return handler.onDocumentFormatting(params, experimentalFormatting);
 });
 
 connection.onDocumentSymbol(async(params) => {

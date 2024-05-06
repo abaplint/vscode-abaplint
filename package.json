@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.376",
+	"version": "0.6.377",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -79,6 +79,14 @@
 				"url": "https://schema.abaplint.org/schema.json"
 			},
 			{
+				"fileMatch": "abaplint-downport.json",
+				"url": "https://schema.abaplint.org/schema.json"
+			},
+			{
+				"fileMatch": "abaplint-downport.jsonc",
+				"url": "https://schema.abaplint.org/schema.json"
+			},
+			{
 				"fileMatch": "abaplint.json5",
 				"url": "https://schema.abaplint.org/schema.json"
 			},
@@ -142,54 +150,67 @@
 				"when": "editorLangId == 'abap' && editorTextFocus"
 			}
 		],
-		"configuration": {
-			"type": "object",
-			"title": "abaplint",
-			"properties": {
-				"abaplint.enableSemanticHighlighting": {
-					"scope": "window",
-					"type": "boolean",
-					"default": true,
-					"description": "Enable semantic highlighting, requires vscode restart"
-				},
-				"abaplint.inlayHints": {
-					"type": "object",
-					"title": "Inlay Hints",
-					"properties": {
-						"inferredTypes": {
-							"type": "boolean",
-							"description": "Show inferred types",
-							"default": true
-						}
-					},
-					"additionalProperties": false,
-					"default": {
-						"inferredTypes": true
+		"configuration": [
+			{
+				"order": 10,
+				"id": "semanticHighlighting",
+				"title": "Semantic Highlighting",
+				"properties": {
+					"abaplint.enableSemanticHighlighting": {
+						"scope": "window",
+						"type": "boolean",
+						"default": true,
+						"description": "Enable semantic highlighting, requires restart"
 					}
-				},
-				"abaplint.codeLens": {
-					"type": "object",
-					"title": "Code Lens",
-					"properties": {
-						"messageText": {
-							"type": "boolean",
-							"description": "Show message texts",
-							"default": true
-						},
-						"dynamicExceptions": {
-							"type": "boolean",
-							"description": "Show dynamic exceptions",
-							"default": true
-						}
+				}
+			},
+			{
+				"order": 20,
+				"id": "codeLens",
+				"title": "Code Lens",
+				"properties": {
+					"abaplint.codeLens.messageText": {
+						"type": "boolean",
+						"description": "Show message texts",
+						"default": true
 					},
-					"additionalProperties": false,
-					"default": {
-						"messageText": true,
-						"dynamicExceptions": true
+					"abaplint.codeLens.dynamicExceptions": {
+						"type": "boolean",
+						"description": "Show dynamic exceptions",
+						"default": true
+					}
+				}
+			},
+			{
+				"order": 30,
+				"id": "inlayHints",
+				"title": "Inlay Hints",
+				"properties": {
+					"abaplint.inlayHints.inferredTypes": {
+						"type": "boolean",
+						"description": "Show inferred types, requires restart",
+						"default": true
+					}
+				}
+			},
+			{
+				"order": 40,
+				"id": "formatting",
+				"title": "Formatting",
+				"properties": {
+					"abaplint.formatting.enable": {
+						"type": "boolean",
+						"description": "Enable document formatting, requires restart",
+						"default": true
+					},
+					"abaplint.formatting.experimental": {
+						"type": "boolean",
+						"description": "Enable experimental document formatting, requires restart",
+						"default": false
 					}
 				}
 			}
-		}
+		]
 	},
 	"scripts": {
 		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
@@ -213,9 +234,9 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^10.0.6",
-		"@types/node": "^20.12.8",
-		"@typescript-eslint/eslint-plugin": "^7.7.1",
-		"@typescript-eslint/parser": "^7.7.1",
+		"@types/node": "^20.12.9",
+		"@typescript-eslint/eslint-plugin": "^7.8.0",
+		"@typescript-eslint/parser": "^7.8.0",
 		"@vscode/test-web": "^0.0.54",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.0",
