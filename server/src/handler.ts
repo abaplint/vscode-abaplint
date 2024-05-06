@@ -7,6 +7,7 @@ import {TextDocument} from "vscode-languageserver-textdocument";
 import {FileOperations} from "./file_operations";
 import {GitOperations} from "./git";
 import {UnitTests} from "./handlers/unit_test";
+import {Formatting} from "./handlers/formatting";
 
 export interface IFolder {
   root: string;
@@ -160,10 +161,13 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).references(params);
   }
 
-  public onDocumentFormatting(params: LServer.DocumentFormattingParams): LServer.TextEdit[] {
-    // todo, temporary workaround, the options from params should also be passed to abaplint
-    const edits = new abaplint.LanguageServer(this.reg).documentFormatting({textDocument: params.textDocument});
-    return edits;
+  public async onDocumentFormatting(params: LServer.DocumentFormattingParams,
+                                    experimentalFormatting: boolean): Promise<LServer.TextEdit[]> {
+    if (experimentalFormatting === true) {
+      return new Formatting(this.reg).findEdits(params.textDocument);
+    } else {
+      return new abaplint.LanguageServer(this.reg).documentFormatting({textDocument: params.textDocument});
+    }
   }
 
   public onCodeLens(params: LServer.CodeLensParams): LServer.CodeLens[] {
