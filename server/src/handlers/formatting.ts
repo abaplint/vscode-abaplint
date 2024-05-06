@@ -8,16 +8,19 @@ export class Formatting {
     this.reg = reg;
   }
 
-  public async findEdits(_document: LServer.TextDocumentIdentifier): Promise<LServer.TextEdit[]> {
+  public async findEdits(document: LServer.TextDocumentIdentifier): Promise<LServer.TextEdit[]> {
     const edits: LServer.TextEdit[] = [];
-    /*
-    const diagnostics = new abaplint.LanguageServer(this.reg);
 
+    const issues = new abaplint.Diagnostics(this.reg).findIssues(document);
+    for (const i of issues) {
+      const edit = i.getDefaultFix();
+      if (edit === undefined) {
+        continue;
+      }
 
-    for (const diagnostic of diagnostics) {
-
+      const changes = abaplint.LSPEdit.mapEdit(edit).changes?.[document.uri] || [];
+      edits.push(...changes);
     }
-    */
 
     return edits;
   }
