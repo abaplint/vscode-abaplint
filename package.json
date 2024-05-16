@@ -207,6 +207,14 @@
 						"type": "boolean",
 						"description": "Enable experimental document formatting, requires restart",
 						"default": false
+					},
+					"abaplint.formatting.disabled": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": ["unused_types", "unused_variables"],
+            "description": "List of rules that should not be triggered on formatting"
 					}
 				}
 			}
