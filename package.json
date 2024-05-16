@@ -199,16 +199,19 @@
 				"title": "Formatting",
 				"properties": {
 					"abaplint.formatting.enable": {
+            "order": 10,
 						"type": "boolean",
 						"description": "Enable document formatting, requires restart",
 						"default": true
 					},
 					"abaplint.formatting.experimental": {
+            "order": 20,
 						"type": "boolean",
 						"description": "Enable experimental document formatting, requires restart",
 						"default": false
 					},
 					"abaplint.formatting.disabled": {
+            "order": 30,
             "type": "array",
             "items": {
               "type": "string"
