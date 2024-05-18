@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.384",
+	"version": "0.6.385",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -199,25 +199,28 @@
 				"title": "Formatting",
 				"properties": {
 					"abaplint.formatting.enable": {
-            "order": 10,
+						"order": 10,
 						"type": "boolean",
 						"description": "Enable document formatting, requires restart",
 						"default": true
 					},
 					"abaplint.formatting.experimental": {
-            "order": 20,
+						"order": 20,
 						"type": "boolean",
 						"description": "Enable experimental document formatting, requires restart",
 						"default": false
 					},
 					"abaplint.formatting.disabled": {
-            "order": 30,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": ["unused_types", "unused_variables"],
-            "description": "List of rules that should not be triggered on formatting"
+						"order": 30,
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"default": [
+							"unused_types",
+							"unused_variables"
+						],
+						"description": "List of rules that should not be triggered on formatting"
 					}
 				}
 			}
