@@ -16,6 +16,7 @@ if (fs.read === undefined) {
 }
 
 let experimentalFormatting = false;
+let formattingDisabled: string[] = [];
 
 // create a simple text document manager. The text document manager
 // supports full document sync only
@@ -68,6 +69,9 @@ function initialize() {
         let documentFormattingProvider = true;
         if (params.initializationOptions.formatting?.enable === false) {
           documentFormattingProvider = false;
+        }
+        if (params.initializationOptions.formatting?.disabled !== undefined) {
+          formattingDisabled = params.initializationOptions.formatting.disabled;
         }
         if (params.initializationOptions.formatting?.experimental === true) {
           experimentalFormatting = true;
@@ -195,7 +199,7 @@ connection.languages.inlayHint.on(async(params) => {
 
 connection.onDocumentFormatting(async(params) => {
   const handler = await getHandler();
-  return handler.onDocumentFormatting(params, experimentalFormatting);
+  return handler.onDocumentFormatting(params, experimentalFormatting, formattingDisabled);
 });
 
 connection.onDocumentSymbol(async(params) => {

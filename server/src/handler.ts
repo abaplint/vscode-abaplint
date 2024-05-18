@@ -162,9 +162,10 @@ export class Handler {
   }
 
   public async onDocumentFormatting(params: LServer.DocumentFormattingParams,
-                                    experimentalFormatting: boolean): Promise<LServer.TextEdit[]> {
+                                    experimentalFormatting: boolean,
+                                    formattingDisabled: string[]): Promise<LServer.TextEdit[]> {
     if (experimentalFormatting === true) {
-      return new Formatting(this.reg).findEdits(params.textDocument);
+      return new Formatting(this.reg).findEdits(params.textDocument, formattingDisabled);
     } else {
       return new abaplint.LanguageServer(this.reg).documentFormatting({textDocument: params.textDocument});
     }

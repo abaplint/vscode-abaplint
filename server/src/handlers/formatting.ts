@@ -8,11 +8,15 @@ export class Formatting {
     this.reg = reg;
   }
 
-  public async findEdits(document: LServer.TextDocumentIdentifier): Promise<LServer.TextEdit[]> {
+  public async findEdits(document: LServer.TextDocumentIdentifier, formattingDisabled: string[]): Promise<LServer.TextEdit[]> {
     const edits: LServer.TextEdit[] = [];
 
     const issues = new abaplint.Diagnostics(this.reg).findIssues(document);
     for (const i of issues) {
+      if (formattingDisabled.includes(i.getKey())) {
+        continue;
+      }
+
       const edit = i.getDefaultFix();
       if (edit === undefined) {
         continue;
