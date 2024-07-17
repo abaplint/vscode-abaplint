@@ -32,7 +32,7 @@
 		"commands": [
 			{
 				"command": "abaplint.show",
-				"title": "show abaplint help",
+				"title": "Show abaplint Help",
 				"category": "abaplint",
 				"icon": {
 					"dark": "img/abaplint.svg",
