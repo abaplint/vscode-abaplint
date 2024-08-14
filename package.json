@@ -227,7 +227,7 @@
 		]
 	},
 	"scripts": {
-		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
+		"lint": "eslint client/src/**/*.ts server/src/**/*.ts",
 		"vscode:prepublish": "npm run compile",
 		"webpack:native": "webpack --mode none --config ./native.webpack.config.js",
 		"webpack:browser": "webpack --config ./browser.webpack.config.js",
@@ -247,15 +247,18 @@
 		"url": "https://github.com/sponsors/larshp"
 	},
 	"devDependencies": {
+		"@eslint/compat": "^1.1.1",
+		"@eslint/eslintrc": "^3.1.0",
+		"@eslint/js": "^9.9.0",
 		"@types/mocha": "^10.0.7",
 		"@types/node": "^22.3.0",
-		"@typescript-eslint/eslint-plugin": "^7.18.0",
-		"@typescript-eslint/parser": "^7.18.0",
+		"@typescript-eslint/eslint-plugin": "^8.1.0",
+		"@typescript-eslint/parser": "^8.1.0",
 		"@vscode/test-web": "^0.0.56",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.0",
-		"eslint": "^8.57.0",
-		"eslint-plugin-import": "^2.29.1",
+		"eslint": "^9.9.0",
+		"globals": "^15.9.0",
 		"merge-options": "^3.0.4",
 		"path-browserify": "^1.0.1",
 		"ts-loader": "^9.5.1",

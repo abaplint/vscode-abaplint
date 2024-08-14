@@ -83,7 +83,6 @@ export class FileOperations {
   public static async loadFileNames(arg: string, error = true): Promise<string[]> {
     const files = await provider.glob(arg);
     if (files.length === 0 && error) {
-      // eslint-disable-next-line no-throw-literal
       throw "Error: No files found";
     }
     return files;
