@@ -101,7 +101,6 @@ export default [...fixupConfigRules(compat.extends(
         "capitalized-comments": ["off", "never"],
         "comma-spacing": ["error"],
         "comma-dangle": ["error", "always-multiline"],
-        "constructor-super": "error",
         curly: "error",
         "default-case": "error",
         "dot-notation": "off",
