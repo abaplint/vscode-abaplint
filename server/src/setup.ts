@@ -39,11 +39,11 @@ export class Setup {
   }
 
   public async readConfig(folders: IFolder[], settings: ExtraSettings) {
-    const raw = await this.findCustomConfig(folders, settings.activeTextEditorUri);
-    if (raw && raw !== "") {
+    const found = await this.findCustomConfig(folders, settings.activeTextEditorUri);
+    if (found) {
       this.connection.console.log("custom abaplint configuration found");
-      const config = new abaplint.Config(raw);
-      folders[0].glob = config.get().global.files;
+      const config = new abaplint.Config(found.config);
+      folders[0].glob = found.prefix + config.get().global.files;
       return config;
     }
 
@@ -76,7 +76,8 @@ export class Setup {
     return undefined;
   }
 
-  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined): Promise<string | undefined> {
+  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined):
+      Promise<{config: string, prefix: string} | undefined> {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
     }
@@ -92,14 +93,25 @@ export class Setup {
       let current = Utils.dirname(start).path + "/";
       while (current !== prefix) {
         const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, current);
-        if (found) { return found; }
+        if (found) {
+          return {
+            config: found,
+            prefix: current.substring(prefix.length - 1, current.length - 1),
+          };
+        }
 
         current = Utils.joinPath(URI.parse(current), "..").path + "/";
       }
     }
 
+    // root folder
     const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, prefix);
-    if (found) { return found; }
+    if (found) {
+      return {
+        config: found,
+        prefix: "",
+      };
+    }
 
     return undefined;
   }
