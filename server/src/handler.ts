@@ -8,6 +8,7 @@ import {FileOperations} from "./file_operations";
 import {GitOperations} from "./git";
 import {UnitTests} from "./handlers/unit_test";
 import {Formatting} from "./handlers/formatting";
+import {ExtraSettings} from "./extra_settings";
 
 export interface IFolder {
   root: string;
@@ -58,11 +59,6 @@ class Progress implements abaplint.IProgress {
   }
 }
 
-type ExtraSettings = {
-  codeLens?: any,
-  inlayHints?: any,
-};
-
 export class Handler {
   private readonly folders: IFolder[] = [];
   private readonly reg: abaplint.IRegistry;
@@ -71,23 +67,23 @@ export class Handler {
   private readonly settings: ExtraSettings;
   private timeouts: {[index: string]: any} = {};
 
-  public static async create(connection: LServer.Connection, params: LServer.InitializeParams & ExtraSettings) {
+  public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
     const handler = new Handler(connection, params);
     await handler.readAndSetConfig();
     return handler;
   }
 
-  private constructor(connection: LServer.Connection, params: LServer.InitializeParams & ExtraSettings) {
+  private constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
     this.reg = new abaplint.Registry();
     this.connection = connection;
 
     this.setup = new Setup(connection);
     this.folders = this.setup.determineFolders(params.workspaceFolders || []);
-    this.settings = params;
+    this.settings = params.initializationOptions;
   }
 
   private async readAndSetConfig() {
-    const config = await this.setup.readConfig(this.folders);
+    const config = await this.setup.readConfig(this.folders, this.settings);
     this.reg.setConfig(config);
     this.setup.dumpFolders(this.folders);
   }
