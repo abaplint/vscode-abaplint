@@ -57,6 +57,7 @@ export function activate(context: ExtensionContext) {
       codeLens: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("codeLens"))),
       inlayHints: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("inlayHints"))),
       formatting: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("formatting"))),
+      activeTextEditorUri: vscode.window.activeTextEditor?.document.uri.toString(),
     },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),

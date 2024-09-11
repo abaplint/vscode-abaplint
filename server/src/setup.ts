@@ -3,6 +3,7 @@ import {IFolder} from "./handler";
 import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
+import {ExtraSettings} from "./extra_settings";
 
 export class Setup {
   private readonly connection: LServer.Connection;
@@ -37,8 +38,8 @@ export class Setup {
     }
   }
 
-  public async readConfig(folders: IFolder[]) {
-    const raw = await this.findCustomConfig(folders);
+  public async readConfig(folders: IFolder[], settings: ExtraSettings) {
+    const raw = await this.findCustomConfig(folders, settings.activeTextEditorUri);
     if (raw && raw !== "") {
       this.connection.console.log("custom abaplint configuration found");
       const config = new abaplint.Config(raw);
@@ -75,13 +76,14 @@ export class Setup {
     return undefined;
   }
 
-  private async findCustomConfig(folders: IFolder[]): Promise<string | undefined> {
+  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined): Promise<string | undefined> {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
     }
 
     const prefix = folders[0].root + "/";
     this.connection.console.log("prefix: " + prefix);
+    this.connection.console.log("activeTextEditorUri: " + activeTextEditorUri);
     this.connection.console.log("scheme: " + folders[0].scheme);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
