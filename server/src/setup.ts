@@ -1,4 +1,4 @@
-import {URI} from "vscode-uri";
+import {URI, Utils} from "vscode-uri";
 import {IFolder} from "./handler";
 import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
@@ -87,10 +87,19 @@ export class Setup {
     this.connection.console.log("scheme: " + folders[0].scheme);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
-    const found = this.searchFolderForConfig(folders[0].scheme, folders[0].authority, prefix);
-    if (found) {
-      return found;
+    if (activeTextEditorUri !== undefined) {
+      const start = URI.parse(activeTextEditorUri);
+      let current = Utils.dirname(start).path + "/";
+      while (current !== prefix) {
+        const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, current);
+        if (found) { return found; }
+
+        current = Utils.joinPath(URI.parse(current), "..").path + "/";
+      }
     }
+
+    const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, prefix);
+    if (found) { return found; }
 
     return undefined;
   }
