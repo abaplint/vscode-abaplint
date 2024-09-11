@@ -50,27 +50,29 @@ export class Setup {
     return abaplint.Config.getDefault();
   }
 
-  private async searchFolderForConfig() {
-    let uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json"});
+  private async searchFolderForConfig(scheme: string, authority: string, prefix: string): Promise<string | undefined> {
+    let uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json"});
     try {
       this.connection.console.log("search: " + uri.toString());
       return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
-    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.jsonc"});
+    uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.jsonc"});
     try {
       this.connection.console.log("search: " + uri.toString());
       return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
 
-    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json5"});
+    uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json5"});
     try {
       this.connection.console.log("search: " + uri.toString());
       return await FileOperations.readFile(uri.toString());
     // eslint-disable-next-line no-empty
     } catch {}
+
+    return undefined;
   }
 
   private async findCustomConfig(folders: IFolder[]): Promise<string | undefined> {
@@ -83,26 +85,10 @@ export class Setup {
     this.connection.console.log("scheme: " + folders[0].scheme);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
-    let uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json"});
-    try {
-      this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
-    // eslint-disable-next-line no-empty
-    } catch {}
-
-    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.jsonc"});
-    try {
-      this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
-    // eslint-disable-next-line no-empty
-    } catch {}
-
-    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json5"});
-    try {
-      this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
-    // eslint-disable-next-line no-empty
-    } catch {}
+    const found = this.searchFolderForConfig(folders[0].scheme, folders[0].authority, prefix);
+    if (found) {
+      return found;
+    }
 
     return undefined;
   }
