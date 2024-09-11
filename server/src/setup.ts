@@ -50,6 +50,29 @@ export class Setup {
     return abaplint.Config.getDefault();
   }
 
+  private async searchFolderForConfig() {
+    let uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json"});
+    try {
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.jsonc"});
+    try {
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json5"});
+    try {
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
+    // eslint-disable-next-line no-empty
+    } catch {}
+  }
+
   private async findCustomConfig(folders: IFolder[]): Promise<string | undefined> {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
