@@ -153,8 +153,19 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).gotoDefinition(params);
   }
 
-  public onReferences(params: LServer.TextDocumentPositionParams): LServer.Location[] {
-    return new abaplint.LanguageServer(this.reg).references(params);
+  public onReferences(params: LServer.TextDocumentPositionParams): LServer.Location[] | undefined {
+    const server = new abaplint.LanguageServer(this.reg);
+    const references = server.references(params);
+    if (!references.length) {
+      const doc = this.reg.getFileByName(params.textDocument.uri);
+      const obj = doc && this.reg.findObjectForFile(doc);
+      const diagnostic = obj && this.reg.findIssuesObject(obj)
+        .find(d => d.getFilename() === params.textDocument.uri && d.getSeverity() === abaplint.Severity.Error);
+      if (diagnostic) {
+        this.connection.window.showErrorMessage("Reference search failed due to syntax errors");
+      }
+    }
+    return references;
   }
 
   public async onDocumentFormatting(params: LServer.DocumentFormattingParams,
