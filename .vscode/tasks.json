@@ -12,6 +12,60 @@
 			"problemMatcher": [
 				"$tsc"
 			]
+		},
+		{
+			"type": "npm",
+			"script": "esbuild:native:server-watch",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$esbuild-watch"
+			],
+			"label": "esbuild:native:server-watch",
+			"detail": "npm run esbuild:native:server -- --watch"
+		},
+		{
+			"type": "npm",
+			"script": "esbuild:native:client-watch",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$esbuild-watch"
+			],
+			"label": "esbuild:native:client-watch",
+			"detail": "npm run esbuild:native:client -- --watch"
+		},
+		{
+			"type": "npm",
+			"script": "watch:client",
+			"isBackground": true,
+			"group": "build",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"label": "watch:client",
+			"detail": "tsc -w -p ./client/tsconfig.json"
+		},
+		{
+			"type": "npm",
+			"script": "watch:server",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"label": "watch:server",
+			"detail": "tsc -w -p ./server/tsconfig.json"
+		},
+		{
+			"label": "watch-native",
+			"dependsOn": [
+				"watch:client",
+				"watch:server",
+				"esbuild:native:client-watch",
+				"esbuild:native:server-watch"
+			],
+			"problemMatcher": []
 		}
 	]
 }
