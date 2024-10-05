@@ -156,7 +156,7 @@ export class Handler {
   public onReferences(params: LServer.TextDocumentPositionParams): LServer.Location[] | undefined {
     const server = new abaplint.LanguageServer(this.reg);
     const references = server.references(params);
-    if (!references.length) {
+    if (references.length === 0) {
       const doc = this.reg.getFileByName(params.textDocument.uri);
       const obj = doc && this.reg.findObjectForFile(doc);
       const diagnostic = obj && this.reg.findIssuesObject(obj)
