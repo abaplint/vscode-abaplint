@@ -14,7 +14,7 @@ export interface IFolder {
   root: string;
   scheme: string;
   authority: string;
-  glob: string;
+  glob: string[];
 }
 
 class Progress implements abaplint.IProgress {
@@ -195,15 +195,16 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgressReporter) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
-      const glob = folder.glob;
-      const filenames = await FileOperations.loadFileNames(glob, false);
-      for (const filename of filenames) {
-        const raw = await FileOperations.readFile(filename);
-        if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
-          continue; // skip SMIM contents
+      for (const glob of folder.glob) {
+        const filenames = await FileOperations.loadFileNames(glob, false);
+        for (const filename of filenames) {
+          const raw = await FileOperations.readFile(filename);
+          if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
+            continue; // skip SMIM contents
+          }
+          const uri = filename;
+          this.reg.addFile(new abaplint.MemoryFile(uri, raw));
         }
-        const uri = filename;
-        this.reg.addFile(new abaplint.MemoryFile(uri, raw));
       }
     }
 

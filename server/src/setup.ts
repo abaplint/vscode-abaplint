@@ -23,7 +23,7 @@ export class Setup {
           root: parsed.path,
           scheme: parsed.scheme,
           authority: parsed.authority,
-          glob: "/src/**/*.*"});  // todo, this should be taken from abaplint.json
+          glob: ["/src/**/*.*"]});  // todo, this should be taken from abaplint.json
       }
     }
 
@@ -43,7 +43,10 @@ export class Setup {
     if (found) {
       this.connection.console.log("custom abaplint configuration found");
       const config = new abaplint.Config(found.config);
-      folders[0].glob = found.prefix + config.get().global.files;
+      const cfiles = config.get().global.files;
+      folders[0].glob = Array.isArray(cfiles)
+        ? cfiles.map(f => found.prefix + f)
+        : [found.prefix + cfiles];
       return config;
     }
 
