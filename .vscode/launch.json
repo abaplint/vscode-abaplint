@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Native",
+      "name": "Run Extension (Native)",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -13,7 +13,25 @@
       "outFiles": [
         "${workspaceRoot}/out-native/**/*.js"
       ],
-      "preLaunchTask": "npm: compile"
+      "preLaunchTask": "watch-native"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Server (native)",
+      "address": "localhost",
+      "smartStep": true,
+      "showAsyncStacks": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "port": 6009,
+      "restart": true,
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/out-native/**/*.js"
+      ],
+      "preLaunchTask": "watch-native"
     },
     {
       "name": "Run Web",
@@ -29,5 +47,14 @@
       ],
       "preLaunchTask": "npm: compile"
     },
+  ],
+  "compounds": [
+    {
+      "name": "Run Native",
+      "configurations": [
+        "Run Extension (Native)",
+        "Attach to Server (native)"
+      ]
+    }
   ]
 }
