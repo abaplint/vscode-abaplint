@@ -255,23 +255,23 @@
 		"url": "https://github.com/sponsors/larshp"
 	},
 	"devDependencies": {
-		"@eslint/compat": "^1.2.1",
+		"@eslint/compat": "^1.2.2",
 		"@eslint/eslintrc": "^3.1.0",
-		"@eslint/js": "^9.13.0",
+		"@eslint/js": "^9.14.0",
 		"@types/mocha": "^10.0.9",
-		"@types/node": "^22.8.1",
-		"@typescript-eslint/eslint-plugin": "^8.11.0",
-		"@typescript-eslint/parser": "^8.11.0",
+		"@types/node": "^22.8.7",
+		"@typescript-eslint/eslint-plugin": "^8.12.2",
+		"@typescript-eslint/parser": "^8.12.2",
 		"@vscode/test-web": "^0.0.63",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.1",
-		"eslint": "^9.13.0",
+		"eslint": "^9.14.0",
 		"globals": "^15.11.0",
 		"merge-options": "^3.0.4",
 		"path-browserify": "^1.0.1",
 		"ts-loader": "^9.5.1",
 		"typescript": "^5.6.3",
-		"webpack": "^5.95.0",
+		"webpack": "^5.96.1",
 		"webpack-cli": "^5.1.4"
 	}
 }
