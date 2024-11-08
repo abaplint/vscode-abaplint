@@ -9,6 +9,7 @@ import {Help} from "./help";
 import {Config} from "./config";
 import {Flows} from "./flows";
 import {TestController} from "./test_controller";
+import {registerBitbucket} from "./integrations";
 
 let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -122,7 +123,7 @@ export function activate(context: ExtensionContext) {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
   });
-
+  registerBitbucket();
 // removed, TODO: what was this used for?
 //  context.subscriptions.push(await client.start());
 }
