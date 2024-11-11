@@ -1,5 +1,5 @@
-import {extensions, Uri, workspace} from "vscode";
-import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config} from "@abaplint/core";
+import {extensions, Uri} from "vscode";
+import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config, IRegistry, RulesRunner, applyEditList, IConfig} from "@abaplint/core";
 
 const ATLASCODEDIFF = "atlascode.bbpr";
 interface CodeNormalizer {
@@ -10,37 +10,102 @@ interface CodeNormalizer {
 interface BitBucketApi {
     registerCodeNormalizer:(n:CodeNormalizer)=>Disposable;
 }
+
+interface FileDetails {
+  file: ABAPFile
+  reg: IRegistry
+}
+
 export function parseAbapFile(
   name: string,
   abap: string
-): ABAPFile | undefined {
+):FileDetails | undefined {
   const reg = new Registry().addFile(new MemoryFile(name, abap)).parse();
   const objects = [...reg.getObjects()].filter(ABAPObject.is);
-  return objects[0]?.getABAPFiles()[0];
+  const file = objects[0]?.getABAPFiles()[0];
+  if (file) {return {file, reg};};
+  return;
 }
 
 const getConfig = async ():Promise<Config> => {
-  const cfgfile = [...await workspace.findFiles("abaplint.json"), ...await workspace.findFiles("abaplint.json[c5]")];
-  console.log(cfgfile);
-  for (const c of cfgfile) {
-    try {
-      const file = await workspace.fs.readFile(c);
-      return new Config(file.toString());
-    } catch (error) {
-      console.log(error);
+  const rules = {
+    align_pseudo_comments:{
+      exclude: [],
+      severity: "Error",
+    },
+    align_parameters:{
+      exclude: [],
+      severity: "Error",
+    },
+    align_type_expressions:{
+      exclude: [],
+      severity: "Error",
+    },
+    in_statement_indentation:{
+      exclude: [],
+      severity: "Error",
+      blockStatements: 2,
+      ignoreExceptions: true,
+    },
+    sequential_blank: {
+      lines: 4,
+    },
+    contains_tab:{
+      exclude: [],
+      severity: "Error",
+      spaces: 1,
+    },
+    indentation:{
+      exclude: [],
+      severity: "Error",
+      ignoreExceptions: true,
+      alignTryCatch: false,
+      selectionScreenBlockIndentation: false,
+      globalClassSkipFirst: false,
+      ignoreGlobalClassDefinition: false,
+      ignoreGlobalInterface: false,
+    },
+    keyword_case: {
+      style: "lower",
+      ignoreExceptions: true,
+      ignoreLowerClassImplmentationStatement: true,
+      ignoreGlobalClassDefinition: false,
+      ignoreGlobalInterface: false,
+      ignoreFunctionModuleName: false,
+    },
+  };
+  return new Config(JSON.stringify({rules}));
+};
+
+const applyRules = (f:FileDetails, config:Config) => {
+  const objects = [...f.reg.getObjects()].filter(ABAPObject.is);;
+  const obj = objects[0];
+  console.assert(obj && objects.length === 1 && obj.getFiles().length === 1);
+  for (const rule of config.getEnabledRules()) {
+    rule.initialize(f.reg);
+    const issues = new RulesRunner(f.reg).excludeIssues([...rule.run(obj)]);
+    const edits = issues.map(a => a.getDefaultFix()).filter(e => typeof e !== "undefined");  // TODO: check overlaps
+    if (edits.length) {
+      const changed = applyEditList(f.reg, edits);
+      if (changed) {console.log(changed);};
+      f.reg.parse();
     }
   }
-  return Config.getDefault();
+  const file = obj.getABAPFiles()[0] || f.file;
+  return {...f, file};
 };
 
 const abapLintPrettyPrint = async (path: string, source: string) => {
   const name = path.replace(/.*\//, "");
   const f = parseAbapFile(name, source);
-  const result = f && new PrettyPrinter(f, await  getConfig()).run();
-  if (source && !result) {
-    throw new Error(`Abaplint formatting failed for ${path}`);
+  if (f) {
+    const config = await getConfig();
+    const fixed = await applyRules(f, config);
+    console.log(fixed);
+    const result = new PrettyPrinter(fixed.file, config).run();
+    if (result) {return result;};
   }
-  return result || source;
+  throw new Error(`Abaplint formatting failed for ${path}`);
 };
 
 const shouldNormalize = (u:Uri) => {
