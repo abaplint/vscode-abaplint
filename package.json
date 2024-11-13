@@ -23,7 +23,8 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
-		"onLanguage:abap_cds"
+		"onLanguage:abap_cds",
+		"onStartupFinished"
 	],
 	"icon": "img/abaplint_icon.png",
 	"main": "./out-native/extension",
@@ -229,6 +230,22 @@
 							"unused_variables"
 						],
 						"description": "List of rules that should not be triggered on formatting"
+					}
+				}
+			},
+			{
+				"order": 50,
+				"id": "codenormalization",
+				"title": "Diff code normalization for bitbucket",
+				"properties": {
+					"abaplint.codeNormalization": {
+						"type": "string",
+						"enum": [
+							"On by default",
+							"Off by default",
+							"deactivated"
+						],
+						"default": "Off by default"
 					}
 				}
 			}

@@ -123,7 +123,7 @@ export function activate(context: ExtensionContext) {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
   });
-  registerBitbucket();
+  registerBitbucket(client);
 // removed, TODO: what was this used for?
 //  context.subscriptions.push(await client.start());
 }
