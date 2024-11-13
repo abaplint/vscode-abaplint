@@ -1,5 +1,5 @@
 import {extensions, Uri} from "vscode";
-import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config, IRegistry, RulesRunner, applyEditList, IConfig} from "@abaplint/core";
+import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config, IRegistry, RulesRunner, applyEditList, IEdit} from "@abaplint/core";
 
 const ATLASCODEDIFF = "atlascode.bbpr";
 interface CodeNormalizer {
@@ -77,19 +77,65 @@ const getConfig = async ():Promise<Config> => {
   return new Config(JSON.stringify({rules}));
 };
 
+const HasOverlaps = (edit1:IEdit, edit2:IEdit) => {
+  const files1 = new Set(Object.keys(edit1));
+  for (const file of Object.keys(edit2).filter(x => files1.has(x))) {
+    for (const filedit1 of edit1[file]) {
+      for (const filedit2 of edit2[file]) {
+        if (filedit2.range.start.getRow() <= filedit1.range.start.getRow()
+            && filedit2.range.end.getRow() >= filedit1.range.start.getRow()) {
+          return true;
+        }
+        if (filedit2.range.start.getRow() <= filedit1.range.end.getRow()
+            && filedit2.range.end.getRow() >= filedit1.range.end.getRow()) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+};
+
+
+const removeOverlapping = (edits:IEdit[]) => {
+  return  edits.filter((ed, i) => {
+    if (i <= 0) {return true;}
+    for (let idx = 0; idx < i; idx++) {
+      if (HasOverlaps(ed, edits[idx])) {return false;}
+    }
+    return true;
+  });
+};
+
+type IRule  = ReturnType<Config["getEnabledRules"]>[0] // expose hidden IRule interface
+const applyRule = (reg:IRegistry, obj:ABAPObject, rule:IRule) => {
+  rule.initialize(reg);
+  const issues = new RulesRunner(reg).excludeIssues([...rule.run(obj)]);
+  const edits = issues
+    .map(a => a.getDefaultFix())
+    .filter(e => typeof e !== "undefined");
+  if (edits.length) {
+    const nonconflicting = removeOverlapping(edits);
+    const changed = applyEditList(reg, nonconflicting);
+    reg.parse();
+    console.log(`${rule.getMetadata().title} ${nonconflicting.length} ${edits.length}`);
+    const needReapplying = !!changed.length && nonconflicting.length < edits.length;
+    return needReapplying;
+  }
+  return false;
+};
+
 const applyRules = (f:FileDetails, config:Config) => {
   const objects = [...f.reg.getObjects()].filter(ABAPObject.is);;
   const obj = objects[0];
   console.assert(obj && objects.length === 1 && obj.getFiles().length === 1);
   for (const rule of config.getEnabledRules()) {
-    rule.initialize(f.reg);
-    const issues = new RulesRunner(f.reg).excludeIssues([...rule.run(obj)]);
-    const edits = issues.map(a => a.getDefaultFix()).filter(e => typeof e !== "undefined");  // TODO: check overlaps
-    if (edits.length) {
-      const changed = applyEditList(f.reg, edits);
-      if (changed) {console.log(changed);};
-      f.reg.parse();
-    }
+    let needtoApply = true;
+    let count = 0;
+    while (needtoApply) {
+      needtoApply = applyRule(f.reg, obj, rule);
+      if (count++ > 0) {console.log(`${count} ${rule.getMetadata().title}`);};
+    };
   }
   const file = obj.getABAPFiles()[0] || f.file;
   return {...f, file};
