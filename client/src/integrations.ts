@@ -1,12 +1,13 @@
 import {extensions, Uri, workspace} from "vscode";
 import {BaseLanguageClient} from "vscode-languageclient";
 
-const ATLASCODEDIFF = "atlascode.bbpr";
-interface CodeNormalizer {
+export const ATLASCODEDIFF = "atlascode.bbpr";
+export interface CodeNormalizer {
     isRelevant: (u: Uri) => boolean;
     normalize: (code: string, uri: Uri) => Promise<string>;
 }
 
+export let integrationIsActive:(u:Uri) => boolean = () => false;
 interface BitBucketApi {
     registerCodeNormalizer:(n:CodeNormalizer)=>Disposable;
 }
@@ -39,7 +40,7 @@ const getNormalization = <I extends number>(): Normalization<I> => {
   return  "Off by default";
 };
 const isAbap = (u:Uri) => !!(u.fsPath.match(/\.abap$/) || u.fragment.match(/\.abap$/));
-const norm = (client: BaseLanguageClient):CodeNormalizer => {
+export const getAbapCodeNormalizer = (client: BaseLanguageClient):CodeNormalizer => {
   const normalization = getNormalization();
   const inverted = normalization === "On by default";
   const inactive = normalization === "deactivated";
@@ -69,6 +70,8 @@ export const registerBitbucket = async (client: BaseLanguageClient) => {
     await ext.activate();
   }
   if (ext.exports?.registerCodeNormalizer) {
-    ext.exports.registerCodeNormalizer(norm(client));
+    const norm = getAbapCodeNormalizer(client);
+    integrationIsActive = (u) => u.scheme === ATLASCODEDIFF && norm.isRelevant(u);
+    ext.exports.registerCodeNormalizer(norm);
   }
 };

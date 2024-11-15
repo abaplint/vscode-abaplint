@@ -68,6 +68,12 @@
 				"command": "abaplint.create.default-config",
 				"title": "Create Default Config",
 				"category": "abaplint"
+			},
+			{
+				"command": "abaplint.togglediffNormalize",
+				"title": "Normalize files",
+				"icon": "$(law)",
+				"category": "abaplint"
 			}
 		],
 		"jsonValidation": [
@@ -118,6 +124,11 @@
 					"when": "editorLangId == 'abap'",
 					"command": "abaplint.show",
 					"group": "navigation"
+				},
+				{
+					"command": "abaplint.togglediffNormalize",
+					"group": "navigation",
+					"when": "isInDiffEditor && abaplint.IsNormalizerEnabled"
 				}
 			],
 			"file/newFile": [
