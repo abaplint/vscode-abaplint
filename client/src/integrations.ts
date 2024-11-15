@@ -61,6 +61,12 @@ export const getAbapCodeNormalizer = (client: BaseLanguageClient):CodeNormalizer
   };
 };
 
+// registers a code formatter for bitbucket using an API which will probably never be merged
+// for now it's available on my fork of atlascode:
+// https://bitbucket.org/marcellourbani/atlascode/branch/issue-%235433-Add-hook-to-pretty-print-code-to-show-in-diff-in-atlascode
+// allows to:
+//  - normalize the code by default
+//  - get bitbucket functionality (i.e. comments) to work after normalizing
 export const registerBitbucket = async (client: BaseLanguageClient) => {
   const ext = extensions.getExtension<BitBucketApi>("atlassian.atlascode");
   if (!ext) {
