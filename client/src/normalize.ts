@@ -3,6 +3,12 @@ import {BaseLanguageClient} from "vscode-languageclient";
 import {ATLASCODEDIFF, CodeNormalizer, getAbapCodeNormalizer, integrationIsActive} from "./integrations";
 const ABAPGITSCHEME = "abapgit.normalized";
 
+const originalUri = (u:Uri) => {
+  if (u.scheme  !== ABAPGITSCHEME) {return u;}
+  const {scheme, query} = JSON.parse(u.query);
+  return u.with({scheme, query});
+};
+
 class NormalizedProvider implements TextDocumentContentProvider {
   private readonly normalizer: CodeNormalizer;
   public constructor(client: BaseLanguageClient) {
@@ -10,9 +16,10 @@ class NormalizedProvider implements TextDocumentContentProvider {
   };
   public onDidChange?: Event<Uri> | undefined;
   public async provideTextDocumentContent(uri: Uri): Promise<string> {
-    const origUri = uri.with(JSON.parse(uri.query));
-    const raw = await workspace.fs.readFile(origUri);
-    return this.normalizer.normalize(raw.toString(), origUri);
+    const origUri = originalUri(uri);
+    if (uri.scheme === origUri.scheme) {throw new Error("invalid URL"); };
+    const raw = await workspace.openTextDocument(origUri);
+    return this.normalizer.normalize(raw.getText(), origUri);
   }
 }
 
@@ -30,10 +37,9 @@ const shouldActivate = (e: TextEditor | undefined) => {
 const activateNormalizer = (e: TextEditor | undefined) => {
   commands.executeCommand("setContext", "abaplint.IsNormalizerEnabled", shouldActivate(e));
 };
-
 const toggleUrlNormalizer = (u:Uri) => {
-  if (u.scheme  === ABAPGITSCHEME) {return u.with(JSON.parse(u.query));};
-  const query = JSON.stringify(u);
+  if (u.scheme  === ABAPGITSCHEME) { return originalUri(u);};
+  const query = JSON.stringify({scheme:u.scheme, query:u.query});
   return u.with({scheme:ABAPGITSCHEME, query});
 };
 
