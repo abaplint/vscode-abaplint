@@ -23,8 +23,7 @@
 	},
 	"activationEvents": [
 		"onLanguage:abap",
-		"onLanguage:abap_cds",
-		"onStartupFinished"
+		"onLanguage:abap_cds"
 	],
 	"icon": "img/abaplint_icon.png",
 	"main": "./out-native/extension",
