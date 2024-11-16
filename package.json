@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.431",
+	"version": "0.6.433",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -292,7 +292,7 @@
 		"@vscode/test-web": "^0.0.63",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.1",
-		"eslint": "^9.14.0",
+		"eslint": "=9.14.0",
 		"globals": "^15.12.0",
 		"merge-options": "^3.0.4",
 		"path-browserify": "^1.0.1",
