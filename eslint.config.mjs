@@ -143,7 +143,6 @@ export default [...fixupConfigRules(compat.extends(
         "no-sparse-arrays": "error",
         "no-trailing-spaces": "error",
         "no-underscore-dangle": "off",
-        "no-unused-expressions": "off",
         "no-unused-labels": "error",
         "no-var": "error",
         "no-void": "error",
