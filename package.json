@@ -67,6 +67,12 @@
 				"command": "abaplint.create.default-config",
 				"title": "Create Default Config",
 				"category": "abaplint"
+			},
+			{
+				"command": "abaplint.togglediffNormalize",
+				"title": "Normalize files",
+				"icon": "$(law)",
+				"category": "abaplint"
 			}
 		],
 		"jsonValidation": [
@@ -117,6 +123,11 @@
 					"when": "editorLangId == 'abap'",
 					"command": "abaplint.show",
 					"group": "navigation"
+				},
+				{
+					"command": "abaplint.togglediffNormalize",
+					"group": "navigation",
+					"when": "isInDiffEditor && abaplint.IsNormalizerEnabled"
 				}
 			],
 			"file/newFile": [
@@ -231,6 +242,22 @@
 						"description": "List of rules that should not be triggered on formatting"
 					}
 				}
+			},
+			{
+				"order": 50,
+				"id": "codenormalization",
+				"title": "Diff code normalization for bitbucket",
+				"properties": {
+					"abaplint.codeNormalization": {
+						"type": "string",
+						"enum": [
+							"On by default",
+							"Off by default",
+							"deactivated"
+						],
+						"default": "Off by default"
+					}
+				}
 			}
 		]
 	},
@@ -271,6 +298,7 @@
 		"path-browserify": "^1.0.1",
 		"ts-loader": "^9.5.1",
 		"typescript": "^5.6.3",
+		"vm-browserify": "^1.1.2",
 		"webpack": "^5.96.1",
 		"webpack-cli": "^5.1.4"
 	}

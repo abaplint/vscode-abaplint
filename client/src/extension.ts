@@ -9,6 +9,8 @@ import {Help} from "./help";
 import {Config} from "./config";
 import {Flows} from "./flows";
 import {TestController} from "./test_controller";
+import {registerBitbucket} from "./integrations";
+import {registerNormalizer} from "./normalize";
 
 let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -16,6 +18,7 @@ let highlight: Highlight;
 let help: Help;
 let flows: Flows;
 let config: Config;
+let disposeAll:()=>void|undefined;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
   const toUri = (path: string) => Uri.file(path);
@@ -43,6 +46,7 @@ function registerAsFsProvider(client: BaseLanguageClient) {
 }
 
 export function activate(context: ExtensionContext) {
+  disposeAll = () => context.subscriptions.forEach(async d => d.dispose());
   myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   myStatusBarItem.text = "abaplint";
   myStatusBarItem.show();
@@ -122,14 +126,16 @@ export function activate(context: ExtensionContext) {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
   });
-
-// removed, TODO: what was this used for?
-//  context.subscriptions.push(await client.start());
+  registerNormalizer(context, client);
+  registerBitbucket(client);
 }
 
 export function deactivate(): Thenable<void> | undefined {
   if (!client) {
     return undefined;
   }
-  return client.stop();
+  const stop =  client.stop().then(() => client.dispose());
+  if (disposeAll) {disposeAll();}
+  return stop;
 }
+

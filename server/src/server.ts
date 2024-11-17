@@ -5,6 +5,7 @@ import * as abaplint from "@abaplint/core";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
 import {FsProvider, FileOperations} from "./file_operations";
+import {getNormalizer} from "./codenormalizer";
 
 let connection: LServer.Connection;
 if (fs.read === undefined) {
@@ -280,6 +281,16 @@ connection.onRequest("abaplint/config/default/request", async () => {
 connection.onRequest("abaplint/unittests/list/request", async () => {
   const handler = await getHandler();
   handler.onListUnitTests();
+});
+
+connection.onRequest("abaplint/normalize", async (data) => {
+  try {
+    const {path, source} = data;
+    return await getNormalizer()(path, source);
+  } catch (error) {
+    connection.console.error("message" in error ? error.message : error);
+    return data?.source;
+  }
 });
 
 documents.listen(connection);
