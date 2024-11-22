@@ -3,6 +3,8 @@ import {BaseLanguageClient} from "vscode-languageclient";
 import {ATLASCODEDIFF, CodeNormalizer, getAbapCodeNormalizer, integrationIsActive} from "./integrations";
 const ABAPGITSCHEME = "abapgit.normalized";
 
+const fragSchemes = new Set([ATLASCODEDIFF, ABAPGITSCHEME]);
+
 const originalUri = (u:Uri) => {
   if (u.scheme  !== ABAPGITSCHEME) {return u;}
   const {scheme, query} = JSON.parse(u.query);
@@ -30,7 +32,7 @@ const shouldActivate = (e: TextEditor | undefined) => {
   if (!(isdiff && uri)) {return false;}
   const relevant =
     uri.path.match(/\.abap$/) ||
-    uri.scheme === ATLASCODEDIFF && uri.fragment.match(/\.abap$/);
+    fragSchemes.has(uri.scheme) && uri.fragment.match(/\.abap$/);
   return relevant && !integrationIsActive(uri);
 };
 
