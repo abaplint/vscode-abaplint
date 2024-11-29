@@ -293,7 +293,12 @@ export class Handler {
   }
 
   public onInlayHint(params: LServer.InlayHintParams): LServer.InlayHint[] {
-    return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument, this.settings.inlayHints);
+    try {
+      return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument, this.settings.inlayHints);
+    } catch (e) {
+      console.log("Inlay error: " + e.message);
+      return [];
+    }
   }
 
 }
