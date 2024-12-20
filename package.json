@@ -293,13 +293,13 @@
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.1",
 		"eslint": "^9.17.0",
-		"globals": "^15.13.0",
+		"globals": "^15.14.0",
 		"merge-options": "^3.0.4",
 		"path-browserify": "^1.0.1",
 		"ts-loader": "^9.5.1",
 		"typescript": "^5.7.2",
 		"vm-browserify": "^1.1.2",
 		"webpack": "^5.97.1",
-		"webpack-cli": "^5.1.4"
+		"webpack-cli": "^6.0.0"
 	}
 }
