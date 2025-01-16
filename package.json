@@ -166,7 +166,7 @@
 			{
 				"command": "abaplint.f1",
 				"key": "f1",
-				"when": "editorLangId == 'abap' && editorTextFocus"
+				"when": "(editorLangId == 'abap' || editorLangId == 'abap_cds') && editorTextFocus"
 			}
 		],
 		"configuration": [
