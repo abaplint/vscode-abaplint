@@ -289,7 +289,7 @@
 		"@types/node": "^22.13.0",
 		"@typescript-eslint/eslint-plugin": "^8.22.0",
 		"@typescript-eslint/parser": "^8.22.0",
-		"@vscode/test-web": "^0.0.65",
+		"@vscode/test-web": "^0.0.66",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.1",
 		"eslint": "^9.19.0",
