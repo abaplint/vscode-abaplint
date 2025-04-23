@@ -237,7 +237,8 @@
 						},
 						"default": [
 							"unused_types",
-							"unused_variables"
+							"unused_variables",
+              "unused_methods"
 						],
 						"description": "List of rules that should not be triggered on formatting"
 					}
