@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.465",
+	"version": "0.6.466",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -238,7 +238,7 @@
 						"default": [
 							"unused_types",
 							"unused_variables",
-              "unused_methods"
+							"unused_methods"
 						],
 						"description": "List of rules that should not be triggered on formatting"
 					}
