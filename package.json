@@ -236,6 +236,7 @@
 							"type": "string"
 						},
 						"default": [
+              "avoid_use",
 							"unused_types",
 							"unused_variables",
 							"unused_methods"
