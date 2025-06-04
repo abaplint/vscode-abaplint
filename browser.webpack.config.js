@@ -86,6 +86,11 @@ const browserServerConfig = /** @type WebpackConfig */ {
 			assert: false
 		},
 	},
+	plugins: [
+		new ProvidePlugin({
+			Buffer: [require.resolve("buffer/"), "Buffer"],
+		}),
+	],
 	module: {
 		rules: [
 			{
