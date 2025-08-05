@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.495",
+	"version": "0.6.496",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -22,9 +22,9 @@
 		"vscode": "^1.37.1"
 	},
 	"activationEvents": [
-    "workspaceContains:/abaplint.json",
-    "workspaceContains:/abaplint.jsonc",
-    "workspaceContains:/.abapgit.xml",
+		"workspaceContains:/abaplint.json",
+		"workspaceContains:/abaplint.jsonc",
+		"workspaceContains:/.abapgit.xml",
 		"onLanguage:abap",
 		"onLanguage:abap_cds"
 	],
