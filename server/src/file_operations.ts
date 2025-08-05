@@ -83,7 +83,7 @@ export class FileOperations {
   public static async loadFileNames(arg: string, error = true): Promise<string[]> {
     const files = await provider.glob(arg);
     if (files.length === 0 && error) {
-      throw "Error: No files found";
+      throw "Error: No files found, " + arg;
     }
     return files;
   }
