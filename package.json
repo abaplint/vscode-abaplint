@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.494",
+	"version": "0.6.495",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -29,11 +29,11 @@
 	"main": "./out-native/extension",
 	"browser": "./out-browser/client",
 	"contributes": {
-    "breakpoints": [
-      {
-        "language": "abap"
-      }
-    ],
+		"breakpoints": [
+			{
+				"language": "abap"
+			}
+		],
 		"commands": [
 			{
 				"command": "abaplint.show",
