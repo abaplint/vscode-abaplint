@@ -29,6 +29,11 @@
 	"main": "./out-native/extension",
 	"browser": "./out-browser/client",
 	"contributes": {
+    "breakpoints": [
+      {
+        "language": "abap"
+      }
+    ],
 		"commands": [
 			{
 				"command": "abaplint.show",
