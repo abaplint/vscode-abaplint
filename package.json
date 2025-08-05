@@ -22,6 +22,9 @@
 		"vscode": "^1.37.1"
 	},
 	"activationEvents": [
+    "workspaceContains:/abaplint.json",
+    "workspaceContains:/abaplint.jsonc",
+    "workspaceContains:/.abapgit.xml",
 		"onLanguage:abap",
 		"onLanguage:abap_cds"
 	],
