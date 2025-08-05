@@ -5,6 +5,8 @@ import * as fs from "fs";
 import * as os from "os";
 import {FileOperations} from "./file_operations";
 
+const toUnixPath = (path: string) => path.replace(/[\\/]+/g, "/").replace(/^([a-zA-Z]+:|\.\/)/, "");
+
 export class GitOperations {
 
   public static async clone(dep: abaplint.IDependency): Promise<abaplint.IFile[]> {
@@ -17,7 +19,11 @@ export class GitOperations {
     FileOperations.setDefaultProvider();
 
     process.stderr.write("Clone: " + dep.url + "\n");
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
+    let dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
+    if (os.platform() === "win32") {
+      // must be converted to posix for glob patterns like "/{foo,src}/**/*.*" to work
+      dir = toUnixPath(dir);
+    }
     childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir});
     const names = await FileOperations.loadFileNames(dir + dep.files);
     const files = await FileOperations.loadFiles(names);
