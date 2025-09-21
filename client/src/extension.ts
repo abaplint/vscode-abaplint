@@ -7,7 +7,6 @@ import * as fs from "fs";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
 import {Config} from "./config";
-import {Flows} from "./flows";
 import {TestController} from "./test_controller";
 import {registerBitbucket} from "./integrations";
 import {registerNormalizer} from "./normalize";
@@ -16,7 +15,6 @@ let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
 let help: Help;
-let flows: Flows;
 let config: Config;
 let disposeAll:()=>void|undefined;
 
@@ -88,7 +86,6 @@ export function activate(context: ExtensionContext) {
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
-  flows = new Flows(client).register(context);
   config = new Config(client).register(context);
   client.onDidChangeState(change => {
     if (change.newState === State.Running) {
@@ -109,9 +106,6 @@ export function activate(context: ExtensionContext) {
     });
     client.onNotification("abaplint/help/response", (data) => {
       help.helpResponse(data);
-    });
-    client.onNotification("abaplint/dumpstatementflows/response", (data) => {
-      flows.flowResponse(data);
     });
     client.onNotification("abaplint/config/default/response", (data) => {
       config.defaultConfigResponse(data);

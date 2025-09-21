@@ -268,11 +268,6 @@ connection.onRequest("abaplint/highlight/writes/request", async (data) => {
   handler.onHighlightWrites(data);
 });
 
-connection.onRequest("abaplint/dumpstatementflows/request", async (data) => {
-  const handler = await getHandler();
-  handler.onDumpStatementFlows(data);
-});
-
 connection.onRequest("abaplint/config/default/request", async () => {
   const handler = await getHandler();
   handler.onRequestConfig();
