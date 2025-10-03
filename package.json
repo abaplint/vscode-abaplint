@@ -278,7 +278,7 @@
 		"compile": "npm run compile:client && npm run compile:server && npm run webpack:native && npm run webpack:browser",
 		"test": "npm run compile && npm run lint",
 		"chrome": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=.",
-		"install": "npm install && cd client && npm install && cd ../server && npm install && cd .."
+		"install": "npm install && cd client && npm install && cd .. && cd server && npm install && cd .."
 	},
 	"extensionDependencies": [
 		"larshp.vscode-abap"
