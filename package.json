@@ -304,7 +304,7 @@
 		"ts-loader": "^9.5.4",
 		"typescript": "^5.9.3",
 		"vm-browserify": "^1.1.2",
-		"webpack": "^5.102.0",
+		"webpack": "^5.102.1",
 		"webpack-cli": "^6.0.1"
 	}
 }
