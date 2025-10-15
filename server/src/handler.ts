@@ -241,6 +241,7 @@ export class Handler {
   public updateTooltip() {
     const tooltip = "ABAP version: " + this.reg.getConfig().getVersion() + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
+      "Fallback threshold: " + this.settings.fallbackThreshold + "\n" +
       "Objects: " + this.reg.getObjectCount();
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }

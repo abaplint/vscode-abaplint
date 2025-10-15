@@ -1,5 +1,6 @@
 export type ExtraSettings = {
   codeLens?: any,
   inlayHints?: any,
-  activeTextEditorUri?: string | undefined;
+  activeTextEditorUri?: string | undefined,
+  fallbackThreshold?: number,
 };
