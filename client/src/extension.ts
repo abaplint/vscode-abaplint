@@ -11,11 +11,11 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
+let abaplintStatusBarItem: vscode.StatusBarItem;
 let client: BaseLanguageClient;
-let myStatusBarItem: vscode.StatusBarItem;
-let highlight: Highlight;
-let help: Help;
 let createDefaultConfig: CreateDefaultConfig;
+let help: Help;
+let highlight: Highlight;
 let disposeAll:()=>void|undefined;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
@@ -45,9 +45,9 @@ function registerAsFsProvider(client: BaseLanguageClient) {
 
 export function activate(context: ExtensionContext) {
   disposeAll = () => context.subscriptions.forEach(async d => d.dispose());
-  myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  myStatusBarItem.text = "abaplint";
-  myStatusBarItem.show();
+  abaplintStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  abaplintStatusBarItem.text = "abaplint";
+  abaplintStatusBarItem.show();
 
   const clientOptions: LanguageClientOptions = {
     // AFF is JSON, abaplint.jsonc can be JSONC, used for code lens
@@ -59,7 +59,6 @@ export function activate(context: ExtensionContext) {
 // when running in web mode, it fails posting these values as messages, so convert to raw JSON,
       codeLens: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("codeLens"))),
       inlayHints: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("inlayHints"))),
-      formatting: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("formatting"))),
       activeTextEditorUri: vscode.window.activeTextEditor?.document.uri.toString(),
     },
     synchronize: {
@@ -67,19 +66,23 @@ export function activate(context: ExtensionContext) {
     },
   };
 
+  const fallbackSettings = JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("fallback")));
+
   if (fs.read === undefined) {
-    myStatusBarItem.text = "abaplint: web";
+    abaplintStatusBarItem.text = "abaplint: web";
     const serverMain = Uri.joinPath(context.extensionUri, "out-browser/server.js");
     const worker = new Worker(serverMain.toString());
+    clientOptions.initializationOptions.fallbackThreshold = fallbackSettings.web;
     client = new BrowserLanguageClient("languageServerABAP", "Language Server ABAP", clientOptions, worker);
   } else {
-    myStatusBarItem.text = "abaplint: native";
+    abaplintStatusBarItem.text = "abaplint: native";
     const serverModule = context.asAbsolutePath(path.join("out-native", "server.js"));
     const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
     const serverOptions: ServerOptions = {
       run: {module: serverModule, transport: TransportKind.ipc},
       debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
     };
+    clientOptions.initializationOptions.fallbackThreshold = fallbackSettings.native;
     client = new NodeLanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
   }
 
@@ -98,11 +101,11 @@ export function activate(context: ExtensionContext) {
 
   client.start().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
-      myStatusBarItem.text = "abaplint: " + message.text;
+      abaplintStatusBarItem.text = "abaplint: " + message.text;
       if (message.tooltip) {
-        myStatusBarItem.tooltip = message.tooltip;
+        abaplintStatusBarItem.tooltip = message.tooltip;
       } else {
-        myStatusBarItem.tooltip = "";
+        abaplintStatusBarItem.tooltip = "";
       }
     });
     client.onNotification("abaplint/help/response", (data) => {

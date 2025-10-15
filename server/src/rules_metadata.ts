@@ -8,7 +8,7 @@ type IRuleMetadata = {
 export class RulesMetadata {
   private static metadata: IRuleMetadata[] | undefined = undefined;
 
-  public static get(): IRuleMetadata[] {
+  public static getAll(): IRuleMetadata[] {
     if (this.metadata !== undefined) {
       return this.metadata;
     }
@@ -23,5 +23,13 @@ export class RulesMetadata {
     });
 
     return this.metadata;
+  }
+
+  public static getExperimental(): IRuleMetadata[] {
+    return this.getAll().filter((m) => m.tags.includes(RuleTag.Experimental));
+  }
+
+  public static getNonSingleFile(): IRuleMetadata[] {
+    return this.getAll().filter((m) => m.tags.includes(RuleTag.SingleFile) === false);
   }
 }

@@ -1,15 +1,16 @@
-import * as LServer from "vscode-languageserver";
-import * as abaplint from "@abaplint/core";
-import {URI} from "vscode-uri";
-import {Setup} from "./setup";
-import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
-import {TextDocument} from "vscode-languageserver-textdocument";
-import {FileOperations} from "./file_operations";
-import {GitOperations} from "./git";
-import {UnitTests} from "./handlers/unit_test";
-import {Formatting} from "./handlers/formatting";
-import {ExtraSettings} from "./extra_settings";
 import {AbaplintConfigLens} from "./abaplint_config_lens";
+import {ExtraSettings} from "./extra_settings";
+import {FileOperations} from "./file_operations";
+import {Formatting} from "./handlers/formatting";
+import {GitOperations} from "./git";
+import {RulesMetadata} from "./rules_metadata";
+import {Setup} from "./setup";
+import {TextDocument} from "vscode-languageserver-textdocument";
+import {UnitTests} from "./handlers/unit_test";
+import {URI} from "vscode-uri";
+import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
+import * as abaplint from "@abaplint/core";
+import * as LServer from "vscode-languageserver";
 
 export interface IFolder {
   root: string;
@@ -66,6 +67,7 @@ export class Handler {
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
   private readonly settings: ExtraSettings;
+  private fallbackActivated: boolean = false;
   private timeouts: {[index: string]: any} = {};
 
   public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
@@ -173,7 +175,7 @@ export class Handler {
 
   public onCodeLens(params: LServer.CodeLensParams, documents: LServer.TextDocuments<LServer.TextDocument>): LServer.CodeLens[] {
     if (params.textDocument.uri.endsWith("abaplint.json") || params.textDocument.uri.endsWith("abaplint.jsonc")) {
-      return AbaplintConfigLens.getCodeLenses(params.textDocument, documents);
+      return AbaplintConfigLens.getCodeLenses(params.textDocument, documents, this.fallbackActivated);
     } else {
       const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
       return lenses;
@@ -189,18 +191,47 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).semanticTokensRange(range);
   }
 
-  public async loadAndParseAll(progress: WorkDoneProgressReporter) {
+  /** it cannot be disalbed again, only by restarting */
+  private async activateFallback() {
+    this.fallbackActivated = true;
+
+    const newConfig = this.reg.getConfig().get();
+    const nonSingleFileRule = RulesMetadata.getNonSingleFile().map(r => r.key);
+
+    for (const rule in newConfig.rules) {
+      if (newConfig.rules[rule] === undefined || newConfig.rules[rule] === false) {
+        continue;
+      }
+
+      if (nonSingleFileRule.includes(rule)) {
+        newConfig.rules[rule] = false;
+      }
+    }
+
+    this.reg.setConfig(new abaplint.Config(JSON.stringify(newConfig)));
+
+    // todo: disable inlay hints and code lens, maybe it works, test it!
+  }
+
+  public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
+      const filenames: string[] = [];
       for (const glob of folder.glob) {
-        const filenames = await FileOperations.loadFileNames(glob, false);
-        for (const filename of filenames) {
-          if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
-            continue; // skip SMIM contents
-          }
-          const raw = await FileOperations.readFile(filename);
-          this.reg.addFile(new abaplint.MemoryFile(filename, raw));
+        filenames.push(...await FileOperations.loadFileNames(glob, false));
+      }
+
+      if (filenames.length > fallbackThreshold) {
+        await this.activateFallback();
+        return;
+      }
+
+      for (const filename of filenames) {
+        if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
+          continue; // skip SMIM contents
         }
+        const raw = await FileOperations.readFile(filename);
+        this.reg.addFile(new abaplint.MemoryFile(filename, raw));
       }
     }
 
@@ -241,6 +272,8 @@ export class Handler {
   public updateTooltip() {
     const tooltip = "ABAP version: " + this.reg.getConfig().getVersion() + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
+      "Fallback threshold: " + this.settings.fallbackThreshold + "\n" +
+      "Fallback activated: " + this.fallbackActivated + "\n" +
       "Objects: " + this.reg.getObjectCount();
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }

@@ -263,6 +263,25 @@
 						"default": "Off by default"
 					}
 				}
+			},
+			{
+				"order": 60,
+				"id": "fallback",
+				"title": "Fallback",
+				"properties": {
+					"abaplint.fallback.native": {
+						"order": 10,
+						"type": "integer",
+						"description": "File threshold for falling back to only single-file rules with native version, requires restart",
+						"default": 10000
+					},
+					"abaplint.fallback.web": {
+						"order": 20,
+						"type": "integer",
+						"description": "File threshold for falling back to only single-file rules with web version, requires restart",
+						"default": 1000
+					}
+				}
 			}
 		]
 	},
