@@ -7,7 +7,7 @@ export class AbaplintConfigLens {
   public static getCodeLenses(
     textDocument: LServer.TextDocumentIdentifier,
     documents: LServer.TextDocuments<LServer.TextDocument>,
-    _fallbackActivated: boolean
+    fallbackActivated: boolean
   ): LServer.CodeLens[] {
     const doc = documents.get(textDocument.uri);
     if (doc === undefined) {
@@ -27,8 +27,12 @@ export class AbaplintConfigLens {
     const experimental = RulesMetadata.getExperimental().filter(
       (k) => parsed.rules && parsed.rules[k.key] !== undefined && parsed.rules[k.key] !== false);
 
+    let disabled = fallbackActivated === true ? RulesMetadata.getNonSingleFile() : [];
+    disabled = disabled.filter((k) => parsed.rules && parsed.rules[k.key] !== undefined && parsed.rules[k.key] !== false);
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+
       if (experimental.some((k) => line.includes(`"${k.key}":`))) {
         lenses.push({
           range: {
@@ -36,7 +40,20 @@ export class AbaplintConfigLens {
             end: {line: i, character: line.length},
           },
           command: {
-            title: "$(notebook-state-error) Experimental",
+            title: "$(error) Experimental",
+            command: "",
+          },
+        });
+      }
+
+      if (disabled.some((k) => line.includes(`"${k.key}":`))) {
+        lenses.push({
+          range: {
+            start: {line: i, character: 0},
+            end: {line: i, character: line.length},
+          },
+          command: {
+            title: "$(warning) Disabled due to fallback",
             command: "",
           },
         });

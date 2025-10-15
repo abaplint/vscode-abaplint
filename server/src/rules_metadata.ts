@@ -28,4 +28,8 @@ export class RulesMetadata {
   public static getExperimental(): IRuleMetadata[] {
     return this.getAll().filter((m) => m.tags.includes(RuleTag.Experimental));
   }
+
+  public static getNonSingleFile(): IRuleMetadata[] {
+    return this.getAll().filter((m) => m.tags.includes(RuleTag.SingleFile) === false);
+  }
 }
