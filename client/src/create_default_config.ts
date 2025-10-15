@@ -1,5 +1,6 @@
-import * as path from "path";
+import {BaseLanguageClient} from "vscode-languageclient/node";
 import * as vscode from "vscode";
+import * as path from "path";
 import {Buffer} from "buffer";
 
 async function createFile(uri: vscode.Uri, content: string) {
@@ -42,9 +43,32 @@ async function fileExists(uri: vscode.Uri): Promise<boolean> {
   }
 }
 
-export async function createConfig(uri: vscode.Uri, config: string) {
+async function createConfig(uri: vscode.Uri, config: string) {
   const dir = await findFolder(uri);
   const filename = dir + "abaplint.json";
   const uriConfig = vscode.Uri.file(filename);
   await createFile(uriConfig, config);
+}
+
+export class CreateDefaultConfig {
+  private readonly client: BaseLanguageClient;
+  private uri: vscode.Uri;
+
+  public constructor(client: BaseLanguageClient) {
+    this.client = client;
+  }
+
+  public register(context: vscode.ExtensionContext): CreateDefaultConfig {
+    context.subscriptions.push(vscode.commands.registerCommand("abaplint.create.default-config", this.createDefaultConfig.bind(this)));
+    return this;
+  }
+
+  public createDefaultConfig(uri: vscode.Uri) {
+    this.uri = uri;
+    this.client.sendRequest("abaplint/config/default/request");
+  }
+
+  public defaultConfigResponse(config: string) {
+    createConfig(this.uri, config);
+  }
 }

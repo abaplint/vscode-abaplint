@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import {Highlight} from "./highlight";
 import {Help} from "./help";
-import {Config} from "./config";
+import {CreateDefaultConfig} from "./create_default_config";
 import {TestController} from "./test_controller";
 import {registerBitbucket} from "./integrations";
 import {registerNormalizer} from "./normalize";
@@ -15,7 +15,7 @@ let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
 let help: Help;
-let config: Config;
+let createDefaultConfig: CreateDefaultConfig;
 let disposeAll:()=>void|undefined;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
@@ -86,7 +86,7 @@ export function activate(context: ExtensionContext) {
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
-  config = new Config(client).register(context);
+  createDefaultConfig = new CreateDefaultConfig(client).register(context);
   client.onDidChangeState(change => {
     if (change.newState === State.Running) {
       registerAsFsProvider(client);
@@ -108,7 +108,7 @@ export function activate(context: ExtensionContext) {
       help.helpResponse(data);
     });
     client.onNotification("abaplint/config/default/response", (data) => {
-      config.defaultConfigResponse(data);
+      createDefaultConfig.defaultConfigResponse(data);
     });
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
       highlight.highlightDefinitionsResponse(data.ranges, data.uri);

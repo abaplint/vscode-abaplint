@@ -171,6 +171,7 @@ export class Handler {
   }
 
   public onCodeLens(params: LServer.CodeLensParams): LServer.CodeLens[] {
+    console.dir(params);
     const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
     return lenses;
   }
