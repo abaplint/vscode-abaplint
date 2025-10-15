@@ -84,10 +84,6 @@ export class Handler {
     this.settings = params.initializationOptions;
   }
 
-  public setFallbackActivated(fallbackActivated: boolean) {
-    this.fallbackActivated = fallbackActivated;
-  }
-
   private async readAndSetConfig() {
     const config = await this.setup.readConfig(this.folders, this.settings);
     this.reg.setConfig(config);
@@ -178,7 +174,7 @@ export class Handler {
 
   public onCodeLens(params: LServer.CodeLensParams, documents: LServer.TextDocuments<LServer.TextDocument>): LServer.CodeLens[] {
     if (params.textDocument.uri.endsWith("abaplint.json") || params.textDocument.uri.endsWith("abaplint.jsonc")) {
-      return AbaplintConfigLens.getCodeLenses(params.textDocument, documents);
+      return AbaplintConfigLens.getCodeLenses(params.textDocument, documents, this.fallbackActivated);
     } else {
       const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
       return lenses;
@@ -194,7 +190,15 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).semanticTokensRange(range);
   }
 
-  public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number): Promise<{fallbackActivated: boolean}> {
+  /** it cannot be disalbed again, only by restarting */
+  private async activateFallback() {
+    this.fallbackActivated = true;
+
+    // todo: update reg config to disable rules
+    // todo: disable inlay hints and code lens
+  }
+
+  public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
       const filenames: string[] = [];
@@ -203,7 +207,8 @@ export class Handler {
       }
 
       if (filenames.length > fallbackThreshold) {
-        return {fallbackActivated: true};
+        await this.activateFallback();
+        return;
       }
 
       for (const filename of filenames) {
@@ -219,8 +224,6 @@ export class Handler {
 
     progress.report(0, "Parsing files");
     await this.reg.parseAsync({progress: new Progress(progress)});
-
-    return {fallbackActivated: false};
   }
 
   private async addDependencies() {
