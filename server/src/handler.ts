@@ -1,16 +1,16 @@
-import * as LServer from "vscode-languageserver";
-import * as abaplint from "@abaplint/core";
-import {URI} from "vscode-uri";
-import {Setup} from "./setup";
-import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
-import {TextDocument} from "vscode-languageserver-textdocument";
-import {FileOperations} from "./file_operations";
-import {GitOperations} from "./git";
-import {UnitTests} from "./handlers/unit_test";
-import {Formatting} from "./handlers/formatting";
-import {ExtraSettings} from "./extra_settings";
 import {AbaplintConfigLens} from "./abaplint_config_lens";
-import { RulesMetadata } from "./rules_metadata";
+import {ExtraSettings} from "./extra_settings";
+import {FileOperations} from "./file_operations";
+import {Formatting} from "./handlers/formatting";
+import {GitOperations} from "./git";
+import {RulesMetadata} from "./rules_metadata";
+import {Setup} from "./setup";
+import {TextDocument} from "vscode-languageserver-textdocument";
+import {UnitTests} from "./handlers/unit_test";
+import {URI} from "vscode-uri";
+import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
+import * as abaplint from "@abaplint/core";
+import * as LServer from "vscode-languageserver";
 
 export interface IFolder {
   root: string;
