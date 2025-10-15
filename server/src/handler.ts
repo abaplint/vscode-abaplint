@@ -9,6 +9,7 @@ import {GitOperations} from "./git";
 import {UnitTests} from "./handlers/unit_test";
 import {Formatting} from "./handlers/formatting";
 import {ExtraSettings} from "./extra_settings";
+import {AbaplintConfigLens} from "./abaplint_config_lens";
 
 export interface IFolder {
   root: string;
@@ -104,10 +105,10 @@ export class Handler {
 
     // set a timeout so everything is not parsed at every keyboard press
     clearTimeout(this.timeouts[textDocument.uri]);
-    this.timeouts[textDocument.uri] = setTimeout(() => this.run.bind(this)(textDocument), 200);
+    this.timeouts[textDocument.uri] = setTimeout(() => this.runDiagnostics.bind(this)(textDocument), 200);
   }
 
-  private run(textDocument: LServer.TextDocument): void {
+  private runDiagnostics(textDocument: LServer.TextDocument): void {
 //    console.dir("start validation " + textDocument.uri);
     const diagnostics = new abaplint.LanguageServer(this.reg).diagnostics(textDocument);
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
@@ -170,9 +171,13 @@ export class Handler {
     }
   }
 
-  public onCodeLens(params: LServer.CodeLensParams): LServer.CodeLens[] {
-    const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
-    return lenses;
+  public onCodeLens(params: LServer.CodeLensParams, documents: LServer.TextDocuments<LServer.TextDocument>): LServer.CodeLens[] {
+    if (params.textDocument.uri.endsWith("abaplint.json") || params.textDocument.uri.endsWith("abaplint.jsonc")) {
+      return AbaplintConfigLens.getCodeLenses(params.textDocument, documents);
+    } else {
+      const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
+      return lenses;
+    }
   }
 
   public onSemanticTokensRange(params: LServer.SemanticTokensRangeParams): LServer.SemanticTokens {

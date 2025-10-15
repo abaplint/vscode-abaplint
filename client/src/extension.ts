@@ -1,21 +1,21 @@
-import * as path from "path";
-import {workspace, ExtensionContext, Uri} from "vscode";
-import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
-import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
-import * as vscode from "vscode";
-import * as fs from "fs";
-import {Highlight} from "./highlight";
+import {CreateDefaultConfig} from "./create_default_config";
 import {Help} from "./help";
-import {Config} from "./config";
-import {TestController} from "./test_controller";
+import {Highlight} from "./highlight";
+import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
+import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
 import {registerBitbucket} from "./integrations";
 import {registerNormalizer} from "./normalize";
+import {TestController} from "./test_controller";
+import {workspace, ExtensionContext, Uri} from "vscode";
+import * as fs from "fs";
+import * as path from "path";
+import * as vscode from "vscode";
 
 let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
 let highlight: Highlight;
 let help: Help;
-let config: Config;
+let createDefaultConfig: CreateDefaultConfig;
 let disposeAll:()=>void|undefined;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
@@ -50,7 +50,8 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.show();
 
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{language: "abap"}, {language: "xml"}],
+    // AFF is JSON, abaplint.jsonc can be JSONC, used for code lens
+    documentSelector: [{language: "abap"}, {language: "xml"}, {language: "json"}, {language: "jsonc"}],
     progressOnInitialization: true,
     initializationOptions: {
       provideFsProxy: true,
@@ -86,7 +87,7 @@ export function activate(context: ExtensionContext) {
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
-  config = new Config(client).register(context);
+  createDefaultConfig = new CreateDefaultConfig(client).register(context);
   client.onDidChangeState(change => {
     if (change.newState === State.Running) {
       registerAsFsProvider(client);
@@ -108,7 +109,7 @@ export function activate(context: ExtensionContext) {
       help.helpResponse(data);
     });
     client.onNotification("abaplint/config/default/response", (data) => {
-      config.defaultConfigResponse(data);
+      createDefaultConfig.defaultConfigResponse(data);
     });
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
       highlight.highlightDefinitionsResponse(data.ranges, data.uri);
