@@ -1,6 +1,6 @@
 import * as LServer from "vscode-languageserver";
-import { RulesMetadata } from "./rules_metadata";
-import { RuleTag } from "@abaplint/core";
+import {RulesMetadata} from "./rules_metadata";
+import {RuleTag} from "@abaplint/core";
 
 
 // https://code.visualstudio.com/api/references/icons-in-labels
