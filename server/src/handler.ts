@@ -10,6 +10,7 @@ import {UnitTests} from "./handlers/unit_test";
 import {Formatting} from "./handlers/formatting";
 import {ExtraSettings} from "./extra_settings";
 import {AbaplintConfigLens} from "./abaplint_config_lens";
+import { RulesMetadata } from "./rules_metadata";
 
 export interface IFolder {
   root: string;
@@ -194,8 +195,22 @@ export class Handler {
   private async activateFallback() {
     this.fallbackActivated = true;
 
-    // todo: update reg config to disable rules
-    // todo: disable inlay hints and code lens
+    const newConfig = this.reg.getConfig().get();
+    const nonSingleFileRule = RulesMetadata.getNonSingleFile().map(r => r.key);
+
+    for (const rule in newConfig.rules) {
+      if (newConfig.rules[rule] === undefined || newConfig.rules[rule] === false) {
+        continue;
+      }
+
+      if (nonSingleFileRule.includes(rule)) {
+        newConfig.rules[rule] = false;
+      }
+    }
+
+    this.reg.setConfig(new abaplint.Config(JSON.stringify(newConfig)));
+
+    // todo: disable inlay hints and code lens, maybe it works, test it!
   }
 
   public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number) {
