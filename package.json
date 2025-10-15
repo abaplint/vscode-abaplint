@@ -279,7 +279,7 @@
 						"order": 20,
 						"type": "integer",
 						"description": "File threshold for falling back to only single-file rules with web version, requires restart",
-						"default": 2000
+						"default": 1000
 					}
 				}
 			}
