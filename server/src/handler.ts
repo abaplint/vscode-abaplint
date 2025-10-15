@@ -66,6 +66,7 @@ export class Handler {
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
   private readonly settings: ExtraSettings;
+  private fallbackActivated: boolean = false;
   private timeouts: {[index: string]: any} = {};
 
   public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
@@ -81,6 +82,10 @@ export class Handler {
     this.setup = new Setup(connection);
     this.folders = this.setup.determineFolders(params.workspaceFolders || []);
     this.settings = params.initializationOptions;
+  }
+
+  public setFallbackActivated(fallbackActivated: boolean) {
+    this.fallbackActivated = fallbackActivated;
   }
 
   private async readAndSetConfig() {
@@ -250,6 +255,7 @@ export class Handler {
     const tooltip = "ABAP version: " + this.reg.getConfig().getVersion() + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
       "Fallback threshold: " + this.settings.fallbackThreshold + "\n" +
+      "Fallback activated: " + this.fallbackActivated + "\n" +
       "Objects: " + this.reg.getObjectCount();
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }
