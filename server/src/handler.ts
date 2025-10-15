@@ -189,18 +189,24 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).semanticTokensRange(range);
   }
 
-  public async loadAndParseAll(progress: WorkDoneProgressReporter) {
+  public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number): Promise<{fallbackActivated: boolean}> {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
+      const filenames: string[] = [];
       for (const glob of folder.glob) {
-        const filenames = await FileOperations.loadFileNames(glob, false);
-        for (const filename of filenames) {
-          if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
-            continue; // skip SMIM contents
-          }
-          const raw = await FileOperations.readFile(filename);
-          this.reg.addFile(new abaplint.MemoryFile(filename, raw));
+        filenames.push(...await FileOperations.loadFileNames(glob, false));
+      }
+
+      if (filenames.length > fallbackThreshold) {
+        return {fallbackActivated: true};
+      }
+
+      for (const filename of filenames) {
+        if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
+          continue; // skip SMIM contents
         }
+        const raw = await FileOperations.readFile(filename);
+        this.reg.addFile(new abaplint.MemoryFile(filename, raw));
       }
     }
 
@@ -208,6 +214,8 @@ export class Handler {
 
     progress.report(0, "Parsing files");
     await this.reg.parseAsync({progress: new Progress(progress)});
+
+    return {fallbackActivated: false};
   }
 
   private async addDependencies() {

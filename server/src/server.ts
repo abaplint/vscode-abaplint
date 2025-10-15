@@ -148,8 +148,8 @@ function initialize() {
     progress.begin("", 0, "Initialize");
     const handler = await Handler.create(connection, params);
     connection.console.log(`Call loadAndParseAll(), fallback ${fallbackThreshold} files`);
-    await handler.loadAndParseAll(progress);
-    connection.console.log("loadAndParseAll() done");
+    const {fallbackActivated} = await handler.loadAndParseAll(progress, fallbackThreshold);
+    connection.console.log("loadAndParseAll() done, fallback activated: " + fallbackActivated);
     progress.done();
     handler.updateTooltip();
     return handler;
