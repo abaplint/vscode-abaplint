@@ -1,5 +1,6 @@
 import * as LServer from "vscode-languageserver";
 import {RulesMetadata} from "./rules_metadata";
+import * as JSON5 from "json5";
 
 // https://code.visualstudio.com/api/references/icons-in-labels
 
@@ -16,8 +17,9 @@ export class AbaplintConfigLens {
 
     let parsed: any = undefined;
     try {
-      parsed = JSON.parse(doc.getText());
+      parsed = JSON5.parse(doc.getText());
     } catch {
+      console.log("AbaplintConfigLens(): Failed to parse JSON5");
       return [];
     }
 
