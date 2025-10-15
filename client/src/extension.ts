@@ -1,15 +1,15 @@
-import * as path from "path";
-import {workspace, ExtensionContext, Uri} from "vscode";
-import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
-import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
-import * as vscode from "vscode";
-import * as fs from "fs";
-import {Highlight} from "./highlight";
-import {Help} from "./help";
 import {CreateDefaultConfig} from "./create_default_config";
-import {TestController} from "./test_controller";
+import {Help} from "./help";
+import {Highlight} from "./highlight";
+import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
+import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
 import {registerBitbucket} from "./integrations";
 import {registerNormalizer} from "./normalize";
+import {TestController} from "./test_controller";
+import {workspace, ExtensionContext, Uri} from "vscode";
+import * as fs from "fs";
+import * as path from "path";
+import * as vscode from "vscode";
 
 let client: BaseLanguageClient;
 let myStatusBarItem: vscode.StatusBarItem;
@@ -50,7 +50,8 @@ export function activate(context: ExtensionContext) {
   myStatusBarItem.show();
 
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{language: "abap"}, {language: "xml"}],
+    // AFF is JSON, abaplint.jsonc can be JSONC, used for code lens
+    documentSelector: [{language: "abap"}, {language: "xml"}, {language: "json"}, {language: "jsonc"}],
     progressOnInitialization: true,
     initializationOptions: {
       provideFsProxy: true,

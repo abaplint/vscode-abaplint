@@ -210,7 +210,7 @@ connection.onDocumentSymbol(async(params) => {
 
 connection.onCodeLens(async(params) => {
   const handler = await getHandler();
-  return handler.onCodeLens(params);
+  return handler.onCodeLens(params, documents);
 });
 
 connection.onDidChangeConfiguration((_change) => { return undefined; });
