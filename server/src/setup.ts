@@ -1,5 +1,5 @@
 import {URI, Utils} from "vscode-uri";
-import {IFolder} from "./handler";
+import {IFolder} from "./types";
 import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";

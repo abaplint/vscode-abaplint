@@ -1,23 +1,16 @@
 import {AbaplintConfigLens} from "./abaplint_config_lens";
 import {ExtraSettings} from "./extra_settings";
-import {FileOperations} from "./file_operations";
 import {Formatting} from "./handlers/formatting";
-import {GitOperations} from "./git";
 import {RulesMetadata} from "./rules_metadata";
 import {Setup} from "./setup";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {UnitTests} from "./handlers/unit_test";
-import {URI} from "vscode-uri";
 import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
 import * as abaplint from "@abaplint/core";
 import * as LServer from "vscode-languageserver";
-
-export interface IFolder {
-  root: string;
-  scheme: string;
-  authority: string;
-  glob: string[];
-}
+import {FileOperations} from "./file_operations";
+import {Dependencies} from "./dependencies";
+import {IFolder} from "./types";
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
@@ -235,38 +228,15 @@ export class Handler {
       }
     }
 
-    await this.addDependencies();
+    const dependencies = new Dependencies(this.reg, this.folders);
+    if (dependencies.activateFallback() === true) {
+      await this.activateFallback();
+    } else {
+      await dependencies.addToRegistry();
+    }
 
     progress.report(0, "Parsing files");
     await this.reg.parseAsync({progress: new Progress(progress)});
-  }
-
-  private async addDependencies() {
-    const deps = this.reg.getConfig().get().dependencies;
-    if (deps !== undefined) {
-      for (const d of deps) {
-        let files: abaplint.IFile[] = [];
-        // try looking in the folder first
-        if (d.folder && d.folder !== "" && this.folders[0] !== undefined) {
-          const glob = d.folder + d.files;
-          console.log("Dependency glob: " + glob);
-          const filenames = await FileOperations.getProvider().glob(glob);
-          for (const filename of filenames) {
-            if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
-              continue; // skip SMIM contents
-            }
-            const raw = await FileOperations.readFile(filename);
-            const uri = URI.file(filename).toString();
-            files.push(new abaplint.MemoryFile(uri, raw));
-          }
-        }
-        if (files.length === 0 && d.url !== undefined && d.url !== "") {
-          files = await GitOperations.clone(d);
-        }
-        console.log(files.length + " files in dependencies found");
-        this.reg.addDependencies(files);
-      }
-    }
   }
 
   public updateTooltip() {

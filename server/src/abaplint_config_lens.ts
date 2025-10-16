@@ -55,7 +55,7 @@ export class AbaplintConfigLens {
             end: {line: i, character: line.length},
           },
           command: {
-            title: "$(warning) Disabled due to fallback",
+            title: "$(warning) Fallback, rule disabled in editor",
             command: "",
           },
         });
