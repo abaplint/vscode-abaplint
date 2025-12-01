@@ -1,4 +1,4 @@
-import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config, IRegistry, RulesRunner, Edits, IEdit} from "@abaplint/core";
+import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config, IRegistry, RulesRunner, applyEditList, IEdit} from "@abaplint/core";
 
 interface FileDetails {
   file: ABAPFile
@@ -104,7 +104,7 @@ const applyRule = (reg:IRegistry, obj:ABAPObject, rule:IRule) => {
     .filter(e => typeof e !== "undefined");
   if (edits.length) {
     const nonconflicting = removeOverlapping(edits);
-    const changed = Edits.applyEditList(reg, nonconflicting);
+    const changed = applyEditList(reg, nonconflicting);
     reg.parse();
     const needReapplying = !!changed.length && nonconflicting.length < edits.length;
     return needReapplying;
