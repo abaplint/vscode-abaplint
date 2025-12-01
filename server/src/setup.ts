@@ -38,7 +38,7 @@ export class Setup {
     }
   }
 
-  public async readConfig(folders: IFolder[], settings: ExtraSettings) {
+  public async readConfig(folders: IFolder[], settings: ExtraSettings): Promise<{config: abaplint.Config, configPath?: string}> {
     const found = await this.findCustomConfig(folders, settings.activeTextEditorUri);
     if (found) {
       this.connection.console.log("custom abaplint configuration found");
@@ -47,32 +47,35 @@ export class Setup {
       folders[0].glob = Array.isArray(cfiles)
         ? cfiles.map(f => found.prefix + f)
         : [found.prefix + cfiles];
-      return config;
+      return {config, configPath: found.path};
     }
 
     this.connection.console.log("no custom abaplint config, using defaults");
-    return abaplint.Config.getDefault();
+    return {config: abaplint.Config.getDefault()};
   }
 
-  private async searchFolderForConfig(scheme: string, authority: string, prefix: string): Promise<string | undefined> {
+  private async searchFolderForConfig(scheme: string, authority: string, prefix: string): Promise<{config: string, path: string} | undefined> {
     let uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json"});
     try {
       this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
+      const config = await FileOperations.readFile(uri.toString());
+      return {config, path: uri.toString()};
     // eslint-disable-next-line no-empty
     } catch {}
 
     uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.jsonc"});
     try {
       this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
+      const config = await FileOperations.readFile(uri.toString());
+      return {config, path: uri.toString()};
     // eslint-disable-next-line no-empty
     } catch {}
 
     uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json5"});
     try {
       this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
+      const config = await FileOperations.readFile(uri.toString());
+      return {config, path: uri.toString()};
     // eslint-disable-next-line no-empty
     } catch {}
 
@@ -80,7 +83,7 @@ export class Setup {
   }
 
   private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined):
-      Promise<{config: string, prefix: string} | undefined> {
+      Promise<{config: string, prefix: string, path: string} | undefined> {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
     }
@@ -98,8 +101,9 @@ export class Setup {
         const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, current);
         if (found) {
           return {
-            config: found,
+            config: found.config,
             prefix: current.substring(prefix.length - 1, current.length - 1),
+            path: found.path,
           };
         }
 
@@ -111,8 +115,9 @@ export class Setup {
     const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, prefix);
     if (found) {
       return {
-        config: found,
+        config: found.config,
         prefix: "",
+        path: found.path,
       };
     }
 
