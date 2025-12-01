@@ -1,20 +1,16 @@
-import * as LServer from "vscode-languageserver";
-import * as abaplint from "@abaplint/core";
-import {URI} from "vscode-uri";
-import {Setup} from "./setup";
-import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
-import {TextDocument} from "vscode-languageserver-textdocument";
-import {FileOperations} from "./file_operations";
-import {GitOperations} from "./git";
-import {UnitTests} from "./handlers/unit_test";
+import {AbaplintConfigLens} from "./abaplint_config_lens";
+import {ExtraSettings} from "./extra_settings";
 import {Formatting} from "./handlers/formatting";
-
-export interface IFolder {
-  root: string;
-  scheme: string;
-  authority: string;
-  glob: string;
-}
+import {RulesMetadata} from "./rules_metadata";
+import {Setup} from "./setup";
+import {TextDocument} from "vscode-languageserver-textdocument";
+import {UnitTests} from "./handlers/unit_test";
+import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
+import * as abaplint from "@abaplint/core";
+import * as LServer from "vscode-languageserver";
+import {FileOperations} from "./file_operations";
+import {Dependencies} from "./dependencies";
+import {IFolder} from "./types";
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
@@ -58,36 +54,32 @@ class Progress implements abaplint.IProgress {
   }
 }
 
-type ExtraSettings = {
-  codeLens?: any,
-  inlayHints?: any,
-};
-
 export class Handler {
   private readonly folders: IFolder[] = [];
   private readonly reg: abaplint.IRegistry;
   private readonly connection: LServer.Connection;
   private readonly setup: Setup;
   private readonly settings: ExtraSettings;
+  private fallbackActivated: boolean = false;
   private timeouts: {[index: string]: any} = {};
 
-  public static async create(connection: LServer.Connection, params: LServer.InitializeParams & ExtraSettings) {
+  public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
     const handler = new Handler(connection, params);
     await handler.readAndSetConfig();
     return handler;
   }
 
-  private constructor(connection: LServer.Connection, params: LServer.InitializeParams & ExtraSettings) {
+  private constructor(connection: LServer.Connection, params: LServer.InitializeParams) {
     this.reg = new abaplint.Registry();
     this.connection = connection;
 
     this.setup = new Setup(connection);
     this.folders = this.setup.determineFolders(params.workspaceFolders || []);
-    this.settings = params;
+    this.settings = params.initializationOptions;
   }
 
   private async readAndSetConfig() {
-    const config = await this.setup.readConfig(this.folders);
+    const config = await this.setup.readConfig(this.folders, this.settings);
     this.reg.setConfig(config);
     this.setup.dumpFolders(this.folders);
   }
@@ -108,10 +100,10 @@ export class Handler {
 
     // set a timeout so everything is not parsed at every keyboard press
     clearTimeout(this.timeouts[textDocument.uri]);
-    this.timeouts[textDocument.uri] = setTimeout(() => this.run.bind(this)(textDocument), 200);
+    this.timeouts[textDocument.uri] = setTimeout(() => this.runDiagnostics.bind(this)(textDocument), 200);
   }
 
-  private run(textDocument: LServer.TextDocument): void {
+  private runDiagnostics(textDocument: LServer.TextDocument): void {
 //    console.dir("start validation " + textDocument.uri);
     const diagnostics = new abaplint.LanguageServer(this.reg).diagnostics(textDocument);
     this.connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
@@ -145,20 +137,23 @@ export class Handler {
     this.connection.sendNotification("abaplint/highlight/writes/response", {ranges, uri: doc.uri});
   }
 
-  public onDumpStatementFlows(doc: {uri: string}) {
-    let result = new abaplint.LanguageServer(this.reg).dumpStatementFlows(doc);
-    if (result === "") {
-      result = "empty";
-    }
-    this.connection.sendNotification("abaplint/dumpstatementflows/response", result);
-  }
-
   public onDefinition(params: LServer.TextDocumentPositionParams): LServer.Location | undefined {
     return new abaplint.LanguageServer(this.reg).gotoDefinition(params);
   }
 
-  public onReferences(params: LServer.TextDocumentPositionParams): LServer.Location[] {
-    return new abaplint.LanguageServer(this.reg).references(params);
+  public onReferences(params: LServer.TextDocumentPositionParams): LServer.Location[] | undefined {
+    const server = new abaplint.LanguageServer(this.reg);
+    const references = server.references(params);
+    if (references.length === 0) {
+      const doc = this.reg.getFileByName(params.textDocument.uri);
+      const obj = doc && this.reg.findObjectForFile(doc);
+      const diagnostic = obj && this.reg.findIssuesObject(obj)
+        .find(d => d.getFilename() === params.textDocument.uri && d.getSeverity() === abaplint.Severity.Error);
+      if (diagnostic) {
+        this.connection.window.showErrorMessage("Reference search failed due to syntax errors");
+      }
+    }
+    return references;
   }
 
   public async onDocumentFormatting(params: LServer.DocumentFormattingParams,
@@ -171,9 +166,13 @@ export class Handler {
     }
   }
 
-  public onCodeLens(params: LServer.CodeLensParams): LServer.CodeLens[] {
-    const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
-    return lenses;
+  public onCodeLens(params: LServer.CodeLensParams, documents: LServer.TextDocuments<LServer.TextDocument>): LServer.CodeLens[] {
+    if (params.textDocument.uri.endsWith("abaplint.json") || params.textDocument.uri.endsWith("abaplint.jsonc")) {
+      return AbaplintConfigLens.getCodeLenses(params.textDocument, documents, this.fallbackActivated);
+    } else {
+      const lenses = new abaplint.LanguageServer(this.reg).codeLens(params.textDocument, this.settings.codeLens);
+      return lenses;
+    }
   }
 
   public onSemanticTokensRange(params: LServer.SemanticTokensRangeParams): LServer.SemanticTokens {
@@ -185,58 +184,66 @@ export class Handler {
     return new abaplint.LanguageServer(this.reg).semanticTokensRange(range);
   }
 
-  public async loadAndParseAll(progress: WorkDoneProgressReporter) {
-    progress.report(0, "Reading files");
-    for (const folder of this.folders) {
-      const glob = folder.glob;
-      const filenames = await FileOperations.loadFileNames(glob, false);
-      for (const filename of filenames) {
-        const raw = await FileOperations.readFile(filename);
-        if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
-          continue; // skip SMIM contents
-        }
-        const uri = filename;
-        this.reg.addFile(new abaplint.MemoryFile(uri, raw));
+  /** it cannot be disalbed again, only by restarting */
+  private async activateFallback() {
+    this.fallbackActivated = true;
+
+    const newConfig = this.reg.getConfig().get();
+    const nonSingleFileRule = RulesMetadata.getNonSingleFile().map(r => r.key);
+
+    for (const rule in newConfig.rules) {
+      if (newConfig.rules[rule] === undefined || newConfig.rules[rule] === false) {
+        continue;
+      }
+
+      if (nonSingleFileRule.includes(rule)) {
+        newConfig.rules[rule] = false;
       }
     }
 
-    await this.addDependencies();
+    this.reg.setConfig(new abaplint.Config(JSON.stringify(newConfig)));
+
+    // todo: disable inlay hints and code lens, maybe it works, test it!
+  }
+
+  public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number) {
+    progress.report(0, "Reading files");
+    for (const folder of this.folders) {
+      const filenames: string[] = [];
+      for (const glob of folder.glob) {
+        filenames.push(...await FileOperations.loadFileNames(glob, false));
+      }
+
+      if (filenames.length > fallbackThreshold) {
+        await this.activateFallback();
+        return;
+      }
+
+      for (const filename of filenames) {
+        if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
+          continue; // skip SMIM contents
+        }
+        const raw = await FileOperations.readFile(filename);
+        this.reg.addFile(new abaplint.MemoryFile(filename, raw));
+      }
+    }
+
+    const dependencies = new Dependencies(this.reg, this.folders);
+    if (dependencies.activateFallback() === true) {
+      await this.activateFallback();
+    } else {
+      await dependencies.addToRegistry();
+    }
 
     progress.report(0, "Parsing files");
     await this.reg.parseAsync({progress: new Progress(progress)});
   }
 
-  private async addDependencies() {
-    const deps = this.reg.getConfig().get().dependencies;
-    if (deps !== undefined) {
-      for (const d of deps) {
-        let files: abaplint.IFile[] = [];
-        // try looking in the folder first
-        if (d.folder && d.folder !== "" && this.folders[0] !== undefined) {
-          const glob = d.folder + d.files;
-          console.log("Dependency glob: " + glob);
-          const filenames = await FileOperations.getProvider().glob(glob);
-          for (const filename of filenames) {
-            if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
-              continue; // skip SMIM contents
-            }
-            const raw = await FileOperations.readFile(filename);
-            const uri = URI.file(filename).toString();
-            files.push(new abaplint.MemoryFile(uri, raw));
-          }
-        }
-        if (files.length === 0 && d.url !== undefined && d.url !== "") {
-          files = await GitOperations.clone(d);
-        }
-        console.log(files.length + " files in dependencies found");
-        this.reg.addDependencies(files);
-      }
-    }
-  }
-
   public updateTooltip() {
     const tooltip = "ABAP version: " + this.reg.getConfig().getVersion() + "\n" +
       "abaplint: " + abaplint.Registry.abaplintVersion() + "\n" +
+      "Fallback threshold: " + this.settings.fallbackThreshold + "\n" +
+      "Fallback activated: " + this.fallbackActivated + "\n" +
       "Objects: " + this.reg.getObjectCount();
     this.connection.sendNotification("abaplint/status", {text: "Ready", tooltip});
   }
@@ -285,7 +292,12 @@ export class Handler {
   }
 
   public onInlayHint(params: LServer.InlayHintParams): LServer.InlayHint[] {
-    return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument, this.settings.inlayHints);
+    try {
+      return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument, this.settings.inlayHints);
+    } catch (e) {
+      console.log("Inlay error: " + e.message);
+      return [];
+    }
   }
 
 }

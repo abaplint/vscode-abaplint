@@ -1,8 +1,9 @@
-import {URI} from "vscode-uri";
-import {IFolder} from "./handler";
+import {URI, Utils} from "vscode-uri";
+import {IFolder} from "./types";
 import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
+import {ExtraSettings} from "./extra_settings";
 
 export class Setup {
   private readonly connection: LServer.Connection;
@@ -22,7 +23,7 @@ export class Setup {
           root: parsed.path,
           scheme: parsed.scheme,
           authority: parsed.authority,
-          glob: "/src/**/*.*"});  // todo, this should be taken from abaplint.json
+          glob: ["/src/**/*.*"]});  // todo, this should be taken from abaplint.json
       }
     }
 
@@ -37,12 +38,15 @@ export class Setup {
     }
   }
 
-  public async readConfig(folders: IFolder[]) {
-    const raw = await this.findCustomConfig(folders);
-    if (raw && raw !== "") {
+  public async readConfig(folders: IFolder[], settings: ExtraSettings) {
+    const found = await this.findCustomConfig(folders, settings.activeTextEditorUri);
+    if (found) {
       this.connection.console.log("custom abaplint configuration found");
-      const config = new abaplint.Config(raw);
-      folders[0].glob = config.get().global.files;
+      const config = new abaplint.Config(found.config);
+      const cfiles = config.get().global.files;
+      folders[0].glob = Array.isArray(cfiles)
+        ? cfiles.map(f => found.prefix + f)
+        : [found.prefix + cfiles];
       return config;
     }
 
@@ -50,36 +54,67 @@ export class Setup {
     return abaplint.Config.getDefault();
   }
 
-  private async findCustomConfig(folders: IFolder[]): Promise<string | undefined> {
+  private async searchFolderForConfig(scheme: string, authority: string, prefix: string): Promise<string | undefined> {
+    let uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json"});
+    try {
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.jsonc"});
+    try {
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json5"});
+    try {
+      this.connection.console.log("search: " + uri.toString());
+      return await FileOperations.readFile(uri.toString());
+    // eslint-disable-next-line no-empty
+    } catch {}
+
+    return undefined;
+  }
+
+  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined):
+      Promise<{config: string, prefix: string} | undefined> {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
     }
 
     const prefix = folders[0].root + "/";
     this.connection.console.log("prefix: " + prefix);
+    this.connection.console.log("activeTextEditorUri: " + activeTextEditorUri);
     this.connection.console.log("scheme: " + folders[0].scheme);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
 
-    let uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json"});
-    try {
-      this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
-    // eslint-disable-next-line no-empty
-    } catch {}
+    if (activeTextEditorUri !== undefined) {
+      const start = URI.parse(activeTextEditorUri);
+      let current = Utils.dirname(start).path + "/";
+      while (current !== prefix) {
+        const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, current);
+        if (found) {
+          return {
+            config: found,
+            prefix: current.substring(prefix.length - 1, current.length - 1),
+          };
+        }
 
-    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.jsonc"});
-    try {
-      this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
-    // eslint-disable-next-line no-empty
-    } catch {}
+        current = Utils.joinPath(URI.parse(current), "..").path + "/";
+      }
+    }
 
-    uri = URI.from({scheme: folders[0].scheme, authority: folders[0].authority, path: prefix + "abaplint.json5"});
-    try {
-      this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
-    // eslint-disable-next-line no-empty
-    } catch {}
+    // root folder
+    const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, prefix);
+    if (found) {
+      return {
+        config: found,
+        prefix: "",
+      };
+    }
 
     return undefined;
   }

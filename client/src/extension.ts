@@ -1,21 +1,22 @@
-import * as path from "path";
-import {workspace, ExtensionContext, Uri} from "vscode";
-import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
-import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
-import * as vscode from "vscode";
-import * as fs from "fs";
-import {Highlight} from "./highlight";
+import {CreateDefaultConfig} from "./create_default_config";
 import {Help} from "./help";
-import {Config} from "./config";
-import {Flows} from "./flows";
+import {Highlight} from "./highlight";
+import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
+import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
+import {registerBitbucket} from "./integrations";
+import {registerNormalizer} from "./normalize";
 import {TestController} from "./test_controller";
+import {workspace, ExtensionContext, Uri} from "vscode";
+import * as fs from "fs";
+import * as path from "path";
+import * as vscode from "vscode";
 
+let abaplintStatusBarItem: vscode.StatusBarItem;
 let client: BaseLanguageClient;
-let myStatusBarItem: vscode.StatusBarItem;
-let highlight: Highlight;
+let createDefaultConfig: CreateDefaultConfig;
 let help: Help;
-let flows: Flows;
-let config: Config;
+let highlight: Highlight;
+let disposeAll:()=>void|undefined;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
   const toUri = (path: string) => Uri.file(path);
@@ -43,12 +44,14 @@ function registerAsFsProvider(client: BaseLanguageClient) {
 }
 
 export function activate(context: ExtensionContext) {
-  myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  myStatusBarItem.text = "abaplint";
-  myStatusBarItem.show();
+  disposeAll = () => context.subscriptions.forEach(async d => d.dispose());
+  abaplintStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  abaplintStatusBarItem.text = "abaplint";
+  abaplintStatusBarItem.show();
 
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{language: "abap"}, {language: "xml"}],
+    // AFF is JSON, abaplint.jsonc can be JSONC, used for code lens
+    documentSelector: [{language: "abap"}, {language: "xml"}, {language: "json"}, {language: "jsonc"}],
     progressOnInitialization: true,
     initializationOptions: {
       provideFsProxy: true,
@@ -56,26 +59,30 @@ export function activate(context: ExtensionContext) {
 // when running in web mode, it fails posting these values as messages, so convert to raw JSON,
       codeLens: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("codeLens"))),
       inlayHints: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("inlayHints"))),
-      formatting: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("formatting"))),
+      activeTextEditorUri: vscode.window.activeTextEditor?.document.uri.toString(),
     },
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/abaplint.json*"),
     },
   };
 
+  const fallbackSettings = JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("fallback")));
+
   if (fs.read === undefined) {
-    myStatusBarItem.text = "abaplint: web";
+    abaplintStatusBarItem.text = "abaplint: web";
     const serverMain = Uri.joinPath(context.extensionUri, "out-browser/server.js");
     const worker = new Worker(serverMain.toString());
+    clientOptions.initializationOptions.fallbackThreshold = fallbackSettings.web;
     client = new BrowserLanguageClient("languageServerABAP", "Language Server ABAP", clientOptions, worker);
   } else {
-    myStatusBarItem.text = "abaplint: native";
+    abaplintStatusBarItem.text = "abaplint: native";
     const serverModule = context.asAbsolutePath(path.join("out-native", "server.js"));
     const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
     const serverOptions: ServerOptions = {
       run: {module: serverModule, transport: TransportKind.ipc},
       debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
     };
+    clientOptions.initializationOptions.fallbackThreshold = fallbackSettings.native;
     client = new NodeLanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
   }
 
@@ -83,8 +90,7 @@ export function activate(context: ExtensionContext) {
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
-  flows = new Flows(client).register(context);
-  config = new Config(client).register(context);
+  createDefaultConfig = new CreateDefaultConfig(client).register(context);
   client.onDidChangeState(change => {
     if (change.newState === State.Running) {
       registerAsFsProvider(client);
@@ -95,21 +101,18 @@ export function activate(context: ExtensionContext) {
 
   client.start().then(() => {
     client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
-      myStatusBarItem.text = "abaplint: " + message.text;
+      abaplintStatusBarItem.text = "abaplint: " + message.text;
       if (message.tooltip) {
-        myStatusBarItem.tooltip = message.tooltip;
+        abaplintStatusBarItem.tooltip = message.tooltip;
       } else {
-        myStatusBarItem.tooltip = "";
+        abaplintStatusBarItem.tooltip = "";
       }
     });
     client.onNotification("abaplint/help/response", (data) => {
       help.helpResponse(data);
     });
-    client.onNotification("abaplint/dumpstatementflows/response", (data) => {
-      flows.flowResponse(data);
-    });
     client.onNotification("abaplint/config/default/response", (data) => {
-      config.defaultConfigResponse(data);
+      createDefaultConfig.defaultConfigResponse(data);
     });
     client.onNotification("abaplint/highlight/definitions/response", (data) => {
       highlight.highlightDefinitionsResponse(data.ranges, data.uri);
@@ -121,14 +124,16 @@ export function activate(context: ExtensionContext) {
       highlight.highlightWritesResponse(data.ranges, data.uri);
     });
   });
-
-// removed, TODO: what was this used for?
-//  context.subscriptions.push(await client.start());
+  registerNormalizer(context, client);
+  registerBitbucket(client);
 }
 
 export function deactivate(): Thenable<void> | undefined {
   if (!client) {
     return undefined;
   }
-  return client.stop();
+  const stop =  client.stop().then(() => client.dispose());
+  if (disposeAll) {disposeAll();}
+  return stop;
 }
+

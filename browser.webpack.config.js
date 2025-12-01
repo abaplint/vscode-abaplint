@@ -23,15 +23,17 @@ const browserClientConfig = /** @type WebpackConfig */ {
 		extensions: ['.ts', '.js'], // support ts-files and js-files
 		alias: {},
 		fallback: {
-      "fs": false,
-      "path": require.resolve("path-browserify")
-		},
+			"fs": false,
+			"path": require.resolve("path-browserify"),
+			"crypto": require.resolve("crypto-browserify"),
+			"vm": require.resolve("vm-browserify")
+		}
 	},
-  plugins: [
-    new ProvidePlugin({
-      Buffer: [require.resolve("buffer/"), "Buffer"],
-    }),
-  ],
+	plugins: [
+		new ProvidePlugin({
+			Buffer: [require.resolve("buffer/"), "Buffer"],
+		}),
+	],
 	module: {
 		rules: [
 			{
@@ -71,18 +73,24 @@ const browserServerConfig = /** @type WebpackConfig */ {
 		mainFields: ['module', 'main'],
 		extensions: ['.ts', '.js'], // support ts-files and js-files
 		alias: {
-      glob: false,
-    },
+			glob: false,
+		},
 		fallback: {
 			"path": require.resolve("path-browserify"),
-      "crypto": require.resolve("crypto-browserify"),
-      util: false,
-      fs: false,
-      child_process: false,
-      os: false,
-      assert: false
+			"crypto": require.resolve("crypto-browserify"),
+			"vm": require.resolve("vm-browserify"),
+			util: false,
+			fs: false,
+			child_process: false,
+			os: false,
+			assert: false
 		},
 	},
+	plugins: [
+		new ProvidePlugin({
+			Buffer: [require.resolve("buffer/"), "Buffer"],
+		}),
+	],
 	module: {
 		rules: [
 			{

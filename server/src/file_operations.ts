@@ -40,7 +40,7 @@ class DefaultProvider implements FsProvider {
   }
 
   public async glob(pattern: string) {
-    const found = sync(pattern, {nosort: true, nodir: true});
+    const found = sync(pattern, {nodir: true, absolute: true, posix: true});
     return found;
   }
 }
@@ -83,8 +83,7 @@ export class FileOperations {
   public static async loadFileNames(arg: string, error = true): Promise<string[]> {
     const files = await provider.glob(arg);
     if (files.length === 0 && error) {
-      // eslint-disable-next-line no-throw-literal
-      throw "Error: No files found";
+      throw "Error: No files found, " + arg;
     }
     return files;
   }

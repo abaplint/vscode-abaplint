@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.396",
+	"version": "0.6.558",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -22,6 +22,9 @@
 		"vscode": "^1.37.1"
 	},
 	"activationEvents": [
+		"workspaceContains:/abaplint.json",
+		"workspaceContains:/abaplint.jsonc",
+		"workspaceContains:/.abapgit.xml",
 		"onLanguage:abap",
 		"onLanguage:abap_cds"
 	],
@@ -29,6 +32,11 @@
 	"main": "./out-native/extension",
 	"browser": "./out-browser/client",
 	"contributes": {
+		"breakpoints": [
+			{
+				"language": "abap"
+			}
+		],
 		"commands": [
 			{
 				"command": "abaplint.show",
@@ -67,6 +75,12 @@
 				"command": "abaplint.create.default-config",
 				"title": "Create Default Config",
 				"category": "abaplint"
+			},
+			{
+				"command": "abaplint.togglediffNormalize",
+				"title": "Normalize files",
+				"icon": "$(law)",
+				"category": "abaplint"
 			}
 		],
 		"jsonValidation": [
@@ -85,6 +99,14 @@
 			{
 				"fileMatch": "abaplint-downport.jsonc",
 				"url": "https://schema.abaplint.org/schema.json"
+			},
+			{
+				"fileMatch": "abap_transpile.json",
+				"url": "https://schema.abaplint.org/transpiler.json"
+			},
+			{
+				"fileMatch": "abap_transpile.jsonc",
+				"url": "https://schema.abaplint.org/transpiler.json"
 			},
 			{
 				"fileMatch": "abaplint.json5",
@@ -109,6 +131,11 @@
 					"when": "editorLangId == 'abap'",
 					"command": "abaplint.show",
 					"group": "navigation"
+				},
+				{
+					"command": "abaplint.togglediffNormalize",
+					"group": "navigation",
+					"when": "isInDiffEditor && abaplint.IsNormalizerEnabled"
 				}
 			],
 			"file/newFile": [
@@ -122,17 +149,12 @@
 			{
 				"command": "editor.action.formatDocument",
 				"key": "shift+f1",
-				"when": "editorLangId == 'abap' && editorTextFocus && !editorReadonly"
+				"when": "(editorLangId == 'abap' || editorLangId == 'abap_cds') && editorTextFocus && !editorReadonly"
 			},
 			{
 				"command": "workbench.action.files.save",
 				"key": "ctrl+f3",
 				"when": "editorLangId == 'abap' && editorTextFocus"
-			},
-			{
-				"command": "workbench.action.quickOpen",
-				"key": "ctrl+shift+a",
-				"when": "true"
 			},
 			{
 				"command": "editor.action.commentLine",
@@ -147,7 +169,7 @@
 			{
 				"command": "abaplint.f1",
 				"key": "f1",
-				"when": "editorLangId == 'abap' && editorTextFocus"
+				"when": "(editorLangId == 'abap' || editorLangId == 'abap_cds') && editorTextFocus"
 			}
 		],
 		"configuration": [
@@ -217,17 +239,54 @@
 							"type": "string"
 						},
 						"default": [
+							"avoid_use",
 							"unused_types",
-							"unused_variables"
+							"unused_variables",
+							"unused_methods"
 						],
 						"description": "List of rules that should not be triggered on formatting"
+					}
+				}
+			},
+			{
+				"order": 50,
+				"id": "codenormalization",
+				"title": "Diff code normalization for bitbucket",
+				"properties": {
+					"abaplint.codeNormalization": {
+						"type": "string",
+						"enum": [
+							"On by default",
+							"Off by default",
+							"deactivated"
+						],
+						"default": "Off by default"
+					}
+				}
+			},
+			{
+				"order": 60,
+				"id": "fallback",
+				"title": "Fallback",
+				"properties": {
+					"abaplint.fallback.native": {
+						"order": 10,
+						"type": "integer",
+						"description": "File threshold for falling back to only single-file rules with native version, requires restart",
+						"default": 10000
+					},
+					"abaplint.fallback.web": {
+						"order": 20,
+						"type": "integer",
+						"description": "File threshold for falling back to only single-file rules with web version, requires restart",
+						"default": 1000
 					}
 				}
 			}
 		]
 	},
 	"scripts": {
-		"lint": "eslint client/src/**/*.ts server/src/**/*.ts --format unix",
+		"lint": "eslint client/src/**/*.ts server/src/**/*.ts",
 		"vscode:prepublish": "npm run compile",
 		"webpack:native": "webpack --mode none --config ./native.webpack.config.js",
 		"webpack:browser": "webpack --config ./browser.webpack.config.js",
@@ -238,7 +297,7 @@
 		"compile": "npm run compile:client && npm run compile:server && npm run webpack:native && npm run webpack:browser",
 		"test": "npm run compile && npm run lint",
 		"chrome": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=.",
-		"install": "npm install && cd client && npm install && cd ../server && npm install && cd .."
+		"install": "npm install && cd client && npm install && cd .. && cd server && npm install && cd .."
 	},
 	"extensionDependencies": [
 		"larshp.vscode-abap"
@@ -247,20 +306,24 @@
 		"url": "https://github.com/sponsors/larshp"
 	},
 	"devDependencies": {
-		"@types/mocha": "^10.0.7",
-		"@types/node": "^20.14.10",
-		"@typescript-eslint/eslint-plugin": "^7.16.0",
-		"@typescript-eslint/parser": "^7.16.0",
-		"@vscode/test-web": "^0.0.56",
+		"@eslint/compat": "^2.0.0",
+		"@eslint/eslintrc": "^3.3.3",
+		"@eslint/js": "^9.39.1",
+		"@types/mocha": "^10.0.10",
+		"@types/node": "^22.19.1",
+		"@typescript-eslint/eslint-plugin": "^8.48.0",
+		"@typescript-eslint/parser": "^8.48.0",
+		"@vscode/test-web": "^0.0.66",
 		"buffer": "^6.0.3",
-		"crypto-browserify": "^3.12.0",
-		"eslint": "^8.57.0",
-		"eslint-plugin-import": "^2.29.1",
+		"crypto-browserify": "^3.12.1",
+		"eslint": "^9.39.1",
+		"globals": "^16.5.0",
 		"merge-options": "^3.0.4",
 		"path-browserify": "^1.0.1",
-		"ts-loader": "^9.5.1",
-		"typescript": "^5.5.3",
-		"webpack": "^5.93.0",
-		"webpack-cli": "^5.1.4"
+		"ts-loader": "^9.5.4",
+		"typescript": "^5.9.3",
+		"vm-browserify": "^1.1.2",
+		"webpack": "^5.103.0",
+		"webpack-cli": "^6.0.1"
 	}
 }

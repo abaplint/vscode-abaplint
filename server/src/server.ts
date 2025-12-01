@@ -5,6 +5,7 @@ import * as abaplint from "@abaplint/core";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {Handler} from "./handler";
 import {FsProvider, FileOperations} from "./file_operations";
+import {getNormalizer} from "./codenormalizer";
 
 let connection: LServer.Connection;
 if (fs.read === undefined) {
@@ -17,6 +18,7 @@ if (fs.read === undefined) {
 
 let experimentalFormatting = false;
 let formattingDisabled: string[] = [];
+let fallbackThreshold = 2000;
 
 // create a simple text document manager. The text document manager
 // supports full document sync only
@@ -75,6 +77,10 @@ function initialize() {
         }
         if (params.initializationOptions.formatting?.experimental === true) {
           experimentalFormatting = true;
+        }
+
+        if (params.initializationOptions.fallbackThreshold !== undefined) {
+          fallbackThreshold = params.initializationOptions.fallbackThreshold;
         }
 
     // does the client support the `workspace/configuration` request?
@@ -141,10 +147,11 @@ function initialize() {
     const progress = await connection.window.createWorkDoneProgress();
     progress.begin("", 0, "Initialize");
     const handler = await Handler.create(connection, params);
-    connection.console.log("call loadAndParseAll");
-    await handler.loadAndParseAll(progress);
-    connection.console.log("loadAndParseAll done");
+    connection.console.log(`Call loadAndParseAll(), fallback ${fallbackThreshold} files`);
+    await handler.loadAndParseAll(progress, fallbackThreshold);
+    connection.console.log("loadAndParseAll() done");
     progress.done();
+
     handler.updateTooltip();
     return handler;
   };
@@ -209,7 +216,7 @@ connection.onDocumentSymbol(async(params) => {
 
 connection.onCodeLens(async(params) => {
   const handler = await getHandler();
-  return handler.onCodeLens(params);
+  return handler.onCodeLens(params, documents);
 });
 
 connection.onDidChangeConfiguration((_change) => { return undefined; });
@@ -267,11 +274,6 @@ connection.onRequest("abaplint/highlight/writes/request", async (data) => {
   handler.onHighlightWrites(data);
 });
 
-connection.onRequest("abaplint/dumpstatementflows/request", async (data) => {
-  const handler = await getHandler();
-  handler.onDumpStatementFlows(data);
-});
-
 connection.onRequest("abaplint/config/default/request", async () => {
   const handler = await getHandler();
   handler.onRequestConfig();
@@ -280,6 +282,16 @@ connection.onRequest("abaplint/config/default/request", async () => {
 connection.onRequest("abaplint/unittests/list/request", async () => {
   const handler = await getHandler();
   handler.onListUnitTests();
+});
+
+connection.onRequest("abaplint/normalize", async (data) => {
+  try {
+    const {path, source} = data;
+    return await getNormalizer()(path, source);
+  } catch (error) {
+    connection.console.error("message" in error ? error.message : error);
+    return data?.source;
+  }
 });
 
 documents.listen(connection);
