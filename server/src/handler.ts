@@ -62,6 +62,7 @@ export class Handler {
   private readonly settings: ExtraSettings;
   private fallbackActivated: boolean = false;
   private timeouts: {[index: string]: any} = {};
+  private configPath?: string;
 
   public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
     const handler = new Handler(connection, params);
@@ -79,8 +80,9 @@ export class Handler {
   }
 
   private async readAndSetConfig() {
-    const config = await this.setup.readConfig(this.folders, this.settings);
-    this.reg.setConfig(config);
+    const result = await this.setup.readConfig(this.folders, this.settings);
+    this.reg.setConfig(result.config);
+    this.configPath = result.configPath;
     this.setup.dumpFolders(this.folders);
   }
 
@@ -118,7 +120,26 @@ export class Handler {
   }
 
   public onHelp(uri: string, position: LServer.Position) {
-    const help = new abaplint.LanguageServer(this.reg).help({uri: uri}, position);
+    let help = new abaplint.LanguageServer(this.reg).help({uri: uri}, position);
+
+    // Prepend config file information to help content
+    if (this.configPath) {
+      const encodedUri = encodeURIComponent(JSON.stringify(this.configPath));
+      const commandUri = `command:vscode.open?${encodedUri}`;
+      const configInfo = `<div style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+        <strong>Configuration File:</strong>
+        <a href="${commandUri}" style="text-decoration: none; color: #0066cc;">
+          ${this.configPath}
+        </a>
+      </div>`;
+      help = configInfo + help;
+    } else {
+      const configInfo = `<div style="background-color: #fff3cd; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+        <strong>Configuration:</strong> Using default configuration (no abaplint.json found)
+      </div>`;
+      help = configInfo + help;
+    }
+
     this.connection.sendNotification("abaplint/help/response", help);
   }
 
