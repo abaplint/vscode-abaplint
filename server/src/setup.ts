@@ -54,7 +54,8 @@ export class Setup {
     return {config: abaplint.Config.getDefault()};
   }
 
-  private async searchFolderForConfig(scheme: string, authority: string, prefix: string): Promise<{config: string, path: string} | undefined> {
+  private async searchFolderForConfig(scheme: string, authority: string, prefix: string):
+      Promise<{config: string, path: string} | undefined> {
     let uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json"});
     try {
       this.connection.console.log("search: " + uri.toString());
