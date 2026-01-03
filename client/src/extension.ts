@@ -33,7 +33,7 @@ function registerAsFsProvider(client: BaseLanguageClient) {
   client.onRequest("rmdir", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("readdir", (path: string) => workspace.fs.readDirectory(toUri(path)).then(l => l.map(e => e[0])));
   client.onRequest("glob", async (pattern: string) => {
-    const hasadt = vscode.workspace.workspaceFolders?.some(f =>f.uri.scheme === "adt");
+    const hasadt = vscode.workspace.workspaceFolders?.some(f => f.uri.scheme === "adt");
     if (hasadt) {
       console.log("Skipping glob for ADT workspace");
       return [];
