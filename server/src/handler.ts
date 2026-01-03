@@ -230,6 +230,7 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
+      if (folder.scheme === 'adt') continue
       const filenames: string[] = [];
       for (const glob of folder.glob) {
         filenames.push(...await FileOperations.loadFileNames(glob, false));

@@ -33,6 +33,11 @@ function registerAsFsProvider(client: BaseLanguageClient) {
   client.onRequest("rmdir", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("readdir", (path: string) => workspace.fs.readDirectory(toUri(path)).then(l => l.map(e => e[0])));
   client.onRequest("glob", async (pattern: string) => {
+    const hasadt = vscode.workspace.workspaceFolders?.some(f =>f.uri.scheme === "adt");
+    if (hasadt) {
+      console.log("Skipping glob for ADT workspace");
+      return [];
+    }
     let p = pattern;
     if (p.startsWith("/")) {
       p = p.substr(1);
@@ -77,7 +82,7 @@ export function activate(context: ExtensionContext) {
   } else {
     abaplintStatusBarItem.text = "abaplint: native";
     const serverModule = context.asAbsolutePath(path.join("out-native", "server.js"));
-    const debugOptions = {execArgv: ["--nolazy", "--inspect=6009"]};
+    const debugOptions = {execArgv: ["--nolazy", "--inspect=6011"]};
     const serverOptions: ServerOptions = {
       run: {module: serverModule, transport: TransportKind.ipc},
       debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
