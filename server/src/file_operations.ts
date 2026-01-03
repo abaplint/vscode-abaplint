@@ -40,7 +40,8 @@ class DefaultProvider implements FsProvider {
   }
 
   public async glob(pattern: string) {
-    const found = sync(pattern, {nodir: true, absolute: true, posix: true});
+    const oprions = {nodir: true, absolute: true, posix: true};
+    const found = sync(pattern, oprions);
     return found;
   }
 }

@@ -10,7 +10,7 @@ export class Formatting {
 
   public async findEdits(document: LServer.TextDocumentIdentifier, formattingDisabled: string[]): Promise<LServer.TextEdit[]> {
     const edits: LServer.TextEdit[] = [];
-
+    // @ts-expect-error Diagnostics doesn't exist anymore?
     const issues = new abaplint.Diagnostics(this.reg).findIssues(document);
     for (const i of issues) {
       if (formattingDisabled.includes(i.getKey())) {
@@ -21,7 +21,7 @@ export class Formatting {
       if (edit === undefined) {
         continue;
       }
-
+      //@ts-expect-error LSPEdit does not exist in abaplint?
       const changes = abaplint.LSPEdit.mapEdit(edit).changes?.[document.uri] || [];
       edits.push(...changes);
     }

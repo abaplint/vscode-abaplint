@@ -1,4 +1,6 @@
-import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config, IRegistry, RulesRunner, Edits, IEdit} from "@abaplint/core";
+import {ABAPFile, ABAPObject, MemoryFile, Registry, PrettyPrinter, Config, IRegistry, RulesRunner,applyEditList, IEdit} from "@abaplint/core";
+
+const isIEdit = (o:IEdit|undefined): o is IEdit => !!o
 
 interface FileDetails {
   file: ABAPFile
@@ -99,12 +101,12 @@ type IRule  = ReturnType<Config["getEnabledRules"]>[0] // expose hidden IRule in
 const applyRule = (reg:IRegistry, obj:ABAPObject, rule:IRule) => {
   rule.initialize(reg);
   const issues = new RulesRunner(reg).excludeIssues([...rule.run(obj)]);
-  const edits = issues
-    .map(a => a.getDefaultFix())
-    .filter(e => typeof e !== "undefined");
+  const edits:IEdit[] = issues
+    .map(a => a.getFix())
+    .filter(isIEdit);
   if (edits.length) {
     const nonconflicting = removeOverlapping(edits);
-    const changed = Edits.applyEditList(reg, nonconflicting);
+    const changed = applyEditList(reg, nonconflicting);
     reg.parse();
     const needReapplying = !!changed.length && nonconflicting.length < edits.length;
     return needReapplying;

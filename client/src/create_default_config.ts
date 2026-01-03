@@ -1,14 +1,13 @@
 import {BaseLanguageClient} from "vscode-languageclient/node";
 import * as vscode from "vscode";
 import * as path from "path";
-import {Buffer} from "buffer";
 
 async function createFile(uri: vscode.Uri, content: string) {
   if (await fileExists(uri)) {
     vscode.window.showErrorMessage("File already exists!");
     return;
   }
-  await vscode.workspace.fs.writeFile(uri, Buffer.from(content, "utf8"));
+  await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(content));
   await vscode.window.showTextDocument(uri, {preview: false});
 }
 
