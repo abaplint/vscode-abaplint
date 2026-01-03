@@ -4,14 +4,8 @@
 		"module": "commonjs",
 		"target": "es6",
 		"outDir": "out",
-		"rootDirs": [
-			"src",
-			"../common"
-		],
-		"lib": [
-			"es6",
-			"webworker"
-		],
+		"rootDirs": ["src", "../common"],
+		"lib": [ "es6", "webworker" ],
 		"sourceMap": true
 	},
 	"include": [
@@ -19,8 +13,6 @@
 		"../.eslintrc.js"
 	],
 	"exclude": [
-		"node_modules",
-		"../node_modules",
-		"**/node_modules/*"
+		"node_modules"
 	]
 }

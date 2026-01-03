@@ -20,7 +20,7 @@ let disposeAll:()=>void|undefined;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
   const toUri = (path: string) => Uri.file(path);
-  client.onRequest("readFile", async (uri: string) => workspace.fs.readFile(Uri.parse(uri)).then(b => new TextDecoder("utf-8").decode(b)));
+  client.onRequest("readFile", async (uri: string) => workspace.fs.readFile(Uri.parse(uri)).then(b => Buffer.from(b).toString("utf-8")));
   client.onRequest("unlink", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("exists", async (path: string) => {
     try {
@@ -33,7 +33,7 @@ function registerAsFsProvider(client: BaseLanguageClient) {
   client.onRequest("rmdir", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("readdir", (path: string) => workspace.fs.readDirectory(toUri(path)).then(l => l.map(e => e[0])));
   client.onRequest("glob", async (pattern: string) => {
-    const hasadt = vscode.workspace.workspaceFolders?.some(f => f.uri.scheme === "adt");
+    const hasadt = vscode.workspace.workspaceFolders?.some(f =>f.uri.scheme === "adt");
     if (hasadt) {
       console.log("Skipping glob for ADT workspace");
       return [];
