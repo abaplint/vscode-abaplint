@@ -13,7 +13,11 @@
       "outFiles": [
         "${workspaceRoot}/out-native/**/*.js"
       ],
-      "preLaunchTask": "npm: compile"
+      "preLaunchTask": "npm: compile",
+      "sourceMapPathOverrides": {
+        "webpack://vscode-abaplint-client/./src/*": "${workspaceRoot}/client/src/*",
+        "webpack://vscode-abaplint-server/./src/*": "${workspaceRoot}/server/src/*"
+      }
     },
     {
       "name": "Run Web",
@@ -27,7 +31,63 @@
       "outFiles": [
         "${workspaceRoot}/out-browser/**/*.js"
       ],
-      "preLaunchTask": "npm: compile"
+      "preLaunchTask": "npm: compile",
+      "sourceMapPathOverrides": {
+        "webpack://vscode-abaplint-client/./src/*": "${workspaceRoot}/client/src/*",
+        "webpack://vscode-abaplint-server/./src/*": "${workspaceRoot}/server/src/*"
+      }
     },
+    {
+      "name": "Run Native - watching",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceRoot}"
+      ],
+      "outFiles": [
+        "${workspaceRoot}/out-native/**/*.js"
+      ],
+      "preLaunchTask": "watch:webpack-native",
+      "sourceMapPathOverrides": {
+        "webpack://vscode-abaplint-client/./src/*": "${workspaceRoot}/client/src/*",
+        "webpack://vscode-abaplint-server/./src/*": "${workspaceRoot}/server/src/*"
+      }
+    },
+    {
+      "name": "Attach to Server-native",
+      "type": "node",
+      "request": "attach",
+      "address": "localhost",
+      "smartStep": true,
+      "showAsyncStacks": true,
+      "timeout": 30000,
+      "restart": {
+        "delay": 2000,
+        "maxAttempts": 100
+      },
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "port": 6011,
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/out-native/**/*.js"
+      ],
+      "preLaunchTask": "watch:webpack-native",
+      "sourceMapPathOverrides": {
+        "webpack://vscode-abaplint-client/./src/*": "${workspaceRoot}/client/src/*",
+        "webpack://vscode-abaplint-server/./src/*": "${workspaceRoot}/server/src/*"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Client + Server (native)",
+      "configurations": [
+        "Run Native - watching",
+        "Attach to Server-native"
+      ]
+    }
   ]
 }

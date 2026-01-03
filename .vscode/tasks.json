@@ -12,6 +12,53 @@
 			"problemMatcher": [
 				"$tsc"
 			]
+		},
+		{
+			"label": "watch:client",
+			"type": "npm",
+			"script": "watch:client",
+			"group": "build",
+			"isBackground": true,
+			"presentation": {
+				"panel": "dedicated",
+				"reveal": "never"
+			},
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		},
+		{
+			"label": "watch:server",
+			"type": "npm",
+			"script": "watch:server",
+			"group": "build",
+			"isBackground": true,
+			"presentation": {
+				"panel": "dedicated",
+				"reveal": "never"
+			},
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		},
+		{
+			"label": "watch:webpack-native",
+			"type": "shell",
+			"command": "npm run webpack:native -- --watch",
+			"group": "build",
+			"isBackground": true,
+			"presentation": {
+				"panel": "dedicated",
+				"reveal": "never"
+			},
+			"problemMatcher": [
+				"$ts-webpack-watch"
+			],
+			"dependsOn": [
+				"watch:client",
+				"watch:server",
+			],
+			"dependsOrder": "parallel"
 		}
 	]
 }
