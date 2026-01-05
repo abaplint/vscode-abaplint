@@ -11,6 +11,7 @@ import * as LServer from "vscode-languageserver";
 import {FileOperations} from "./file_operations";
 import {Dependencies} from "./dependencies";
 import {IFolder} from "./types";
+import {isRemoteFilesystem} from "./utils";
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
