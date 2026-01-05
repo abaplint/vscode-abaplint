@@ -11,6 +11,7 @@ import * as LServer from "vscode-languageserver";
 import {FileOperations} from "./file_operations";
 import {Dependencies} from "./dependencies";
 import {IFolder} from "./types";
+import {isRemoteFilesystem} from "./utils";
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
@@ -230,7 +231,11 @@ export class Handler {
   public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
-      if (folder.scheme === 'adt') continue
+      if (isRemoteFilesystem(folder.scheme)) {
+        await this.activateFallback();
+        return;
+      }
+
       const filenames: string[] = [];
       for (const glob of folder.glob) {
         filenames.push(...await FileOperations.loadFileNames(glob, false));

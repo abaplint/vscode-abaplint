@@ -88,7 +88,7 @@ export class Setup {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
     }
-    const addSlash = (p:string)=>p.endsWith("/")?p:p+"/";
+    const addSlash = (p:string) => p.endsWith("/") ? p : p + "/";
 
     const prefix = addSlash(folders[0].root);
     this.connection.console.log("prefix: " + prefix);
@@ -109,7 +109,7 @@ export class Setup {
           };
         }
 
-        current = addSlash( Utils.joinPath(URI.parse(current), "..").path );
+        current = addSlash(Utils.joinPath(URI.parse(current), "..").path);
       }
     }
 
