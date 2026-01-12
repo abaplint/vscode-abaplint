@@ -18,7 +18,7 @@ export class Help {
         this.helpPanel.webview.html = this.buildHelp("loading");
         this.client.sendRequest("abaplint/help/request", {
           uri: editor.document.uri.toString(),
-          position: editor.selection.active
+          position: editor.selection.active,
         });
       }
     }

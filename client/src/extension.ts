@@ -158,10 +158,10 @@ export function activate(context: ExtensionContext) {
           canSelectFolders: false,
           canSelectMany: false,
           filters: {
-            'JSON Files': ['json', 'jsonc', 'json5'],
-            'All Files': ['*']
+            "JSON Files": ["json", "jsonc", "json5"],
+            "All Files": ["*"],
           },
-          title: 'Select abaplint Configuration File'
+          title: "Select abaplint Configuration File",
         });
 
         if (!selectedFiles || selectedFiles.length === 0) {
@@ -243,7 +243,7 @@ export function activate(context: ExtensionContext) {
 
     // Listen for config reload notifications from server
     client.onNotification("abaplint/config/reloaded", (data: {configPath?: string}) => {
-      console.log(`Config reloaded notification received. Config path: ${data.configPath || 'undefined'}`);
+      console.log(`Config reloaded notification received. Config path: ${data.configPath || "undefined"}`);
       // Refresh help page if it's open
       help.refresh();
     });
