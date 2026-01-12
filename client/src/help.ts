@@ -10,6 +10,20 @@ export class Help {
     this.client = client;
   }
 
+  public refresh() {
+    // Only refresh if help panel is currently open
+    if (this.helpPanel) {
+      const editor = vscode.window.activeTextEditor;
+      if (editor) {
+        this.helpPanel.webview.html = this.buildHelp("loading");
+        this.client.sendRequest("abaplint/help/request", {
+          uri: editor.document.uri.toString(),
+          position: editor.selection.active
+        });
+      }
+    }
+  }
+
   public register(context: ExtensionContext): Help {
     context.subscriptions.push(vscode.commands.registerCommand("abaplint.f1", this.show.bind(this)));
     context.subscriptions.push(vscode.commands.registerCommand("abaplint.show", this.show.bind(this)));

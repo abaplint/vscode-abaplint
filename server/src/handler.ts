@@ -115,33 +115,85 @@ export class Handler {
 
   public async configChanged(documents: LServer.TextDocuments<TextDocument>) {
     await this.readAndSetConfig();
+    this.connection.console.log("Config reloaded, new configPath: " + (this.configPath || "undefined"));
+
+    // Notify client that config has been reloaded so help page can refresh
+    this.connection.sendNotification("abaplint/config/reloaded", {
+      configPath: this.configPath
+    });
+
     for (const document of documents.all()) {
       this.validateDocument(document);
     }
   }
 
   public onHelp(uri: string, position: LServer.Position) {
-    let help = new abaplint.LanguageServer(this.reg).help({uri: uri}, position);
+    try {
+      let help = new abaplint.LanguageServer(this.reg).help({uri: uri}, position);
 
-    // Prepend config file information to help content
-    if (this.configPath) {
-      const encodedUri = encodeURIComponent(JSON.stringify(this.configPath));
-      const commandUri = `command:vscode.open?${encodedUri}`;
-      const configInfo = `<div style="background-color: #f0f0f0; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-        <strong>Configuration File:</strong>
-        <a href="${commandUri}" style="text-decoration: none; color: #0066cc;">
-          ${this.configPath}
-        </a>
-      </div>`;
-      help = configInfo + help;
-    } else {
-      const configInfo = `<div style="background-color: #fff3cd; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-        <strong>Configuration:</strong> Using default configuration (no abaplint.json found)
-      </div>`;
-      help = configInfo + help;
+      // Debug logging
+      this.connection.console.log("onHelp called, configPath: " + (this.configPath || "undefined"));
+
+      // Prepend config file information to help content
+      if (this.configPath) {
+        try {
+          // Create proper file URI for local files
+          let fileUri: string;
+          if (this.configPath.startsWith('/') || this.configPath.match(/^[a-zA-Z]:\\/)) {
+            // Local file path - convert to file:// URI
+            fileUri = `file://${this.configPath.startsWith('/') ? '' : '/'}${this.configPath}`;
+          } else {
+            // Already a URI (e.g., abap://, file://)
+            fileUri = this.configPath;
+          }
+
+          // Escape HTML special characters in the path for display
+          const escapedPath = this.configPath
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+          // VS Code command URIs need arguments as an array
+          const encodedUri = encodeURIComponent(JSON.stringify([fileUri]));
+          const commandUri = `command:vscode.open?${encodedUri}`;
+          const loadDifferentConfigUri = `command:abaplint.load.different.config`;
+          const configInfo = `<div style="background-color: var(--vscode-editor-background, #f0f0f0); padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--vscode-panel-border, #e0e0e0);">
+            <strong>Configuration File:</strong>
+            <a href="${commandUri}" style="text-decoration: none; color: var(--vscode-textLink-foreground, #0066cc);">
+              ${escapedPath}
+            </a>
+            <div style="margin-top: 8px;">
+              <a href="${loadDifferentConfigUri}" style="display: inline-block; padding: 6px 12px; background-color: var(--vscode-button-background, #0066cc); color: var(--vscode-button-foreground, white); text-decoration: none; border-radius: 3px; font-size: 13px;">
+                Load Different Config
+              </a>
+            </div>
+          </div>`;
+          help = configInfo + help;
+        } catch (error) {
+          this.connection.console.error("Error formatting config info: " + error);
+          // Continue with help content even if config info formatting fails
+        }
+      } else {
+        const loadDifferentConfigUri = `command:abaplint.load.different.config`;
+        const configInfo = `<div style="background-color: var(--vscode-inputValidation-warningBackground, #fff3cd); padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--vscode-inputValidation-warningBorder, #f0ad4e);">
+          <strong>Configuration:</strong> Using default configuration (no abaplint.json found)
+          <div style="margin-top: 8px;">
+            <a href="${loadDifferentConfigUri}" style="display: inline-block; padding: 6px 12px; background-color: var(--vscode-button-background, #0066cc); color: var(--vscode-button-foreground, white); text-decoration: none; border-radius: 3px; font-size: 13px;">
+              Load Config File
+            </a>
+          </div>
+        </div>`;
+        help = configInfo + help;
+      }
+
+      this.connection.sendNotification("abaplint/help/response", help);
+    } catch (error) {
+      this.connection.console.error("Error in onHelp: " + error);
+      // Send basic help response on error
+      this.connection.sendNotification("abaplint/help/response", "Error loading help content");
     }
-
-    this.connection.sendNotification("abaplint/help/response", help);
   }
 
   public onHighlightDefinitions(doc: {uri: string}) {

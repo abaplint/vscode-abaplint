@@ -3,4 +3,5 @@ export type ExtraSettings = {
   inlayHints?: any,
   activeTextEditorUri?: string | undefined,
   fallbackThreshold?: number,
+  localConfigPath?: string,
 };
