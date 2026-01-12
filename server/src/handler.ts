@@ -171,7 +171,7 @@ export class Handler {
             </a>
             <div style="margin-top: 8px;">
               <a href="${loadDifferentConfigUri}" style="display: inline-block; padding: 6px 12px; background-color: var(--vscode-button-background, #0066cc); color: var(--vscode-button-foreground, white); text-decoration: none; border-radius: 3px; font-size: 13px;">
-                Load Different Config
+                Load Config
               </a>
             </div>
           </div>`;
