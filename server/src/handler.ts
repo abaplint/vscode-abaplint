@@ -113,7 +113,12 @@ export class Handler {
     delete this.timeouts[textDocument.uri];
   }
 
-  public async configChanged(documents: LServer.TextDocuments<TextDocument>) {
+  public async configChanged(documents: LServer.TextDocuments<TextDocument>, localConfigPath?: string) {
+    // Update settings with the new localConfigPath if provided
+    if (localConfigPath !== undefined) {
+      this.settings.localConfigPath = localConfigPath;
+    }
+
     await this.readAndSetConfig();
     this.connection.console.log("Config reloaded, new configPath: " + (this.configPath || "undefined"));
 

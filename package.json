@@ -49,7 +49,7 @@
 			},
 			{
 				"command": "abaplint.load.different.config",
-				"title": "Load Different Config File",
+				"title": "Load Config File",
 				"category": "abaplint"
 			},
 			{

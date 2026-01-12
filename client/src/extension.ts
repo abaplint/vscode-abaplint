@@ -69,8 +69,9 @@ function setupLocalConfigWatcher(context: ExtensionContext, localConfigPath: str
     // Watch for changes to the config file
     localConfigWatcher.onDidChange(async () => {
       console.log(`Local config file changed: ${localConfigPath}`);
-      // Send request to server to reload config
-      await client.sendRequest("abaplint/config/reload/request", {});
+      // Send request to server to reload config with the current localConfigPath
+      const currentLocalConfigPath = workspace.getConfiguration("abaplint").get("localConfigPath", "");
+      await client.sendRequest("abaplint/config/reload/request", {localConfigPath: currentLocalConfigPath});
       // Refresh help page if it's open
       help.refresh();
     });
@@ -78,14 +79,16 @@ function setupLocalConfigWatcher(context: ExtensionContext, localConfigPath: str
     // Watch for creation of the config file
     localConfigWatcher.onDidCreate(async () => {
       console.log(`Local config file created: ${localConfigPath}`);
-      await client.sendRequest("abaplint/config/reload/request", {});
+      const currentLocalConfigPath = workspace.getConfiguration("abaplint").get("localConfigPath", "");
+      await client.sendRequest("abaplint/config/reload/request", {localConfigPath: currentLocalConfigPath});
       help.refresh();
     });
 
     // Watch for deletion of the config file
     localConfigWatcher.onDidDelete(async () => {
       console.log(`Local config file deleted: ${localConfigPath}`);
-      await client.sendRequest("abaplint/config/reload/request", {});
+      const currentLocalConfigPath = workspace.getConfiguration("abaplint").get("localConfigPath", "");
+      await client.sendRequest("abaplint/config/reload/request", {localConfigPath: currentLocalConfigPath});
       help.refresh();
     });
 
@@ -190,8 +193,8 @@ export function activate(context: ExtensionContext) {
         // Set up new file watcher for the selected file
         setupLocalConfigWatcher(context, selectedPath);
 
-        // Reload config from server (it will read from settings)
-        await client.sendRequest("abaplint/config/reload/request", {});
+        // Reload config from server with the new localConfigPath
+        await client.sendRequest("abaplint/config/reload/request", {localConfigPath: selectedPath});
 
         // Refresh help page if it's open
         help.refresh();

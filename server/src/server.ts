@@ -279,9 +279,9 @@ connection.onRequest("abaplint/config/default/request", async () => {
   handler.onRequestConfig();
 });
 
-connection.onRequest("abaplint/config/reload/request", async () => {
+connection.onRequest("abaplint/config/reload/request", async (data?: {localConfigPath?: string}) => {
   const handler = await getHandler();
-  await handler.configChanged(documents);
+  await handler.configChanged(documents, data?.localConfigPath);
 });
 
 connection.onRequest("abaplint/unittests/list/request", async () => {
