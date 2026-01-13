@@ -1,3 +1,3 @@
 export function isRemoteFilesystem(scheme: string): boolean {
-  return scheme === "abap";
+  return scheme === "abap" || scheme === "adt";
 }
