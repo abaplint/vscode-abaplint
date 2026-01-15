@@ -65,6 +65,13 @@ export class FileOperations {
     return provider.readFile(name);
   }
 
+  public static async readFileDirectly(path: string): Promise<string> {
+    // Always use the default provider (Node.js fs) to read the file
+    // This is useful for reading local files when working with remote file systems
+    const defaultProvider = new DefaultProvider();
+    return defaultProvider.readFile(path);
+  }
+
   public static async deleteFolderRecursive(p: string) {
     if (await provider.exists(p)) {
       const files = await provider.readdir(p);

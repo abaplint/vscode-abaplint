@@ -39,7 +39,7 @@ export class Setup {
   }
 
   public async readConfig(folders: IFolder[], settings: ExtraSettings): Promise<{config: abaplint.Config, configPath?: string}> {
-    const found = await this.findCustomConfig(folders, settings.activeTextEditorUri);
+    const found = await this.findCustomConfig(folders, settings.activeTextEditorUri, settings.localConfigPath);
     if (found) {
       this.connection.console.log("custom abaplint configuration found");
       const config = new abaplint.Config(found.config);
@@ -83,7 +83,7 @@ export class Setup {
     return undefined;
   }
 
-  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined):
+  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined, localConfigPath?: string):
       Promise<{config: string, prefix: string, path: string} | undefined> {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
@@ -94,7 +94,25 @@ export class Setup {
     this.connection.console.log("prefix: " + prefix);
     this.connection.console.log("activeTextEditorUri: " + activeTextEditorUri);
     this.connection.console.log("scheme: " + folders[0].scheme);
+    this.connection.console.log("localConfigPath: " + localConfigPath);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
+
+    // Check for local config path when working with remote file systems
+    if (localConfigPath && localConfigPath.length > 0 && folders[0].scheme !== "file") {
+      try {
+        this.connection.console.log("Attempting to read local config from: " + localConfigPath);
+        const config = await FileOperations.readFileDirectly(localConfigPath);
+        this.connection.console.log("Successfully read local config file");
+        return {
+          config: config,
+          prefix: "",
+          path: localConfigPath,
+        };
+      } catch (error) {
+        this.connection.console.log("Failed to read local config file: " + error);
+        // Continue with normal search if local config fails
+      }
+    }
 
     if (activeTextEditorUri !== undefined) {
       const start = URI.parse(activeTextEditorUri);
