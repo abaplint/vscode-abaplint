@@ -48,6 +48,11 @@
 				}
 			},
 			{
+				"command": "abaplint.load.different.config",
+				"title": "Load Config File",
+				"category": "abaplint"
+			},
+			{
 				"command": "abaplint.highlight.definitions",
 				"title": "ABAP Toggle Highlight Definitions",
 				"enablement": "editorLangId == 'abap'",
@@ -280,6 +285,18 @@
 						"type": "integer",
 						"description": "File threshold for falling back to only single-file rules with web version, requires restart",
 						"default": 1000
+					}
+				}
+			},
+			{
+				"order": 70,
+				"id": "remoteFileSystem",
+				"title": "Remote File System",
+				"properties": {
+					"abaplint.localConfigPath": {
+						"type": "string",
+						"description": "Path to a local abaplint.json file to use when working with remote file systems. Leave empty to search for config in the remote workspace.",
+						"default": ""
 					}
 				}
 			}
