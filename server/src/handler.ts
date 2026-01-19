@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import {AbaplintConfigLens} from "./abaplint_config_lens";
 import {ExtraSettings} from "./extra_settings";
 import {Formatting} from "./handlers/formatting";
@@ -124,7 +125,7 @@ export class Handler {
 
     // Notify client that config has been reloaded so help page can refresh
     this.connection.sendNotification("abaplint/config/reloaded", {
-      configPath: this.configPath
+      configPath: this.configPath,
     });
 
     for (const document of documents.all()) {
@@ -144,9 +145,9 @@ export class Handler {
         try {
           // Create proper file URI for local files
           let fileUri: string;
-          if (this.configPath.startsWith('/') || this.configPath.match(/^[a-zA-Z]:\\/)) {
+          if (this.configPath.startsWith("/") || this.configPath.match(/^[a-zA-Z]:\\/)) {
             // Local file path - convert to file:// URI
-            fileUri = `file://${this.configPath.startsWith('/') ? '' : '/'}${this.configPath}`;
+            fileUri = `file://${this.configPath.startsWith("/") ? "" : "/"}${this.configPath}`;
           } else {
             // Already a URI (e.g., abap://, file://)
             fileUri = this.configPath;
@@ -154,11 +155,11 @@ export class Handler {
 
           // Escape HTML special characters in the path for display
           const escapedPath = this.configPath
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
 
           // VS Code command URIs need arguments as an array
           const encodedUri = encodeURIComponent(JSON.stringify([fileUri]));
