@@ -221,6 +221,18 @@
 				}
 			},
 			{
+				"order": 35,
+				"id": "outline",
+				"title": "Outline",
+				"properties": {
+					"abaplint.outline.disableForRemoteFilesystems": {
+						"type": "boolean",
+						"description": "Disable outline for remote filesystems (abap, adt)",
+						"default": true
+					}
+				}
+			},
+			{
 				"order": 40,
 				"id": "formatting",
 				"title": "Formatting",

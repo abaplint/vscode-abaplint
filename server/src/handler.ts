@@ -365,6 +365,12 @@ export class Handler {
   }
 
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
+    if (this.settings.outline?.disableForRemoteFilesystems !== false) {
+      const uri = new URL(params.textDocument.uri);
+      if (isRemoteFilesystem(uri.protocol.replace(":", ""))) {
+        return [];
+      }
+    }
     return new abaplint.LanguageServer(this.reg).documentSymbol(params);
   }
 
