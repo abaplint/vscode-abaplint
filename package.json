@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.550",
+	"version": "0.6.577",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -46,6 +46,11 @@
 					"dark": "img/abaplint.svg",
 					"light": "img/abaplint.svg"
 				}
+			},
+			{
+				"command": "abaplint.load.different.config",
+				"title": "Load Config File",
+				"category": "abaplint"
 			},
 			{
 				"command": "abaplint.highlight.definitions",
@@ -282,6 +287,18 @@
 						"default": 1000
 					}
 				}
+			},
+			{
+				"order": 70,
+				"id": "remoteFileSystem",
+				"title": "Remote File System",
+				"properties": {
+					"abaplint.localConfigPath": {
+						"type": "string",
+						"description": "Path to a local abaplint.json file to use when working with remote file systems. Leave empty to search for config in the remote workspace.",
+						"default": ""
+					}
+				}
 			}
 		]
 	},
@@ -307,23 +324,23 @@
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.0",
-		"@eslint/eslintrc": "^3.3.1",
-		"@eslint/js": "^9.39.1",
+		"@eslint/eslintrc": "^3.3.3",
+		"@eslint/js": "^9.39.2",
 		"@types/mocha": "^10.0.10",
-		"@types/node": "^22.19.1",
-		"@typescript-eslint/eslint-plugin": "^8.47.0",
-		"@typescript-eslint/parser": "^8.47.0",
+		"@types/node": "^22.19.3",
+		"@typescript-eslint/eslint-plugin": "^8.52.0",
+		"@typescript-eslint/parser": "^8.52.0",
 		"@vscode/test-web": "^0.0.66",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.1",
-		"eslint": "^9.39.1",
+		"eslint": "^9.39.2",
 		"globals": "^16.5.0",
 		"merge-options": "^3.0.4",
 		"path-browserify": "^1.0.1",
 		"ts-loader": "^9.5.4",
 		"typescript": "^5.9.3",
 		"vm-browserify": "^1.1.2",
-		"webpack": "^5.103.0",
+		"webpack": "^5.104.1",
 		"webpack-cli": "^6.0.1"
 	}
 }

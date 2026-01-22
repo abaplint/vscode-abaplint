@@ -38,8 +38,8 @@ export class Setup {
     }
   }
 
-  public async readConfig(folders: IFolder[], settings: ExtraSettings) {
-    const found = await this.findCustomConfig(folders, settings.activeTextEditorUri);
+  public async readConfig(folders: IFolder[], settings: ExtraSettings): Promise<{config: abaplint.Config, configPath?: string}> {
+    const found = await this.findCustomConfig(folders, settings.activeTextEditorUri, settings.localConfigPath);
     if (found) {
       this.connection.console.log("custom abaplint configuration found");
       const config = new abaplint.Config(found.config);
@@ -47,63 +47,87 @@ export class Setup {
       folders[0].glob = Array.isArray(cfiles)
         ? cfiles.map(f => found.prefix + f)
         : [found.prefix + cfiles];
-      return config;
+      return {config, configPath: found.path};
     }
 
     this.connection.console.log("no custom abaplint config, using defaults");
-    return abaplint.Config.getDefault();
+    return {config: abaplint.Config.getDefault()};
   }
 
-  private async searchFolderForConfig(scheme: string, authority: string, prefix: string): Promise<string | undefined> {
+  private async searchFolderForConfig(scheme: string, authority: string, prefix: string):
+      Promise<{config: string, path: string} | undefined> {
     let uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json"});
     try {
       this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
+      const config = await FileOperations.readFile(uri.toString());
+      return {config, path: uri.toString()};
     // eslint-disable-next-line no-empty
     } catch {}
 
     uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.jsonc"});
     try {
       this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
+      const config = await FileOperations.readFile(uri.toString());
+      return {config, path: uri.toString()};
     // eslint-disable-next-line no-empty
     } catch {}
 
     uri = URI.from({scheme: scheme, authority: authority, path: prefix + "abaplint.json5"});
     try {
       this.connection.console.log("search: " + uri.toString());
-      return await FileOperations.readFile(uri.toString());
+      const config = await FileOperations.readFile(uri.toString());
+      return {config, path: uri.toString()};
     // eslint-disable-next-line no-empty
     } catch {}
 
     return undefined;
   }
 
-  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined):
-      Promise<{config: string, prefix: string} | undefined> {
+  private async findCustomConfig(folders: IFolder[], activeTextEditorUri: string | undefined, localConfigPath?: string):
+      Promise<{config: string, prefix: string, path: string} | undefined> {
     if (folders.length === 0 || folders[0] === undefined) {
       return undefined;
     }
+    const addSlash = (p:string) => p.endsWith("/") ? p : p + "/";
 
-    const prefix = folders[0].root + "/";
+    const prefix = addSlash(folders[0].root);
     this.connection.console.log("prefix: " + prefix);
     this.connection.console.log("activeTextEditorUri: " + activeTextEditorUri);
     this.connection.console.log("scheme: " + folders[0].scheme);
+    this.connection.console.log("localConfigPath: " + localConfigPath);
 //    this.connection.console.log(URI.from({scheme: folders[0].scheme, path: prefix + "abaplint.json"}).toString());
+
+    // Check for local config path when working with remote file systems
+    if (localConfigPath && localConfigPath.length > 0 && folders[0].scheme !== "file") {
+      try {
+        this.connection.console.log("Attempting to read local config from: " + localConfigPath);
+        const config = await FileOperations.readFileDirectly(localConfigPath);
+        this.connection.console.log("Successfully read local config file");
+        return {
+          config: config,
+          prefix: "",
+          path: localConfigPath,
+        };
+      } catch (error) {
+        this.connection.console.log("Failed to read local config file: " + error);
+        // Continue with normal search if local config fails
+      }
+    }
 
     if (activeTextEditorUri !== undefined) {
       const start = URI.parse(activeTextEditorUri);
-      let current = Utils.dirname(start).path + "/";
+      let current = addSlash(Utils.dirname(start).path);
       while (current !== prefix) {
         const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, current);
         if (found) {
           return {
-            config: found,
+            config: found.config,
             prefix: current.substring(prefix.length - 1, current.length - 1),
+            path: found.path,
           };
         }
 
-        current = Utils.joinPath(URI.parse(current), "..").path + "/";
+        current = addSlash(Utils.joinPath(URI.parse(current), "..").path);
       }
     }
 
@@ -111,8 +135,9 @@ export class Setup {
     const found = await this.searchFolderForConfig(folders[0].scheme, folders[0].authority, prefix);
     if (found) {
       return {
-        config: found,
+        config: found.config,
         prefix: "",
+        path: found.path,
       };
     }
 
