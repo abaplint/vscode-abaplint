@@ -13,6 +13,7 @@ import {FileOperations} from "./file_operations";
 import {Dependencies} from "./dependencies";
 import {IFolder} from "./types";
 import {isRemoteFilesystem} from "./utils";
+import {URI} from "vscode-uri";
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
@@ -365,6 +366,12 @@ export class Handler {
   }
 
   public onDocumentSymbol(params: LServer.DocumentSymbolParams): LServer.DocumentSymbol[] {
+    if (this.settings.outline?.disableForRemoteFilesystems !== false) {
+      const parsed = URI.parse(params.textDocument.uri);
+      if (isRemoteFilesystem(parsed.scheme)) {
+        return [];
+      }
+    }
     return new abaplint.LanguageServer(this.reg).documentSymbol(params);
   }
 

@@ -114,6 +114,7 @@ export function activate(context: ExtensionContext) {
 // when running in web mode, it fails posting these values as messages, so convert to raw JSON,
       codeLens: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("codeLens"))),
       inlayHints: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("inlayHints"))),
+      outline: JSON.parse(JSON.stringify(workspace.getConfiguration("abaplint").get("outline"))),
       activeTextEditorUri: vscode.window.activeTextEditor?.document.uri.toString(),
       localConfigPath: workspace.getConfiguration("abaplint").get("localConfigPath", ""),
     },
