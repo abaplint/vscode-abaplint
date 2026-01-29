@@ -66,6 +66,7 @@ export class Handler {
   private fallbackActivated: boolean = false;
   private timeouts: {[index: string]: any} = {};
   private configPath?: string;
+  private currentLocalConfigPath?: string;
 
   public static async create(connection: LServer.Connection, params: LServer.InitializeParams) {
     const handler = new Handler(connection, params);
@@ -80,6 +81,7 @@ export class Handler {
     this.setup = new Setup(connection);
     this.folders = this.setup.determineFolders(params.workspaceFolders || []);
     this.settings = params.initializationOptions;
+    this.currentLocalConfigPath = this.settings.localConfigPath;
   }
 
   private async readAndSetConfig() {
@@ -117,8 +119,13 @@ export class Handler {
 
   public async configChanged(documents: LServer.TextDocuments<TextDocument>, localConfigPath?: string) {
     // Update settings with the new localConfigPath if provided
+    // If not provided, use the previously stored localConfigPath (if any)
     if (localConfigPath !== undefined) {
+      this.currentLocalConfigPath = localConfigPath;
       this.settings.localConfigPath = localConfigPath;
+    } else if (this.currentLocalConfigPath !== undefined) {
+      // Preserve the current localConfigPath when reloading from file watcher
+      this.settings.localConfigPath = this.currentLocalConfigPath;
     }
 
     await this.readAndSetConfig();
