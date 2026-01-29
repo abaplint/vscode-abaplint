@@ -1,3 +1,4 @@
+
 import * as vscode from "vscode";
 import {ExtensionContext} from "vscode";
 import {BaseLanguageClient} from "vscode-languageclient/node";
@@ -45,7 +46,10 @@ export class Help {
 
   public helpResponse(html: string) {
     if (this.helpPanel) {
-      this.helpPanel.webview.html = this.buildHelp(html);
+      // Decode percent-encoded URIs in the HTML to fix display on Windows
+      // Replace file:///c%3A/ with file:///c:/ (and similar patterns)
+      const decodedHtml = html.replace(/file:\/\/\/([a-zA-Z])%3A\//g, "file:///$1:/");
+      this.helpPanel.webview.html = this.buildHelp(decodedHtml);
     }
   }
 
