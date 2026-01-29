@@ -4,7 +4,7 @@
 	"description": "ABAP linting, problems view, go to definition, find references, and quick fixes.",
 	"author": "Lars Hvam",
 	"license": "MIT",
-	"version": "0.6.577",
+	"version": "0.6.578",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/abaplint/vscode-abaplint"
@@ -221,6 +221,18 @@
 				}
 			},
 			{
+				"order": 35,
+				"id": "outline",
+				"title": "Outline",
+				"properties": {
+					"abaplint.outline.disableForRemoteFilesystems": {
+						"type": "boolean",
+						"description": "Disable outline for remote filesystems (abap, adt)",
+						"default": true
+					}
+				}
+			},
+			{
 				"order": 40,
 				"id": "formatting",
 				"title": "Formatting",
@@ -323,13 +335,13 @@
 		"url": "https://github.com/sponsors/larshp"
 	},
 	"devDependencies": {
-		"@eslint/compat": "^2.0.0",
+		"@eslint/compat": "^2.0.1",
 		"@eslint/eslintrc": "^3.3.3",
 		"@eslint/js": "^9.39.2",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "^22.19.3",
 		"@typescript-eslint/eslint-plugin": "^8.52.0",
-		"@typescript-eslint/parser": "^8.52.0",
+		"@typescript-eslint/parser": "^8.54.0",
 		"@vscode/test-web": "^0.0.66",
 		"buffer": "^6.0.3",
 		"crypto-browserify": "^3.12.1",
