@@ -13,10 +13,10 @@
 		"url": "https://github.com/abaplint/vscode-abaplint"
 	},
 	"devDependencies": {
-		"@types/node": "^22.19.10"
+		"@types/node": "^22.19.11"
 	},
 	"dependencies": {
-		"@abaplint/core": "^2.115.22",
+		"@abaplint/core": "^2.115.23",
 		"vscode-uri": "^3.1.0",
 		"glob": "^11.0.3",
     "json5": "^2.2.3",
