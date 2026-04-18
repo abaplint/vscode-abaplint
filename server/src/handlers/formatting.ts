@@ -26,6 +26,10 @@ export class Formatting {
       edits.push(...changes);
     }
 
+    // todo: gather the edits and only return one/few/non overlapping
+    if (edits.length > 0) {
+      return [edits[0]];
+    }
     return edits;
   }
 
