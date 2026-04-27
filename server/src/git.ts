@@ -18,22 +18,22 @@ export class GitOperations {
     const oldProvider = FileOperations.getProvider();
     FileOperations.setDefaultProvider();
 
-    process.stderr.write("Clone: " + dep.url + "\n");
     let dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
-    let cloneRoot = dir;
     if (os.platform() === "win32") {
       // must be converted to posix for glob patterns like "/{foo,src}/**/*.*" to work
       dir = toUnixPath(dir);
-      cloneRoot = dir;
     }
+    process.stderr.write("Clone: " + dep.url + " to " + dir + "\n");
 
     try {
-      cloneRoot = await FileOperations.getProvider().gitClone(dep.url, dir);
-    } catch {
+      await FileOperations.getProvider().gitClone(dep.url, dir);
+    } catch (e) {
+      process.stderr.write((e as any).message + "\n");
+      process.stderr.write("git clone fallback\n");
       childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir});
     }
 
-    const names = await FileOperations.loadFileNames(cloneRoot + dep.files);
+    const names = await FileOperations.loadFileNames(dir + dep.files);
     const files = await FileOperations.loadFiles(names);
     await FileOperations.deleteFolderRecursive(dir);
 
