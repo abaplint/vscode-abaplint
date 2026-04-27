@@ -11,6 +11,15 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
+// https://github.com/microsoft/vscode/blob/main/extensions/git/src/api/git.d.ts
+interface GitApi {
+  clone(url: Uri, options?: {parentPath?: Uri, ref?: string, recursive?: boolean, postCloneAction?: "none"}): Promise<Uri | null>;
+}
+
+interface GitExtension {
+  getAPI(version: 1): GitApi;
+}
+
 let abaplintStatusBarItem: vscode.StatusBarItem;
 let client: BaseLanguageClient;
 let createDefaultConfig: CreateDefaultConfig;
@@ -41,6 +50,29 @@ function registerAsFsProvider(client: BaseLanguageClient) {
     const files = await vscode.workspace.findFiles(p);
     console.log(files.length + " files found in " + p);
     return files.map(f => f.toString());
+  });
+  client.onRequest("gitClone", async (data: {url: string, parentPath: string}) => {
+    const ext = vscode.extensions.getExtension<GitExtension>("vscode.git");
+    if (!ext) {
+      throw new Error("Git extension not found");
+    }
+    if (!ext.isActive) {
+      await ext.activate();
+    }
+
+    const api = ext.exports?.getAPI(1);
+    if (!api?.clone) {
+      throw new Error("Git extension API clone() not available");
+    }
+    const cloned = await api.clone(Uri.parse(data.url), {
+      parentPath: toUri(data.parentPath),
+      postCloneAction: "none",
+    });
+    if (cloned && cloned.scheme === "file") {
+      return cloned.fsPath;
+    }
+
+    throw new Error("Could not determine cloned repository folder");
   });
 }
 

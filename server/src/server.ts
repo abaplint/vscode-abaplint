@@ -35,12 +35,13 @@ function initialize() {
         if (params.initializationOptions.provideFsProxy === true) {
           const provider: FsProvider = {
             readFile:(path: string) => connection.sendRequest("readFile", path),
-            exists:(path: string) => connection.sendRequest("unlink", path),
-            isDirectory:(path: string) => connection.sendRequest("exists", path),
+            exists:(path: string) => connection.sendRequest("exists", path),
+            isDirectory:(path: string) => connection.sendRequest("isDirectory", path),
             unlink:(path: string) => connection.sendRequest("unlink", path),
             rmdir:(path: string) => connection.sendRequest("rmdir", path),
             readdir:(path: string) => connection.sendRequest("readdir", path),
             glob:(pattern: string) => connection.sendRequest("glob", pattern),
+            gitClone:(url: string, parentPath: string) => connection.sendRequest("gitClone", {url, parentPath}),
           };
           FileOperations.setProvider(provider);
         }

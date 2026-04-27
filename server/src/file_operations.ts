@@ -12,6 +12,7 @@ export interface FsProvider {
   readdir: (path: string) => Promise<string[]>
   rmdir: (path: string) => Promise<void>
   glob: (pattern: string) => Promise<string[]>
+  gitClone: (url: string, parentPath: string) => Promise<string>
 }
 
 class DefaultProvider implements FsProvider {
@@ -42,6 +43,10 @@ class DefaultProvider implements FsProvider {
   public async glob(pattern: string) {
     const found = sync(pattern, {nodir: true, absolute: true, posix: true});
     return found;
+  }
+
+  public async gitClone(_url: string, _parentPath: string): Promise<string> {
+    throw new Error("gitClone() not supported by DefaultProvider");
   }
 }
 
@@ -90,7 +95,7 @@ export class FileOperations {
   public static async loadFileNames(arg: string, error = true): Promise<string[]> {
     const files = await provider.glob(arg);
     if (files.length === 0 && error) {
-      throw "Error: No files found, " + arg;
+      throw new Error("No files found, " + arg);
     }
     return files;
   }
