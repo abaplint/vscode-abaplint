@@ -1,4 +1,3 @@
-import * as childProcess from "child_process";
 import * as path from "path";
 import * as abaplint from "@abaplint/core";
 import * as fs from "fs";
@@ -14,10 +13,6 @@ export class GitOperations {
       return []; // running in web
     }
 
-    // workaround for FS Provider, git operation happens on server side
-    const oldProvider = FileOperations.getProvider();
-    FileOperations.setDefaultProvider();
-
     let dir = fs.mkdtempSync(path.join(os.tmpdir(), "abaplint-"));
     if (os.platform() === "win32") {
       // must be converted to posix for glob patterns like "/{foo,src}/**/*.*" to work
@@ -25,19 +20,11 @@ export class GitOperations {
     }
     process.stderr.write("Clone: " + dep.url + " to " + dir + "\n");
 
-    try {
-      await FileOperations.getProvider().gitClone(dep.url, dir);
-    } catch (e) {
-      process.stderr.write((e as any).message + "\n");
-      process.stderr.write("git clone fallback\n");
-      childProcess.execSync("git clone --quiet --depth 1 " + dep.url + " .", {cwd: dir});
-    }
+    await FileOperations.getProvider().gitClone(dep.url, dir);
 
     const names = await FileOperations.loadFileNames(dir + dep.files);
     const files = await FileOperations.loadFiles(names);
     await FileOperations.deleteFolderRecursive(dir);
-
-    FileOperations.setProvider(oldProvider);
 
     return files;
   }
