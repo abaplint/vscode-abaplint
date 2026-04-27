@@ -41,6 +41,7 @@ function initialize() {
             rmdir:(path: string) => connection.sendRequest("rmdir", path),
             readdir:(path: string) => connection.sendRequest("readdir", path),
             glob:(pattern: string) => connection.sendRequest("glob", pattern),
+            gitClone:(url: string, parentPath: string) => connection.sendRequest("gitClone", {url, parentPath}),
           };
           FileOperations.setProvider(provider);
         }

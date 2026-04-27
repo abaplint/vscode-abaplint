@@ -11,6 +11,14 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
+interface GitApi {
+  clone(url: string, parentPath: string): Promise<void>;
+}
+
+interface GitExtension {
+  getAPI(version: 1): GitApi;
+}
+
 let abaplintStatusBarItem: vscode.StatusBarItem;
 let client: BaseLanguageClient;
 let createDefaultConfig: CreateDefaultConfig;
@@ -41,6 +49,38 @@ function registerAsFsProvider(client: BaseLanguageClient) {
     const files = await vscode.workspace.findFiles(p);
     console.log(files.length + " files found in " + p);
     return files.map(f => f.toString());
+  });
+  client.onRequest("gitClone", async (data: {url: string, parentPath: string}) => {
+    const ext = vscode.extensions.getExtension<GitExtension>("vscode.git");
+    if (!ext) {
+      throw new Error("Git extension not found");
+    }
+    if (!ext.isActive) {
+      await ext.activate();
+    }
+
+    const parentUri = toUri(data.parentPath);
+    const before = new Set((await workspace.fs.readDirectory(parentUri)).map(entry => entry[0]));
+
+    const api = ext.exports?.getAPI(1);
+    if (!api?.clone) {
+      throw new Error("Git extension API clone() not available");
+    }
+    await api.clone(data.url, data.parentPath);
+
+    const after = await workspace.fs.readDirectory(parentUri);
+    const created = after.find(entry => before.has(entry[0]) === false && entry[1] === vscode.FileType.Directory);
+    if (created) {
+      return path.join(data.parentPath, created[0]);
+    }
+
+    // Fallback for cases where a folder with the same name already exists.
+    const repoDirs = after.filter(entry => entry[1] === vscode.FileType.Directory);
+    if (repoDirs.length === 1) {
+      return path.join(data.parentPath, repoDirs[0][0]);
+    }
+
+    throw new Error("Could not determine cloned repository folder");
   });
 }
 
