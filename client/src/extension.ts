@@ -11,8 +11,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
+// https://github.com/microsoft/vscode/blob/main/extensions/git/src/api/git.d.ts
 interface GitApi {
-  clone(url: string, parentPath: string): Promise<void>;
+  clone(url: Uri, options?: {parentPath?: Uri, ref?: string, recursive?: boolean, postCloneAction?: "none"}): Promise<Uri | null>;
 }
 
 interface GitExtension {
@@ -59,25 +60,16 @@ function registerAsFsProvider(client: BaseLanguageClient) {
       await ext.activate();
     }
 
-    const parentUri = toUri(data.parentPath);
-    const before = new Set((await workspace.fs.readDirectory(parentUri)).map(entry => entry[0]));
-
     const api = ext.exports?.getAPI(1);
     if (!api?.clone) {
       throw new Error("Git extension API clone() not available");
     }
-    await api.clone(data.url, data.parentPath);
-
-    const after = await workspace.fs.readDirectory(parentUri);
-    const created = after.find(entry => before.has(entry[0]) === false && entry[1] === vscode.FileType.Directory);
-    if (created) {
-      return path.join(data.parentPath, created[0]);
-    }
-
-    // Fallback for cases where a folder with the same name already exists.
-    const repoDirs = after.filter(entry => entry[1] === vscode.FileType.Directory);
-    if (repoDirs.length === 1) {
-      return path.join(data.parentPath, repoDirs[0][0]);
+    const cloned = await api.clone(Uri.parse(data.url), {
+      parentPath: toUri(data.parentPath),
+      postCloneAction: "none",
+    });
+    if (cloned && cloned.scheme === "file") {
+      return cloned.fsPath;
     }
 
     throw new Error("Could not determine cloned repository folder");

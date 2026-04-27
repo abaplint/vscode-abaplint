@@ -5,6 +5,19 @@ import * as os from "os";
 import {FileOperations} from "./file_operations";
 
 const toUnixPath = (path: string) => path.replace(/[\\/]+/g, "/").replace(/^([a-zA-Z]+:|\.\/)/, "");
+const toErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+};
 
 export class GitOperations {
 
@@ -20,13 +33,29 @@ export class GitOperations {
     }
     process.stderr.write("Clone: " + dep.url + " to " + dir + "\n");
 
-    await FileOperations.getProvider().gitClone(dep.url, dir);
+    const oldProvider = FileOperations.getProvider();
+    let cloneRoot = dir;
+    try {
+      const result = await oldProvider.gitClone(dep.url, dir);
+      if (result && result.length > 0) {
+        cloneRoot = result;
+      }
+      if (os.platform() === "win32") {
+        cloneRoot = toUnixPath(cloneRoot);
+      }
 
-    const names = await FileOperations.loadFileNames(dir + dep.files);
-    const files = await FileOperations.loadFiles(names);
-    await FileOperations.deleteFolderRecursive(dir);
-
-    return files;
+      // Cloned dependency files are outside the workspace, so use local fs/glob.
+      FileOperations.setDefaultProvider();
+      const names = await FileOperations.loadFileNames(cloneRoot + dep.files);
+      return await FileOperations.loadFiles(names);
+    } catch (error) {
+      process.stderr.write("Dependency clone/load failed: " + toErrorMessage(error) + "\n");
+      return [];
+    } finally {
+      FileOperations.setDefaultProvider();
+      await FileOperations.deleteFolderRecursive(dir);
+      FileOperations.setProvider(oldProvider);
+    }
   }
 
 }
