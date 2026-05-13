@@ -34,13 +34,17 @@ const extractname = (u:Uri) => {
 };
 const normalizations = ["On by default", "Off by default", "deactivated"] as const;
 type Normalization<I extends number> = (typeof normalizations[I]);
+type ClientProvider = BaseLanguageClient | (() => BaseLanguageClient);
+
+const resolveClient = (client: ClientProvider) => typeof client === "function" ? client() : client;
+
 const getNormalization = <I extends number>(): Normalization<I> => {
   const n = workspace.getConfiguration("abaplint").get("codeNormalization") as any;
   if (normalizations.includes(n)) {return n;}
   return  "Off by default";
 };
 const isAbap = (u:Uri) => !!(u.fsPath.match(/\.abap$/) || u.fragment.match(/\.abap$/));
-export const getAbapCodeNormalizer = (client: BaseLanguageClient):CodeNormalizer => {
+export const getAbapCodeNormalizer = (client: ClientProvider):CodeNormalizer => {
   const normalization = getNormalization();
   const inverted = normalization === "On by default";
   const inactive = normalization === "deactivated";
@@ -52,7 +56,7 @@ export const getAbapCodeNormalizer = (client: BaseLanguageClient):CodeNormalizer
       }
       const path = extractname(uri);
       try {
-        const formatted:string = await client.sendRequest("abaplint/normalize", {path, source});
+        const formatted:string = await resolveClient(client).sendRequest("abaplint/normalize", {path, source});
         return formatted;
       } catch (error) {
         return source;
@@ -67,7 +71,7 @@ export const getAbapCodeNormalizer = (client: BaseLanguageClient):CodeNormalizer
 // allows to:
 //  - normalize the code by default
 //  - get bitbucket functionality (i.e. comments) to work after normalizing
-export const registerBitbucket = async (client: BaseLanguageClient) => {
+export const registerBitbucket = async (client: ClientProvider) => {
   const ext = extensions.getExtension<BitBucketApi>("atlassian.atlascode");
   if (!ext) {
     return;

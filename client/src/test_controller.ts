@@ -6,19 +6,29 @@ const ABAPLINT_LOADING = "abaplint_loading";
 
 export class TestController {
   private readonly testController: vscode.TestController;
+  private client: BaseLanguageClient;
 
   public constructor(client: BaseLanguageClient) {
+    this.client = client;
     this.testController = vscode.tests.createTestController("abaplintTests", "abaplint Tests");
+    this.setLoading();
+  }
+
+  public setClient(client: BaseLanguageClient) {
+    this.client = client;
+    this.setLoading();
+
+    this.client.onNotification("abaplint/unittests/list/response", (data) => {
+      this.response(data);
+    });
+    this.client.sendRequest("abaplint/unittests/list/request");
+  }
+
+  private setLoading() {
+    this.testController.items.replace([]);
     const testItem = this.testController.createTestItem(ABAPLINT_LOADING, "loading abaplint");
     testItem.busy = true;
     this.testController.items.add(testItem);
-
-    client.start().then(() => {
-      client.onNotification("abaplint/unittests/list/response", (data) => {
-        this.response(data);
-      });
-      client.sendRequest("abaplint/unittests/list/request");
-    });
   }
 
   public response(data: UnitTestInformation[]) {

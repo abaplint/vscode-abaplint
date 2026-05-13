@@ -1,6 +1,6 @@
 import {commands, ExtensionContext, TabInputTextDiff, TextEditor, Uri, window, TextDocumentContentProvider, Event, workspace} from "vscode";
 import {BaseLanguageClient} from "vscode-languageclient";
-import {ATLASCODEDIFF, CodeNormalizer, getAbapCodeNormalizer, integrationIsActive} from "./integrations";
+import {ATLASCODEDIFF, getAbapCodeNormalizer, integrationIsActive} from "./integrations";
 const ABAPGITSCHEME = "abapgit.normalized";
 
 const fragSchemes = new Set([ATLASCODEDIFF, ABAPGITSCHEME]);
@@ -12,16 +12,18 @@ const originalUri = (u:Uri) => {
 };
 
 class NormalizedProvider implements TextDocumentContentProvider {
-  private readonly normalizer: CodeNormalizer;
-  public constructor(client: BaseLanguageClient) {
-    this.normalizer = getAbapCodeNormalizer(client);
+  private readonly getClient: () => BaseLanguageClient;
+
+  public constructor(getClient: () => BaseLanguageClient) {
+    this.getClient = getClient;
   };
   public onDidChange?: Event<Uri> | undefined;
   public async provideTextDocumentContent(uri: Uri): Promise<string> {
     const origUri = originalUri(uri);
     if (uri.scheme === origUri.scheme) {throw new Error("invalid URL"); };
     const raw = await workspace.openTextDocument(origUri);
-    return this.normalizer.normalize(raw.getText(), origUri);
+    const normalizer = getAbapCodeNormalizer(this.getClient);
+    return normalizer.normalize(raw.getText(), origUri);
   }
 }
 
@@ -52,9 +54,9 @@ const toggleNormalizer = () => {
   return commands.executeCommand<void>("vscode.diff", toggleUrlNormalizer(original), toggleUrlNormalizer(modified), curtab.label);
 };
 
-export const registerNormalizer = (context:ExtensionContext, client: BaseLanguageClient) => {
+export const registerNormalizer = (context:ExtensionContext, getClient: () => BaseLanguageClient) => {
   const onchg = window.onDidChangeActiveTextEditor(activateNormalizer);
   const normalize = commands.registerCommand("abaplint.togglediffNormalize", toggleNormalizer);
-  const provider = workspace.registerTextDocumentContentProvider(ABAPGITSCHEME, new NormalizedProvider(client));
+  const provider = workspace.registerTextDocumentContentProvider(ABAPGITSCHEME, new NormalizedProvider(getClient));
   context.subscriptions.push(onchg, normalize, provider);
 };

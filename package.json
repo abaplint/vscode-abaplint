@@ -53,6 +53,11 @@
 				"category": "abaplint"
 			},
 			{
+				"command": "abaplint.restart",
+				"title": "Restart",
+				"category": "abaplint"
+			},
+			{
 				"command": "abaplint.highlight.definitions",
 				"title": "ABAP Toggle Highlight Definitions",
 				"enablement": "editorLangId == 'abap'",

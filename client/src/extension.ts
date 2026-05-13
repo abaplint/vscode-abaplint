@@ -2,7 +2,7 @@ import {CreateDefaultConfig} from "./create_default_config";
 import {Help} from "./help";
 import {Highlight} from "./highlight";
 import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
-import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, State, BaseLanguageClient} from "vscode-languageclient/node";
+import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, BaseLanguageClient} from "vscode-languageclient/node";
 import {registerBitbucket} from "./integrations";
 import {registerNormalizer} from "./normalize";
 import {TestController} from "./test_controller";
@@ -25,8 +25,10 @@ let client: BaseLanguageClient;
 let createDefaultConfig: CreateDefaultConfig;
 let help: Help;
 let highlight: Highlight;
+let testController: TestController;
 let disposeAll:()=>void|undefined;
 let localConfigWatcher: vscode.FileSystemWatcher | undefined;
+let restartInProgress = false;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
   const toUri = (path: string) => Uri.file(path);
@@ -130,12 +132,7 @@ function setupLocalConfigWatcher(context: ExtensionContext, localConfigPath: str
   }
 }
 
-export function activate(context: ExtensionContext) {
-  disposeAll = () => context.subscriptions.forEach(async d => d.dispose());
-  abaplintStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  abaplintStatusBarItem.text = "abaplint";
-  abaplintStatusBarItem.show();
-
+function createLanguageClient(context: ExtensionContext): BaseLanguageClient {
   const clientOptions: LanguageClientOptions = {
     // AFF is JSON, abaplint.jsonc can be JSONC, used for code lens
     documentSelector: [{language: "abap"}, {language: "xml"}, {language: "json"}, {language: "jsonc"}],
@@ -163,7 +160,7 @@ export function activate(context: ExtensionContext) {
     const serverMain = Uri.joinPath(context.extensionUri, "out-browser/server.js");
     const worker = new Worker(serverMain.toString());
     clientOptions.initializationOptions.fallbackThreshold = fallbackSettings.web;
-    client = new BrowserLanguageClient("languageServerABAP", "Language Server ABAP", clientOptions, worker);
+    return new BrowserLanguageClient("languageServerABAP", "Language Server ABAP", clientOptions, worker);
   } else {
     abaplintStatusBarItem.text = "abaplint: native";
     const serverModule = context.asAbsolutePath(path.join("out-native", "server.js"));
@@ -173,17 +170,101 @@ export function activate(context: ExtensionContext) {
       debug: {module: serverModule, transport: TransportKind.ipc, options: debugOptions},
     };
     clientOptions.initializationOptions.fallbackThreshold = fallbackSettings.native;
-    client = new NodeLanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
+    return new NodeLanguageClient("languageServerABAP", "Language Server ABAP", serverOptions, clientOptions);
+  }
+}
+
+function registerLanguageClientHandlers(context: ExtensionContext, client: BaseLanguageClient) {
+  client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
+    abaplintStatusBarItem.text = "abaplint: " + message.text;
+    if (message.tooltip) {
+      abaplintStatusBarItem.tooltip = message.tooltip;
+    } else {
+      abaplintStatusBarItem.tooltip = "";
+    }
+  });
+  client.onNotification("abaplint/help/response", (data) => {
+    help.helpResponse(data);
+  });
+  client.onNotification("abaplint/config/default/response", (data) => {
+    createDefaultConfig.defaultConfigResponse(data);
+  });
+  client.onNotification("abaplint/highlight/definitions/response", (data) => {
+    highlight.highlightDefinitionsResponse(data.ranges, data.uri);
+  });
+  client.onNotification("abaplint/highlight/reads/response", (data) => {
+    highlight.highlightReadsResponse(data.ranges, data.uri);
+  });
+  client.onNotification("abaplint/highlight/writes/response", (data) => {
+    highlight.highlightWritesResponse(data.ranges, data.uri);
+  });
+
+  // Listen for config reload notifications from server
+  client.onNotification("abaplint/config/reloaded", (data: {configPath?: string}) => {
+    console.log(`Config reloaded notification received. Config path: ${data.configPath || "undefined"}`);
+    // Refresh help page if it's open
+    help.refresh();
+  });
+
+  registerAsFsProvider(client);
+  testController.setClient(client);
+
+  // Set up watcher for local config file if configured
+  const localConfigPath = workspace.getConfiguration("abaplint").get("localConfigPath", "");
+  setupLocalConfigWatcher(context, localConfigPath);
+}
+
+async function startLanguageClient(context: ExtensionContext) {
+  client.registerProposedFeatures();
+  await client.start();
+  registerLanguageClientHandlers(context, client);
+}
+
+async function restartLanguageClient(context: ExtensionContext) {
+  if (restartInProgress) {
+    vscode.window.showInformationMessage("abaplint restart already in progress");
+    return;
   }
 
-  client.registerProposedFeatures();
+  restartInProgress = true;
+  abaplintStatusBarItem.text = "abaplint: restarting";
+  try {
+    if (client) {
+      await client.stop();
+      client.dispose();
+    }
+
+    client = createLanguageClient(context);
+    highlight.setClient(client);
+    help.setClient(client);
+    createDefaultConfig.setClient(client);
+    await startLanguageClient(context);
+    vscode.window.showInformationMessage("abaplint restarted");
+  } catch (error) {
+    vscode.window.showErrorMessage(`Failed to restart abaplint: ${error}`);
+    throw error;
+  } finally {
+    restartInProgress = false;
+  }
+}
+
+export function activate(context: ExtensionContext) {
+  disposeAll = () => context.subscriptions.forEach(async d => d.dispose());
+  abaplintStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  abaplintStatusBarItem.text = "abaplint";
+  abaplintStatusBarItem.show();
+
+  client = createLanguageClient(context);
 
   highlight = new Highlight(client).register(context);
   help = new Help(client).register(context);
   createDefaultConfig = new CreateDefaultConfig(client).register(context);
+  testController = new TestController(client);
 
   // Register command to load a different config file
   context.subscriptions.push(
+    vscode.commands.registerCommand("abaplint.restart", async () => restartLanguageClient(context)),
+    // Register command to load a different config file
     vscode.commands.registerCommand("abaplint.load.different.config", async () => {
       try {
         // Show file picker to select config file
@@ -242,52 +323,9 @@ export function activate(context: ExtensionContext) {
     })
   );
 
-  client.onDidChangeState(change => {
-    if (change.newState === State.Running) {
-      registerAsFsProvider(client);
-    }
-  });
-
-  new TestController(client);
-
-  client.start().then(() => {
-    client.onNotification("abaplint/status", (message: {text: string, tooltip: string}) => {
-      abaplintStatusBarItem.text = "abaplint: " + message.text;
-      if (message.tooltip) {
-        abaplintStatusBarItem.tooltip = message.tooltip;
-      } else {
-        abaplintStatusBarItem.tooltip = "";
-      }
-    });
-    client.onNotification("abaplint/help/response", (data) => {
-      help.helpResponse(data);
-    });
-    client.onNotification("abaplint/config/default/response", (data) => {
-      createDefaultConfig.defaultConfigResponse(data);
-    });
-    client.onNotification("abaplint/highlight/definitions/response", (data) => {
-      highlight.highlightDefinitionsResponse(data.ranges, data.uri);
-    });
-    client.onNotification("abaplint/highlight/reads/response", (data) => {
-      highlight.highlightReadsResponse(data.ranges, data.uri);
-    });
-    client.onNotification("abaplint/highlight/writes/response", (data) => {
-      highlight.highlightWritesResponse(data.ranges, data.uri);
-    });
-
-    // Listen for config reload notifications from server
-    client.onNotification("abaplint/config/reloaded", (data: {configPath?: string}) => {
-      console.log(`Config reloaded notification received. Config path: ${data.configPath || "undefined"}`);
-      // Refresh help page if it's open
-      help.refresh();
-    });
-
-    // Set up watcher for local config file if configured
-    const localConfigPath = workspace.getConfiguration("abaplint").get("localConfigPath", "");
-    setupLocalConfigWatcher(context, localConfigPath);
-  });
-  registerNormalizer(context, client);
-  registerBitbucket(client);
+  startLanguageClient(context);
+  registerNormalizer(context, () => client);
+  registerBitbucket(() => client);
 }
 
 export function deactivate(): Thenable<void> | undefined {

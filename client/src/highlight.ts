@@ -5,7 +5,7 @@ import {BaseLanguageClient} from "vscode-languageclient/node";
 // todo, refactor, a lot of the code in this class is similar, lazy me
 
 export class Highlight {
-  private readonly client: BaseLanguageClient;
+  private client: BaseLanguageClient;
   private readonly definitionsType: TextEditorDecorationType;
   private readonly readsType: TextEditorDecorationType;
   private readonly writesType: TextEditorDecorationType;
@@ -21,6 +21,10 @@ export class Highlight {
     this.definitionsActivated = [];
     this.readsActivated = [];
     this.writesActivated = [];
+  }
+
+  public setClient(client: BaseLanguageClient) {
+    this.client = client;
   }
 
   public highlightDefinitionsRequest() {

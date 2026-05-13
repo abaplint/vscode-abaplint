@@ -5,9 +5,13 @@ import {BaseLanguageClient} from "vscode-languageclient/node";
 
 export class Help {
   private helpPanel: vscode.WebviewPanel | undefined;
-  private readonly client: BaseLanguageClient;
+  private client: BaseLanguageClient;
 
   public constructor(client: BaseLanguageClient) {
+    this.client = client;
+  }
+
+  public setClient(client: BaseLanguageClient) {
     this.client = client;
   }
 

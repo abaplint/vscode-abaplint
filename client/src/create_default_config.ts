@@ -51,10 +51,14 @@ async function createConfig(uri: vscode.Uri, config: string) {
 }
 
 export class CreateDefaultConfig {
-  private readonly client: BaseLanguageClient;
+  private client: BaseLanguageClient;
   private uri: vscode.Uri;
 
   public constructor(client: BaseLanguageClient) {
+    this.client = client;
+  }
+
+  public setClient(client: BaseLanguageClient) {
     this.client = client;
   }
 
