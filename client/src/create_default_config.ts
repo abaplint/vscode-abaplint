@@ -1,6 +1,5 @@
-import {BaseLanguageClient} from "vscode-languageclient/node";
+import {BaseLanguageClient} from "vscode-languageclient";
 import * as vscode from "vscode";
-import * as path from "path";
 import {Buffer} from "buffer";
 
 async function createFile(uri: vscode.Uri, content: string) {
@@ -12,7 +11,7 @@ async function createFile(uri: vscode.Uri, content: string) {
   await vscode.window.showTextDocument(uri, {preview: false});
 }
 
-async function findFolder(uri: vscode.Uri) {
+async function findFolder(uri: vscode.Uri): Promise<vscode.Uri | undefined> {
   // URI is undefined when the command palette is used to create artifacts
   if (!uri) {
     // fallback logic: folder of currently opened window (if it is in the workspace), otherwise root of workspace
@@ -20,15 +19,12 @@ async function findFolder(uri: vscode.Uri) {
     if (activeWindowUri && vscode.workspace.getWorkspaceFolder(activeWindowUri)) {
       uri = activeWindowUri;
     } else {
-      return vscode.workspace.rootPath + path.sep;
+      return vscode.workspace.workspaceFolders?.[0]?.uri;
     }
   }
 
-  const parsed = path.parse(uri.fsPath);
   const stat = await vscode.workspace.fs.stat(uri);
-  return stat.type === vscode.FileType.File ?
-    parsed.dir + path.sep :
-    parsed.dir + path.sep + parsed.base + path.sep;
+  return stat.type === vscode.FileType.File ? vscode.Uri.joinPath(uri, "..") : uri;
 }
 
 async function fileExists(uri: vscode.Uri): Promise<boolean> {
@@ -45,8 +41,11 @@ async function fileExists(uri: vscode.Uri): Promise<boolean> {
 
 async function createConfig(uri: vscode.Uri, config: string) {
   const dir = await findFolder(uri);
-  const filename = dir + "abaplint.json";
-  const uriConfig = vscode.Uri.file(filename);
+  if (!dir) {
+    vscode.window.showErrorMessage("Open a workspace folder before creating abaplint.json");
+    return;
+  }
+  const uriConfig = vscode.Uri.joinPath(dir, "abaplint.json");
   await createFile(uriConfig, config);
 }
 

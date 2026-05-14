@@ -2,7 +2,8 @@ import {CreateDefaultConfig} from "./create_default_config";
 import {Help} from "./help";
 import {Highlight} from "./highlight";
 import {LanguageClient as BrowserLanguageClient} from "vscode-languageclient/browser";
-import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind, BaseLanguageClient} from "vscode-languageclient/node";
+import {BaseLanguageClient} from "vscode-languageclient";
+import {LanguageClient as NodeLanguageClient, LanguageClientOptions, ServerOptions, TransportKind} from "vscode-languageclient/node";
 import {registerBitbucket} from "./integrations";
 import {registerNormalizer} from "./normalize";
 import {TestController} from "./test_controller";
@@ -31,8 +32,12 @@ let localConfigWatcher: vscode.FileSystemWatcher | undefined;
 let restartInProgress = false;
 
 function registerAsFsProvider(client: BaseLanguageClient) {
-  const toUri = (path: string) => Uri.file(path);
-  client.onRequest("readFile", async (uri: string) => workspace.fs.readFile(Uri.parse(uri)).then(b => Buffer.from(b).toString("utf-8")));
+  const toUri = (value: string) => {
+    const looksLikeUri = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value);
+    const looksLikeWindowsPath = /^[a-zA-Z]:[\\/]/.test(value);
+    return looksLikeUri && !looksLikeWindowsPath ? Uri.parse(value) : Uri.file(value);
+  };
+  client.onRequest("readFile", async (path: string) => workspace.fs.readFile(toUri(path)).then(b => Buffer.from(b).toString("utf-8")));
   client.onRequest("unlink", (path: string) => workspace.fs.delete(toUri(path)));
   client.onRequest("exists", async (path: string) => {
     try {
@@ -253,6 +258,7 @@ export function activate(context: ExtensionContext) {
   abaplintStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   abaplintStatusBarItem.text = "abaplint";
   abaplintStatusBarItem.show();
+  context.subscriptions.push(abaplintStatusBarItem);
 
   client = createLanguageClient(context);
 
@@ -260,6 +266,7 @@ export function activate(context: ExtensionContext) {
   help = new Help(client).register(context);
   createDefaultConfig = new CreateDefaultConfig(client).register(context);
   testController = new TestController(client);
+  context.subscriptions.push(testController);
 
   // Register command to load a different config file
   context.subscriptions.push(

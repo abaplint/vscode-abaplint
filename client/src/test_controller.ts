@@ -7,6 +7,7 @@ const ABAPLINT_LOADING = "abaplint_loading";
 export class TestController {
   private readonly testController: vscode.TestController;
   private client: BaseLanguageClient;
+  private testListDisposable: vscode.Disposable | undefined;
 
   public constructor(client: BaseLanguageClient) {
     this.client = client;
@@ -15,13 +16,19 @@ export class TestController {
   }
 
   public setClient(client: BaseLanguageClient) {
+    this.testListDisposable?.dispose();
     this.client = client;
     this.setLoading();
 
-    this.client.onNotification("abaplint/unittests/list/response", (data) => {
+    this.testListDisposable = this.client.onNotification("abaplint/unittests/list/response", (data) => {
       this.response(data);
     });
     this.client.sendRequest("abaplint/unittests/list/request");
+  }
+
+  public dispose() {
+    this.testListDisposable?.dispose();
+    this.testController.dispose();
   }
 
   private setLoading() {
@@ -32,7 +39,7 @@ export class TestController {
   }
 
   public response(data: UnitTestInformation[]) {
-    this.testController.items.delete(ABAPLINT_LOADING);
+    this.testController.items.replace([]);
     for (const t of data) {
       const globalName = `abaplint-${t.global}`;
       let globalItem = this.testController.items.get(globalName);

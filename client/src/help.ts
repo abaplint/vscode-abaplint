@@ -1,7 +1,7 @@
 
 import * as vscode from "vscode";
 import {ExtensionContext} from "vscode";
-import {BaseLanguageClient} from "vscode-languageclient/node";
+import {BaseLanguageClient} from "vscode-languageclient";
 
 export class Help {
   private helpPanel: vscode.WebviewPanel | undefined;
