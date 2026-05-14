@@ -14,6 +14,7 @@ import {Dependencies} from "./dependencies";
 import {IFolder} from "./types";
 import {isRemoteFilesystem} from "./utils";
 import {URI} from "vscode-uri";
+import {disableErrorOnDuplicateFilenames} from "./config";
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
@@ -289,7 +290,7 @@ export class Handler {
       }
     }
 
-    this.reg.setConfig(new abaplint.Config(JSON.stringify(newConfig)));
+    this.reg.setConfig(disableErrorOnDuplicateFilenames(new abaplint.Config(JSON.stringify(newConfig))));
 
     // todo: disable inlay hints and code lens, maybe it works, test it!
   }
@@ -355,7 +356,10 @@ export class Handler {
   }
 
   public onRequestConfig() {
-    const defaultConfigString = JSON.stringify(abaplint.Config.getDefault().get(), undefined, 2);
+    const defaultConfigString = JSON.stringify(
+      disableErrorOnDuplicateFilenames(abaplint.Config.getDefault()).get(),
+      undefined,
+      2);
     this.connection.sendNotification("abaplint/config/default/response", defaultConfigString);
   }
 

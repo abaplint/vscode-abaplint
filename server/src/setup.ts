@@ -4,6 +4,7 @@ import {FileOperations} from "./file_operations";
 import * as LServer from "vscode-languageserver";
 import * as abaplint from "@abaplint/core";
 import {ExtraSettings} from "./extra_settings";
+import {disableErrorOnDuplicateFilenames} from "./config";
 
 export class Setup {
   private readonly connection: LServer.Connection;
@@ -42,7 +43,7 @@ export class Setup {
     const found = await this.findCustomConfig(folders, settings.activeTextEditorUri, settings.localConfigPath);
     if (found) {
       this.connection.console.log("custom abaplint configuration found");
-      const config = new abaplint.Config(found.config);
+      const config = disableErrorOnDuplicateFilenames(new abaplint.Config(found.config));
       const cfiles = config.get().global.files;
       folders[0].glob = Array.isArray(cfiles)
         ? cfiles.map(f => found.prefix + f)
@@ -51,7 +52,7 @@ export class Setup {
     }
 
     this.connection.console.log("no custom abaplint config, using defaults");
-    return {config: abaplint.Config.getDefault()};
+    return {config: disableErrorOnDuplicateFilenames(abaplint.Config.getDefault())};
   }
 
   private async searchFolderForConfig(scheme: string, authority: string, prefix: string):
