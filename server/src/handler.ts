@@ -322,7 +322,7 @@ export class Handler {
       }
     }
 
-    const dependencies = new Dependencies(this.reg, this.folders);
+    const dependencies = new Dependencies(this.reg, this.folders, this.connection.console);
     if (dependencies.activateFallback() === true) {
       await this.activateFallback();
     } else {

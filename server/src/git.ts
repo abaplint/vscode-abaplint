@@ -4,6 +4,11 @@ import * as fs from "fs";
 import * as os from "os";
 import {FileOperations} from "./file_operations";
 
+export interface ILogger {
+  log(message: string): void;
+  error(message: string): void;
+}
+
 const toUnixPath = (path: string) => path.replace(/[\\/]+/g, "/").replace(/^([a-zA-Z]+:|\.\/)/, "");
 const toErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -21,7 +26,7 @@ const toErrorMessage = (error: unknown) => {
 
 export class GitOperations {
 
-  public static async clone(dep: abaplint.IDependency): Promise<abaplint.IFile[]> {
+  public static async clone(dep: abaplint.IDependency, logger?: ILogger): Promise<abaplint.IFile[]> {
     if (fs.read === undefined || dep.url === undefined || dep.url === "") {
       return []; // running in web
     }
@@ -31,7 +36,7 @@ export class GitOperations {
       // must be converted to posix for glob patterns like "/{foo,src}/**/*.*" to work
       dir = toUnixPath(dir);
     }
-    process.stderr.write("Clone: " + dep.url + " to " + dir + "\n");
+    logger?.log("Clone: " + dep.url + " to " + dir);
 
     const oldProvider = FileOperations.getProvider();
     let cloneRoot = dir;
@@ -49,7 +54,7 @@ export class GitOperations {
       const names = await FileOperations.loadFileNames(cloneRoot + dep.files);
       return await FileOperations.loadFiles(names);
     } catch (error) {
-      process.stderr.write("Dependency clone/load failed: " + toErrorMessage(error) + "\n");
+      logger?.error("Dependency clone/load failed: " + toErrorMessage(error));
       return [];
     } finally {
       FileOperations.setDefaultProvider();

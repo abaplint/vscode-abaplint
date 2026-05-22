@@ -1,5 +1,5 @@
 import {URI} from "vscode-uri";
-import {GitOperations} from "./git";
+import {GitOperations, ILogger} from "./git";
 import * as abaplint from "@abaplint/core";
 import {FileOperations} from "./file_operations";
 import {IFolder} from "./types";
@@ -8,10 +8,12 @@ import * as fs from "fs";
 export class Dependencies {
   private readonly reg: abaplint.IRegistry;
   private readonly folders: IFolder[];
+  private readonly logger?: ILogger;
 
-  public constructor(reg: abaplint.IRegistry, folders: IFolder[]) {
+  public constructor(reg: abaplint.IRegistry, folders: IFolder[], logger?: ILogger) {
     this.reg = reg;
     this.folders = folders;
+    this.logger = logger;
   }
 
   public activateFallback(): boolean {
@@ -41,7 +43,7 @@ export class Dependencies {
         // try looking in the folder first
         if (d.folder && d.folder !== "" && this.folders[0] !== undefined) {
           const glob = d.folder + d.files;
-          console.log("Dependency glob: " + glob);
+          this.logger?.log("Dependency glob: " + glob);
           const filenames = await FileOperations.getProvider().glob(glob);
           for (const filename of filenames) {
             if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
@@ -53,9 +55,9 @@ export class Dependencies {
           }
         }
         if (files.length === 0 && d.url !== undefined && d.url !== "") {
-          files = await GitOperations.clone(d);
+          files = await GitOperations.clone(d, this.logger);
         }
-        console.log(files.length + " files in dependencies found");
+        this.logger?.log(files.length + " files in dependencies found");
         this.reg.addDependencies(files);
       }
     }
