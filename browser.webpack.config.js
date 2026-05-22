@@ -32,6 +32,7 @@ const browserClientConfig = /** @type WebpackConfig */ {
 	plugins: [
 		new ProvidePlugin({
 			Buffer: [require.resolve("buffer/"), "Buffer"],
+			process: require.resolve("process/browser"),
 		}),
 	],
 	module: {
@@ -89,6 +90,7 @@ const browserServerConfig = /** @type WebpackConfig */ {
 	plugins: [
 		new ProvidePlugin({
 			Buffer: [require.resolve("buffer/"), "Buffer"],
+			process: require.resolve("process/browser"),
 		}),
 	],
 	module: {
