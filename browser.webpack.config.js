@@ -82,7 +82,6 @@ const browserServerConfig = /** @type WebpackConfig */ {
 			"vm": require.resolve("vm-browserify"),
 			util: false,
 			fs: false,
-			child_process: false,
 			os: false,
 			assert: false
 		},
