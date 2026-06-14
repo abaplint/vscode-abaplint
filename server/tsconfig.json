@@ -2,8 +2,8 @@
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
 		"target": "es6",
-		"module": "commonjs",
-		"moduleResolution": "node",
+		"module": "Node16",
+		"moduleResolution": "node16",
 		"sourceMap": true,
 		"outDir": "out",
 		"rootDirs": ["src", "../common"],

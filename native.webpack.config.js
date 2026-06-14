@@ -17,6 +17,7 @@ function withDefaults(/**@type WebpackConfig*/extConfig) {
 		},
 		resolve: {
 			mainFields: ['module', 'main'],
+			conditionNames: ['node', 'browser', 'require', 'module', 'webpack'],
 			extensions: ['.ts', '.js'] // support ts-files and js-files
 		},
 		module: {

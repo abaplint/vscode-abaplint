@@ -6,7 +6,6 @@ import {RulesMetadata} from "./rules_metadata";
 import {Setup} from "./setup";
 import {TextDocument} from "vscode-languageserver-textdocument";
 import {UnitTests} from "./handlers/unit_test";
-import {WorkDoneProgressReporter} from "vscode-languageserver/lib/common/progress";
 import * as abaplint from "@abaplint/core";
 import * as LServer from "vscode-languageserver";
 import {FileOperations} from "./file_operations";
@@ -18,12 +17,12 @@ import {disableErrorOnDuplicateFilenames} from "./config";
 
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
-  private readonly progress: WorkDoneProgressReporter;
+  private readonly progress: LServer.WorkDoneProgressReporter;
   private total: number;
   private lastRender: number;
   private current: number;
 
-  public constructor(progress: WorkDoneProgressReporter) {
+  public constructor(progress: LServer.WorkDoneProgressReporter) {
     this.progress = progress;
   }
 
@@ -295,7 +294,7 @@ export class Handler {
     // todo: disable inlay hints and code lens, maybe it works, test it!
   }
 
-  public async loadAndParseAll(progress: WorkDoneProgressReporter, fallbackThreshold: number) {
+  public async loadAndParseAll(progress: LServer.WorkDoneProgressReporter, fallbackThreshold: number) {
     progress.report(0, "Reading files");
     for (const folder of this.folders) {
       if (isRemoteFilesystem(folder.scheme)) {

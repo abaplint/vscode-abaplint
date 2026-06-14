@@ -20,6 +20,7 @@ const browserClientConfig = /** @type WebpackConfig */ {
 	},
 	resolve: {
 		mainFields: ['module', 'main'],
+		conditionNames: ['browser', 'node', 'require', 'module', 'webpack'],
 		extensions: ['.ts', '.js'], // support ts-files and js-files
 		alias: {},
 		fallback: {
@@ -72,8 +73,10 @@ const browserServerConfig = /** @type WebpackConfig */ {
 	},
 	resolve: {
 		mainFields: ['module', 'main'],
+		conditionNames: ['browser', 'node', 'require', 'module', 'webpack'],
 		extensions: ['.ts', '.js'], // support ts-files and js-files
 		alias: {
+			'./connection_node$': path.join(__dirname, 'server/src/connection_browser.ts'),
 			glob: false,
 		},
 		fallback: {
