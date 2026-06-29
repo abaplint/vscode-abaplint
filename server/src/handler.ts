@@ -18,9 +18,9 @@ import {disableErrorOnDuplicateFilenames} from "./config";
 class Progress implements abaplint.IProgress {
   private readonly renderThrottle = 2000;
   private readonly progress: LServer.WorkDoneProgressReporter;
-  private total: number;
-  private lastRender: number;
-  private current: number;
+  private total: number = 0;
+  private lastRender: number = 0;
+  private current: number = 0;
 
   public constructor(progress: LServer.WorkDoneProgressReporter) {
     this.progress = progress;
@@ -397,7 +397,7 @@ export class Handler {
     try {
       return new abaplint.LanguageServer(this.reg).inlayHints(params.textDocument, this.settings.inlayHints);
     } catch (e) {
-      console.log("Inlay error: " + e.message);
+      console.log("Inlay error: " + (e instanceof Error ? e.message : String(e)));
       return [];
     }
   }

@@ -6,6 +6,7 @@
 		"moduleResolution": "node16",
 		"sourceMap": true,
 		"outDir": "out",
+		"rootDir": "..",
 		"rootDirs": ["src", "../common"],
 		"lib": [ "es6", "webworker" ]
 	},

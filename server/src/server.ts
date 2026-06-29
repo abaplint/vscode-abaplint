@@ -287,7 +287,7 @@ connection.onRequest("abaplint/normalize", async (data) => {
     const {path, source} = data;
     return await getNormalizer()(path, source);
   } catch (error) {
-    connection.console.error("message" in error ? error.message : error);
+    connection.console.error(error instanceof Error ? error.message : String(error));
     return data?.source;
   }
 });
