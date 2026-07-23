@@ -221,7 +221,7 @@
 					"abaplint.inlayHints.inferredTypes": {
 						"type": "boolean",
 						"description": "Show inferred types, requires restart",
-						"default": true
+						"default": false
 					}
 				}
 			},
