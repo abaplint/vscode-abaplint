@@ -16,7 +16,7 @@
 		"@types/node": "^22.20.4"
 	},
 	"dependencies": {
-		"@abaplint/core": "^2.120.57",
+		"@abaplint/core": "^2.120.58",
 		"vscode-uri": "^3.2.0",
 		"glob": "^11.1.0",
     "json5": "^2.2.3",
