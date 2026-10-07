@@ -46,6 +46,9 @@ export class Dependencies {
           this.logger?.log("Dependency glob: " + glob);
           const filenames = await FileOperations.getProvider().glob(glob);
           for (const filename of filenames) {
+            if (FileOperations.shouldSkipFile(filename)) {
+              continue;
+            }
             if (filename.includes(".smim.") && filename.endsWith(".xml") === false) {
               continue; // skip SMIM contents
             }

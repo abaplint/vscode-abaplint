@@ -3,6 +3,7 @@ import {IFile, MemoryFile} from "@abaplint/core";
 import {exists, promises} from "fs";
 import {promisify} from "util";
 import {sync} from "glob";
+import {URI} from "vscode-uri";
 
 export interface FsProvider {
   readFile: (path: string) => Promise<string>
@@ -54,6 +55,13 @@ let provider: FsProvider = new DefaultProvider();
 
 export class FileOperations {
 
+  private static readonly skipFiles = new Set([".commitlint.json", "package.lock.json", "package-lock.json"]);
+
+  public static shouldSkipFile(filename: string): boolean {
+    const base = URI.parse(filename).path.replace(/\\/g, "/").split("/").pop();
+    return this.skipFiles.has(base || "");
+  }
+
   public static setProvider(p: FsProvider): void {
     provider = p;
   }
@@ -97,13 +105,17 @@ export class FileOperations {
     if (files.length === 0 && error) {
       throw new Error("No files found, " + arg);
     }
-    return files;
+    return files.filter(filename => !this.shouldSkipFile(filename));
   }
 
   public static async loadFiles(input: string[]): Promise<IFile[]> {
     const files: IFile[] = [];
 
     for (const filename of input) {
+
+      if (this.shouldSkipFile(filename)) {
+        continue;
+      }
 
       const base = filename.split("/").reverse()[0];
       if (base.split(".").length <= 2) {

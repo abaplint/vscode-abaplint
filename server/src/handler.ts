@@ -92,6 +92,9 @@ export class Handler {
   }
 
   public validateDocument(textDocument: LServer.TextDocument) {
+    if (FileOperations.shouldSkipFile(textDocument.uri)) {
+      return;
+    }
     if (textDocument.uri.match(/^git:/)) {
       return; // ignore git things, triggered by revert code
     }
