@@ -8,7 +8,8 @@
 		"outDir": "out",
 		"rootDir": "..",
 		"rootDirs": ["src", "../common"],
-		"lib": [ "es6", "webworker" ]
+		"lib": [ "es2018", "webworker" ],
+		"types": [ "node" ]
 	},
 	"include": [
 		"src",
