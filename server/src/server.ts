@@ -17,6 +17,18 @@ let fallbackThreshold = 2000;
 const documents = new LServer.TextDocuments(TextDocument);
 let hasConfigurationCapability: boolean | undefined = false;
 let hasWorkspaceFolderCapability: boolean | undefined = false;
+let hasCodeLensRefreshCapability: boolean | undefined = false;
+
+function isConfigFile(uri: string): boolean {
+  return uri.endsWith("abaplint.json") || uri.endsWith("abaplint.jsonc");
+}
+
+/** ask the client to re-request code lenses, eg. the config file lenses depend on its contents */
+function refreshCodeLenses() {
+  if (hasCodeLensRefreshCapability) {
+    connection.sendRequest(LServer.CodeLensRefreshRequest.type).catch(() => undefined);
+  }
+}
 
 function initialize() {
 
@@ -80,6 +92,7 @@ function initialize() {
     // if not, we will fall back using global settings
         hasConfigurationCapability = capabilities.workspace && !!capabilities.workspace.configuration;
         hasWorkspaceFolderCapability = capabilities.workspace && !!capabilities.workspace.workspaceFolders;
+        hasCodeLensRefreshCapability = capabilities.workspace && !!capabilities.workspace.codeLens?.refreshSupport;
 
         /*
         signatureHelpProvider: [],
@@ -221,6 +234,9 @@ documents.onDidClose(async (e) => {
 documents.onDidChangeContent(async (change) => {
   const handler = await getHandler();
   handler.validateDocument(change.document);
+  if (isConfigFile(change.document.uri)) {
+    refreshCodeLenses();
+  }
 });
 
 // todo, documents.onDelete, how are file deletions handled ? possible via language server protocol 3.16.0
@@ -231,7 +247,8 @@ connection.onDidChangeWatchedFiles(async (_change) => {
   for (const change of _change.changes.values()) {
     if (change.uri.includes("abaplint.json")) {
       connection.console.log("abaplint.json was changed, reloading...");
-      handler.configChanged(documents);
+      await handler.configChanged(documents);
+      refreshCodeLenses();
       break;
     }
   }
@@ -275,6 +292,7 @@ connection.onRequest("abaplint/config/default/request", async () => {
 connection.onRequest("abaplint/config/reload/request", async (data?: {localConfigPath?: string}) => {
   const handler = await getHandler();
   await handler.configChanged(documents, data?.localConfigPath);
+  refreshCodeLenses();
 });
 
 connection.onRequest("abaplint/unittests/list/request", async () => {
