@@ -271,6 +271,8 @@ export function activate(context: ExtensionContext) {
   // Register command to load a different config file
   context.subscriptions.push(
     vscode.commands.registerCommand("abaplint.restart", async () => restartLanguageClient(context)),
+    // used by code lenses from the server to open web pages
+    vscode.commands.registerCommand("abaplint.open.url", async (url: string) => vscode.env.openExternal(vscode.Uri.parse(url))),
     // Register command to load a different config file
     vscode.commands.registerCommand("abaplint.load.different.config", async () => {
       try {
